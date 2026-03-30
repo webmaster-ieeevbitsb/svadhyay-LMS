@@ -11,6 +11,12 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (error) {
+      console.error('Auth callback error:', error.message)
+      return NextResponse.redirect(`${origin}${next}/?error=${encodeURIComponent(error.message)}`)
+    }
+
     if (!error) {
       // Forward the user to their original destination
       return NextResponse.redirect(`${origin}${next}`)
