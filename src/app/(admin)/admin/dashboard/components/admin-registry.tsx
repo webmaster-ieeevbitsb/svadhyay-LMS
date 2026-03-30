@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { addAdmin, removeParticipant } from "@/app/actions/participants";
-import { Search, Loader2, ShieldCheck, ShieldAlert, XIcon } from "lucide-react";
+import { Search, Loader2, ShieldCheck, ShieldAlert, XIcon, Upload } from "lucide-react";
+import { BulkImportModal } from "./bulk-import-modal";
 
 export function AdminRegistry({ initialParticipants }: { initialParticipants: any[] }) {
   const [participants, setParticipants] = useState(initialParticipants.filter(p => p.is_admin));
   const [filter, setFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [errorLine, setErrorLine] = useState("");
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,8 +56,14 @@ export function AdminRegistry({ initialParticipants }: { initialParticipants: an
   );
 
   return (
-    <div className="bg-[#0a0a0e] border border-blue-500/20 rounded-[2.5rem] p-8 lg:p-12 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.05)]">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[150px] pointer-events-none rounded-full" />
+    <>
+      <BulkImportModal 
+        isOpen={isImportOpen} 
+        onClose={() => setIsImportOpen(false)} 
+        isAdminMode={true} 
+      />
+      <div className="bg-[#0a0a0e] border border-blue-500/20 rounded-[2.5rem] p-8 lg:p-12 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.05)]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[150px] pointer-events-none rounded-full" />
       
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 relative z-10">
         <div className="space-y-1">
@@ -65,6 +73,14 @@ export function AdminRegistry({ initialParticipants }: { initialParticipants: an
           </h3>
           <p className="text-blue-500/80 text-xs font-bold uppercase tracking-widest pl-12">Level 1 Clearance Personnel</p>
         </div>
+        <button 
+          type="button" 
+          onClick={() => setIsImportOpen(true)}
+          className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-3"
+        >
+           <Upload className="w-4 h-4 group-hover:scale-110 transition-transform" />
+           Bulk Admin Upload
+        </button>
       </div>
 
       {/* Add Admin Form */}
@@ -146,6 +162,7 @@ export function AdminRegistry({ initialParticipants }: { initialParticipants: an
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

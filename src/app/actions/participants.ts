@@ -133,10 +133,10 @@ export async function removeParticipant(email: string) {
   return { success: true };
 }
 
-export async function bulkAddParticipants(participants: { email: string; name?: string }[]) {
+export async function bulkAddParticipants(participants: { email: string; name?: string }[], isAdminMode: boolean = false) {
   const supabase = await createClient();
   
-  // 1. Fetch emails of existing admins to protect them
+  // 1. Fetch emails of existing admins to protect them during normal imports
   const { data: existingAdmins } = await supabase
     .from("participants")
     .select("email")
@@ -149,8 +149,9 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
     return {
       email,
       name: p.name || "",
-      // If they are already an admin, preserve that. Otherwise, they are a student.
-      is_admin: adminEmails.has(email)
+      // If they are imported via Admin Mode, they are an admin.
+      // Otherwise, see if they were already an admin (to preserve status).
+      is_admin: isAdminMode ? true : adminEmails.has(email)
     };
   });
 
