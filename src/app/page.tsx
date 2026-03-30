@@ -1,65 +1,123 @@
+"use client";
+
+import { createClient } from "@/utils/supabase/client";
+import { useState, Suspense } from "react";
+import { Loader2, ArrowRight } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 
-export default function Home() {
+function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClient();
+  const searchParams = useSearchParams();
+  const errorMsg = searchParams.get("error");
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          hd: "vbithyd.ac.in"
+        }
+      },
+    });
+
+    if (error) {
+      console.error("Login failed:", error);
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative z-10 w-full flex flex-col items-center animate-in fade-in zoom-in duration-700">
+      
+      {/* Top Logos Widget */}
+      <div className="flex items-center space-x-8 bg-[#0d0d12]/80 backdrop-blur-md border border-white/5 px-12 py-5 rounded-[2.5rem] mb-12 shadow-2xl">
+        <div className="relative w-24 h-14 flex items-center justify-center">
+          <Image 
+            src="https://avishkar2k25.ieeevbitsb.in/logo/AVK_LOGO.png" 
+            alt="Avishkar" fill className="object-contain" 
+            sizes="120px"
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="w-px h-12 bg-white/10" />
+        <div className="relative w-24 h-14 flex items-center justify-center opacity-90">
+          <Image 
+            src="https://registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png" 
+            alt="IEEE" fill className="object-contain" 
+            sizes="120px"
+          />
         </div>
-      </main>
+      </div>
+
+      {/* Main Branding */}
+      <div className="text-center space-y-4 mb-10 min-w-max">
+        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase drop-shadow-lg flex items-center justify-center gap-1">
+          <span className="text-white">AVISHKAR</span>
+          <span className="text-blue-500">LMS</span>
+        </h1>
+        <p className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-xs">
+          Official Course Learning Platform
+        </p>
+      </div>
+
+      {/* Login Card */}
+      <div className="w-full max-w-lg bg-[#0d0d12] border border-white/5 rounded-[3rem] p-12 text-center shadow-2xl min-h-[300px] flex flex-col justify-center">
+        <h2 className="text-3xl font-bold text-white mb-3">Student Portal</h2>
+        <p className="text-zinc-500 text-sm mb-10 font-medium tracking-wide">
+          Authentication via VBIT Domain Required
+        </p>
+
+        <div className="h-16 flex items-center justify-center">
+          {isLoading ? (
+             <div className="relative flex items-center justify-center">
+                {/* Sleek Custom Glowing Half-Circle Spinner */}
+                <div className="w-10 h-10 rounded-full border-[2px] border-blue-500/10 border-t-blue-500 border-r-blue-500 animate-[spin_0.8s_linear_infinite] shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+             </div>
+          ) : (
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-500 transition-all font-bold text-white py-5 px-8 rounded-2xl group shadow-lg shadow-blue-500/20 text-lg"
+            >
+              <span>Enter Student Portal</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+            </button>
+          )}
+        </div>
+
+        {errorMsg && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 text-[11px] font-bold uppercase tracking-wider mt-6 rounded-lg">
+            {errorMsg === "unauthorized" 
+              ? "Access Denied. You are not a verified 22p6 participant." 
+              : "Authentication Error. Please try again."}
+          </div>
+        )}
+      </div>
+
+      {/* Footer Element */}
+      <div className="mt-16 text-zinc-600 uppercase tracking-[0.3em] text-[8px] font-bold flex flex-col items-center space-y-2">
+        <span>IEEE - VBIT SB</span>
+        <div className="w-8 h-px bg-blue-500/50" />
+      </div>
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <div className="relative min-h-screen bg-[#050508] flex flex-col items-center justify-center overflow-hidden font-sans p-6">
+      {/* Very subtle Background Glows to match the dark aesthetic */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-0 left-[20%] w-[30%] h-[40%] bg-blue-900/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 right-[20%] w-[30%] h-[40%] bg-blue-900/10 blur-[120px] rounded-full" />
+      </div>
+
+      <Suspense fallback={<Loader2 className="animate-spin text-white w-8 h-8 relative z-10" />}>
+        <LoginForm />
+      </Suspense>
+    </div>
+  );
+}
+
