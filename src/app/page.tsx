@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useState, Suspense } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { getURL } from "@/utils/supabase/get-url";
 import Image from "next/image";
 
 function LoginForm() {
@@ -17,7 +18,7 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${getURL()}auth/callback`,
         queryParams: {
           hd: "vbithyd.ac.in"
         }
