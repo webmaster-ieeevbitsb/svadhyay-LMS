@@ -6,6 +6,10 @@ import { Course } from "@/types/database";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  
+  // Guarantee preloader visibility for premium feel (1.2s delay)
+  await new Promise(resolve => setTimeout(resolve, 1200));
+
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user || !user.email) {
@@ -37,7 +41,21 @@ export default async function DashboardPage() {
     .eq("email", email);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 lg:p-12 space-y-12 animate-in fade-in duration-500">
+    <div className="relative min-h-screen">
+
+      {/* ── Stealthy Background ────────────────────────────────── */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        {/* Tight line grid — very faint */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:60px_60px]" />
+        {/* Diagonal accent lines — top left quadrant only */}
+        <div className="absolute top-0 left-0 w-[60%] h-[50%] bg-[repeating-linear-gradient(135deg,transparent,transparent_40px,#ffffff03_40px,#ffffff03_41px)] pointer-events-none" />
+        {/* Single sharp line at very top */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        {/* Dark vignette edges */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_40%,rgba(0,0,0,0.4)_100%)]" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto p-6 lg:p-12 space-y-12 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">
@@ -49,7 +67,7 @@ export default async function DashboardPage() {
         {isAdmin && (
           <Link 
             href="/admin/courses" 
-            className="group relative px-10 py-5 bg-blue-600/10 border border-blue-500/30 rounded-3xl flex items-center gap-4 hover:bg-blue-600/20 transition-all shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:shadow-blue-500/30 active:scale-95 group-hover:border-blue-500/60"
+            className="group relative px-10 py-5 bg-blue-600/10 border border-blue-500/30 rounded-3xl flex items-center justify-between w-full md:w-auto gap-4 hover:bg-blue-600/20 transition-all shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:shadow-blue-500/30 active:scale-95 group-hover:border-blue-500/60"
           >
             <div className="text-left">
               <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none mb-1.5">Infrastructure</p>
@@ -144,6 +162,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

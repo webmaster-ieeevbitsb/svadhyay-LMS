@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/ui/navbar";
+import { SocialLinks } from "@/components/ui/social-links";
 
 export default async function StudentLayout({
   children,
@@ -45,6 +46,27 @@ export default async function StudentLayout({
       <main className="flex-1 w-full relative z-10">
         {children}
       </main>
+
+      {/* Persistent Student Portal Footer */}
+      {/* Footer Element with Social Connectivity */}
+      <div className="mt-20 flex flex-col items-center text-center space-y-8 pb-12">
+        <SocialLinks />
+        
+        <div className="space-y-6 max-w-4xl px-6">
+          <div className="text-[15px] font-black text-zinc-200 uppercase tracking-[0.3em]">
+            Designed and Developed by Web Designers | IEEE - VBIT SB
+          </div>
+          
+          <div className="text-[11px] text-zinc-500 font-black uppercase tracking-widest">
+            © Copyright 2026 IEEE – All rights reserved.
+          </div>
+          
+          <p className="text-[11px] text-zinc-500 leading-relaxed font-bold uppercase tracking-wider max-w-2xl mx-auto">
+            A non profit Organisation, IEEE is the world's largest technical professional organization 
+            dedicated to advancing technology for the benefit of humanity.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,7 +10,8 @@ import {
   Trophy, 
   AlertCircle,
   RefreshCcw,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -68,7 +69,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
 
   if (result) {
     return (
-      <div className="max-w-2xl mx-auto py-24 space-y-12 animate-in zoom-in-95 duration-700">
+      <div className="max-w-2xl mx-auto py-8 lg:py-16 space-y-8 animate-in zoom-in-95 duration-700">
          <div className="text-center space-y-6">
             <div className={`w-28 h-28 mx-auto rounded-full flex items-center justify-center p-1 border-2 ${result.isPassed ? 'border-green-500/30' : 'border-red-500/30'}`}>
                <div className={`w-full h-full rounded-full flex items-center justify-center ${result.isPassed ? 'bg-green-600/10 text-green-500' : 'bg-red-600/10 text-red-500 shadow-[0_0_40px_rgba(239,68,68,0.1)]'}`}>
@@ -114,9 +115,9 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
             
             <Link 
               href={`/courses/${courseId}`}
-              className="block text-center text-[10px] font-black text-zinc-600 hover:text-zinc-400 uppercase tracking-[0.3em] transition-colors"
+              className="flex items-center justify-center gap-2 w-fit mx-auto text-[11px] font-black text-zinc-500 hover:text-white uppercase tracking-[0.2em] transition-all hover:-translate-x-1"
             >
-              Back to course view
+              <ArrowLeft className="w-4 h-4" /> Back to course view
             </Link>
          </div>
       </div>

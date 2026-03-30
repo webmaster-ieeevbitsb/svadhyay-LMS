@@ -8,20 +8,20 @@ export default async function AdminCoursesPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black italic tracking-tighter uppercase text-white">
+          <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">
             Manage Curriculum
           </h1>
-          <p className="text-zinc-500 mt-1">
+          <p className="text-zinc-500 mt-2 text-sm md:text-base">
             Create and edit global courses for Avishkar LMS.
           </p>
         </div>
         <Link 
           href="/admin/courses/create"
-          className="glass px-6 py-3 rounded-none text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-colors"
+          className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] active:scale-95 flex items-center justify-center gap-3 group shrink-0"
         >
-          + Build New Course
+          <span className="text-xl leading-none group-hover:-rotate-90 transition-transform duration-300">+</span> Build New Course
         </Link>
       </div>
 

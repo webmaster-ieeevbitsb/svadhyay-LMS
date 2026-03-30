@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
-// The client you created from the Server-Side Auth instructions
 import { createClient } from '@/utils/supabase/server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
+  // If "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
@@ -17,12 +16,10 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}${next}/?error=${encodeURIComponent(error.message)}`)
     }
 
-    if (!error) {
-      // Forward the user to their original destination
-      return NextResponse.redirect(`${origin}${next}`)
-    }
+    // Success - direct server-side redirect to dashboard
+    return NextResponse.redirect(`${origin}${next}`)
   }
 
-  // Return the user to an error page with some instructions
+  // Fallback error
   return NextResponse.redirect(`${origin}/?error=auth-callback-failed`)
 }

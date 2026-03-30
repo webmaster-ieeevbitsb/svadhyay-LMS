@@ -2,13 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { SocialLinks } from "./social-links";
 
 export default async function Navbar() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <nav className="fixed top-0 inset-x-0 h-20 bg-[#050508]/80 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-6 lg:px-12">
+    <nav className="fixed top-0 inset-x-0 h-20 bg-[#050508]/80 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4 md:px-6 lg:px-12">
       {/* Branding Section */}
       <div className="flex items-center space-x-6 h-full">
         {/* Logos & Branding (No Links) */}
@@ -34,9 +35,9 @@ export default async function Navbar() {
 
         <div className="w-px h-8 bg-white/10 mx-2" />
         
-        {/* Title (No Bar) */}
-        <div className="flex items-center gap-3">
-          <span className="text-zinc-300 font-black uppercase tracking-[0.2em] text-sm italic">
+        {/* Title (Hidden on small/medium screens to prevent squeezing) */}
+        <div className="hidden lg:flex items-center gap-3">
+          <span className="text-zinc-300 font-black uppercase tracking-[0.2em] text-sm italic whitespace-nowrap">
             AVISHKAR LEARNING PORTAL
           </span>
         </div>
@@ -46,7 +47,7 @@ export default async function Navbar() {
       <div className="flex items-center space-x-8">
         {user ? (
           <div className="flex items-center gap-8">
-            <div className="hidden md:flex flex-col items-end">
+            <div className="hidden xl:flex flex-col items-end">
               <p className="text-[10px] text-zinc-500 font-mono tracking-tighter">
                 {user.email}
               </p>
@@ -60,7 +61,7 @@ export default async function Navbar() {
               await supabase.auth.signOut();
               redirect("/");
             }}>
-              <button type="submit" className="px-8 py-3 bg-zinc-900 border border-white/5 text-white hover:bg-red-600 hover:border-red-500/50 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl active:scale-95 hover:shadow-red-500/10">
+              <button type="submit" className="px-4 md:px-8 py-2 md:py-3 bg-zinc-900 border border-white/5 text-white hover:bg-red-600 hover:border-red-500/50 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl active:scale-95 hover:shadow-red-500/10">
                 Sign Out
               </button>
             </form>

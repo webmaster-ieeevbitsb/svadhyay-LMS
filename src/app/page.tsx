@@ -6,6 +6,8 @@ import { Loader2, ArrowRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { getURL } from "@/utils/supabase/get-url";
 import Image from "next/image";
+import { Preloader } from "@/components/ui/preloader";
+import { SocialLinks } from "@/components/ui/social-links";
 
 function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,22 +35,23 @@ function LoginForm() {
 
   return (
     <div className="relative z-10 w-full flex flex-col items-center animate-in fade-in zoom-in duration-700">
+      {isLoading && <Preloader />}
       
       {/* Top Logos Widget */}
-      <div className="flex items-center space-x-8 bg-[#0d0d12]/80 backdrop-blur-md border border-white/5 px-12 py-5 rounded-[2.5rem] mb-12 shadow-2xl">
-        <div className="relative w-24 h-14 flex items-center justify-center">
+      <div className="flex items-center gap-4 md:space-x-8 bg-[#0d0d12]/80 backdrop-blur-md border border-white/5 px-6 md:px-12 py-4 md:py-5 rounded-[2rem] md:rounded-[2.5rem] mb-8 md:mb-12 shadow-2xl">
+        <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center shrink-0">
           <Image 
             src="https://avishkar2k25.ieeevbitsb.in/logo/AVK_LOGO.png" 
             alt="Avishkar" fill className="object-contain" 
-            sizes="120px"
+            sizes="(max-width: 768px) 64px, 120px"
           />
         </div>
-        <div className="w-px h-12 bg-white/10" />
-        <div className="relative w-24 h-14 flex items-center justify-center opacity-90">
+        <div className="w-px h-8 md:h-12 bg-white/10 shrink-0" />
+        <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center opacity-90 shrink-0">
           <Image 
             src="https://registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png" 
             alt="IEEE" fill className="object-contain" 
-            sizes="120px"
+            sizes="(max-width: 768px) 64px, 120px"
           />
         </div>
       </div>
@@ -97,10 +100,24 @@ function LoginForm() {
         )}
       </div>
 
-      {/* Footer Element */}
-      <div className="mt-16 text-zinc-600 uppercase tracking-[0.3em] text-[8px] font-bold flex flex-col items-center space-y-2">
-        <span>IEEE - VBIT SB</span>
-        <div className="w-8 h-px bg-blue-500/50" />
+      {/* Footer Element with Social Connectivity */}
+      <div className="mt-20 flex flex-col items-center text-center space-y-6">
+        <SocialLinks />
+        
+        <div className="space-y-4 max-w-4xl px-6">
+          <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">
+            Designed and Developed by Web Designers | IEEE - VBIT SB
+          </div>
+          
+          <div className="text-[10px] text-zinc-600 font-bold">
+            © Copyright 2026 IEEE – All rights reserved.
+          </div>
+          
+          <p className="text-[10px] text-zinc-700 leading-relaxed font-normal">
+            A non profit Organisation, IEEE is the world's largest technical professional organization 
+            dedicated to advancing technology for the benefit of humanity.
+          </p>
+        </div>
       </div>
     </div>
   );

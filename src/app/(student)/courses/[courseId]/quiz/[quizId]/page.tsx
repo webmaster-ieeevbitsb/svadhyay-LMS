@@ -54,7 +54,7 @@ export default async function FinalQuizPage({
          <div className="relative z-10">
             <div className="text-[10px] text-blue-400 font-bold uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
                <ShieldCheck className="w-4 h-4" />
-               <span>Assessment Engine v2.0</span>
+               <span>Final Assessment</span>
             </div>
             <h1 className="text-4xl font-black italic uppercase tracking-tighter text-white">
               {quiz.title}

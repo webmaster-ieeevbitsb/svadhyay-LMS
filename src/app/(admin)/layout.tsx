@@ -44,9 +44,9 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-[#0a0a0e] text-zinc-400 font-sans flex flex-col items-stretch overflow-hidden">
       <AdminHeader />
-      <div className="flex-1 flex max-h-[calc(100vh-80px)] overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-80px)] overflow-hidden">
         <AdminSidebar />
-        <main className="flex-1 w-full bg-[#050508] p-8 lg:p-12 overflow-y-auto custom-scrollbar relative">
+        <main className="flex-1 w-full bg-[#050508] p-4 md:p-8 lg:p-12 overflow-y-auto custom-scrollbar relative">
           {children}
         </main>
       </div>

@@ -140,14 +140,14 @@ export default async function CourseBuilderStudio({
             <div className="relative z-10">
                <h3 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                 <FileQuestion className="w-3 h-3" />
-                Add Master Quiz
+                Final Assessment
               </h3>
                {hasQuiz ? (
                  <div className="p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl flex flex-col items-center text-center gap-3">
                     <CheckCircle2 className="w-8 h-8 text-blue-500" />
-                    <p className="text-white font-black uppercase text-xs tracking-tighter">Architecture Active</p>
-                    <p className="text-[10px] text-zinc-500 font-bold leading-relaxed">The final assessment is now configurable in the editor block.</p>
-                 </div>
+                    <p className="text-white font-black uppercase text-xs tracking-tighter">Evaluation Active</p>
+                    <p className="text-[10px] text-zinc-500 font-bold leading-relaxed">The final assessment module is ready and configurable.</p>
+                  </div>
                ) : (
                  <CreateQuizForm courseId={courseId} />
                )}
