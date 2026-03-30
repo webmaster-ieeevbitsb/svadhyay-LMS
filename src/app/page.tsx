@@ -22,9 +22,6 @@ function LoginForm() {
       provider: "google",
       options: {
         redirectTo: redirectUrl,
-        queryParams: {
-          hd: "vbithyd.ac.in"
-        }
       },
     });
 
