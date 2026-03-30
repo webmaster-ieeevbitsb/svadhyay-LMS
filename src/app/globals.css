@@ -23,3 +23,42 @@ body {
 @utility glass {
   @apply bg-white/5 backdrop-blur-xl border border-white/10;
 }
+
+/* Custom Tactical Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 4px;
+}
+
+/* Print Utilities */
+@media print {
+  body {
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-container {
+    width: 297mm; /* A4 Landscape width */
+    height: 210mm; /* A4 Landscape height */
+    overflow: hidden;
+    page-break-after: avoid;
+    box-shadow: none !important;
+    border: none !important;
+    transform: none !important;
+  }
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}

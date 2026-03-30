@@ -54,21 +54,21 @@ function LoginForm() {
       </div>
 
       {/* Main Branding */}
-      <div className="text-center space-y-4 mb-10 min-w-max">
-        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase drop-shadow-lg flex items-center justify-center gap-1">
-          <span className="text-white">AVISHKAR</span>
-          <span className="text-blue-500">LMS</span>
+      <div className="text-center space-y-4 mb-10 w-full px-4">
+        <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase drop-shadow-lg flex flex-col md:flex-row items-center justify-center gap-2">
+          <span className="text-white">IEEE - VBIT SB</span>
+          <span className="text-blue-500">Learning Portal</span>
         </h1>
-        <p className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-xs">
-          Official Course Learning Platform
+        <p className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs">
+          Professional Student Learning Infrastructure
         </p>
       </div>
 
       {/* Login Card */}
-      <div className="w-full max-w-lg bg-[#0d0d12] border border-white/5 rounded-[3rem] p-12 text-center shadow-2xl min-h-[300px] flex flex-col justify-center">
-        <h2 className="text-3xl font-bold text-white mb-3">Student Portal</h2>
-        <p className="text-zinc-500 text-sm mb-10 font-medium tracking-wide">
-          Authentication via VBIT Domain Required
+      <div className="w-full max-w-lg bg-[#0d0d12] border border-white/5 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl min-h-[300px] flex flex-col justify-center mx-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Student Access</h2>
+        <p className="text-zinc-500 text-xs md:text-sm mb-10 font-medium tracking-wide">
+          Authentication limited to @vbithyd.ac.in emails
         </p>
 
         <div className="h-16 flex items-center justify-center">
@@ -82,7 +82,7 @@ function LoginForm() {
               onClick={handleGoogleLogin}
               className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-500 transition-all font-bold text-white py-5 px-8 rounded-2xl group shadow-lg shadow-blue-500/20 text-lg"
             >
-              <span>Enter Student Portal</span>
+              <span>Sign in with Google</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
             </button>
           )}
@@ -91,7 +91,7 @@ function LoginForm() {
         {errorMsg && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 text-[11px] font-bold uppercase tracking-wider mt-6 rounded-lg">
             {errorMsg === "unauthorized" 
-              ? "Access Denied. You are not a verified 22p6 participant." 
+              ? "Access Denied. Please authenticate with your registered institution email." 
               : "Authentication Error. Please try again."}
           </div>
         )}

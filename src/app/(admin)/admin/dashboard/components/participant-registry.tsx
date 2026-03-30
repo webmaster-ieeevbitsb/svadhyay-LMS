@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { addParticipant, removeParticipant, toggleAdminStatus } from "@/app/actions/participants";
-import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database } from "lucide-react";
+import { addParticipant, removeParticipant } from "@/app/actions/participants";
+import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, CheckCircle2 } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
 
 export function ParticipantRegistry({ initialParticipants }: { initialParticipants: any[] }) {
-  const [participants, setParticipants] = useState(initialParticipants);
+  // Only show students (non-admins) in this registry
+  const [participants, setParticipants] = useState(initialParticipants.filter(p => !p.is_admin));
   const [filter, setFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [errorLine, setErrorLine] = useState("");
@@ -38,14 +39,6 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
     setIsAdding(false);
   };
 
-  const handleToggleAdmin = async (email: string, current: boolean) => {
-    setParticipants(participants.map(p => p.email === email ? { ...p, is_admin: !current } : p));
-    const res = await toggleAdminStatus(email, current);
-    if (res.error) {
-       setErrorLine(`Failed to update ${email}`);
-       setParticipants(participants.map(p => p.email === email ? { ...p, is_admin: current } : p));
-    }
-  };
 
   const handleRemove = async (email: string) => {
     setParticipants(participants.filter(p => p.email !== email));
@@ -69,9 +62,9 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
           <div className="space-y-1">
             <h3 className="text-2xl font-black italic tracking-tighter uppercase text-white flex items-center gap-4">
                <Database className="w-8 h-8 text-blue-500 bg-blue-500/10 p-1.5 rounded-xl border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.3)]" />
-               Participant Infrastructure
+               Student Registry
             </h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest pl-12">Registry Control & Access Management</p>
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest pl-12">Enrollment Control & Access Management</p>
           </div>
           <button 
             type="button" 
@@ -79,7 +72,7 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
             className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-3"
           >
              <UploadIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-             Bulk Import Sequence
+             Bulk Enrollment Upload
           </button>
         </div>
 
@@ -89,13 +82,13 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
                type="email" 
                name="email" 
                required
-               placeholder="IDENTIFICATION (EMAIL)"
+               placeholder="STUDENT EMAIL"
                className="bg-black/40 border border-white/5 px-6 py-4 text-white focus:outline-none focus:border-blue-500/50 transition-all font-mono text-sm rounded-2xl placeholder-zinc-700"
              />
              <input 
                type="text" 
                name="name" 
-               placeholder="PERSONNEL NAME (OPTIONAL)"
+               placeholder="STUDENT NAME (OPTIONAL)"
                className="bg-black/40 border border-white/5 px-6 py-4 text-white focus:outline-none focus:border-blue-500/50 transition-all text-sm rounded-2xl placeholder-zinc-700"
              />
           </div>
@@ -104,7 +97,7 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
             disabled={isAdding}
             className="px-10 py-4 bg-white text-black font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all hover:bg-blue-500 hover:text-white disabled:opacity-50 flex items-center justify-center shadow-xl active:scale-95"
           >
-            {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : "Deploy Student Account"}
+            {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : "Enroll Student"}
           </button>
         </form>
 
@@ -136,13 +129,17 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
               filtered.map((p, idx) => (
                 <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] group hover:bg-white/[0.06] hover:border-blue-500/20 transition-all">
                   <div className="flex items-center gap-5 mb-4 md:mb-0">
-                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-all ${p.is_admin ? 'bg-blue-600/10 border-blue-500/30' : 'bg-white/5 border-white/10'}`}>
-                        {p.is_admin ? <ShieldCheck className="w-6 h-6 text-blue-500" /> : <Users className="w-6 h-6 text-zinc-600" />}
+                     <div className="w-12 h-12 rounded-xl flex items-center justify-center border transition-all bg-white/5 border-white/10">
+                        <Users className="w-6 h-6 text-zinc-600" />
                      </div>
                      <div>
                         <div className="flex items-center gap-2">
                           <p className="text-white font-black uppercase text-sm tracking-tight">{p.name || "Student Participant"}</p>
-                          {p.is_admin && <span className="text-[9px] bg-blue-600 text-white font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-lg shadow-blue-500/20">Admin</span>}
+                          {p.is_completed && (
+                             <span className="ml-2 px-2 py-0.5 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.1)]">
+                               <CheckCircle2 className="w-3 h-3" /> Certified
+                             </span>
+                          )}
                         </div>
                         <p className="text-zinc-500 font-mono text-[10px] tracking-tight">{p.email}</p>
                      </div>
@@ -157,12 +154,7 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
                       View Analytics
                     </button>
                     
-                    <button 
-                      onClick={() => handleToggleAdmin(p.email, p.is_admin)}
-                      className={`flex items-center gap-2 px-4 py-2 border font-black uppercase text-[10px] tracking-widest rounded-xl transition-all ${p.is_admin ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white' : 'bg-white/5 border-white/10 text-zinc-500 hover:bg-white hover:text-black'}`}
-                    >
-                      {p.is_admin ? "Revoke Admin" : "Grant Admin"}
-                    </button>
+
 
                     <button 
                       onClick={() => handleRemove(p.email)}

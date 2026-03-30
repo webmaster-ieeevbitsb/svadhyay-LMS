@@ -145,7 +145,7 @@ export async function createQuiz(courseId: string) {
 
 export async function updateQuizQuestion(questionId: string, data: any) {
   const supabase = await createClient();
-  const { quiz_id, ...updateData } = data; // quiz_id is only needed for revalidation
+  const { quiz_id, id, ...updateData } = data; // quiz_id is needed for revalidation, id is questionId
 
   const { error } = await supabase
     .from("quiz_questions")
@@ -157,29 +157,43 @@ export async function updateQuizQuestion(questionId: string, data: any) {
     return { error: `Update failed: ${error.message}` };
   }
 
-  // We don't have courseId here easily, so we might need it passed or just rely on revalidate
+  // Use revalidatePath to ensure server-side data is fresh
+  // We can't easily get the courseId here, but we can revalidate the parent or specific path if we had it.
+  // For now, returning success and letting client handle local state.
   return { success: true };
 }
 
 export async function addQuizQuestion(quizId: string) {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  // Find max order_index
+  const { data: lastQuestion } = await supabase
+    .from("quiz_questions")
+    .select("order_index")
+    .eq("quiz_id", quizId)
+    .order("order_index", { ascending: false })
+    .limit(1);
+  
+  const nextIndex = (lastQuestion?.[0]?.order_index ?? -1) + 1;
+
+  const { data, error } = await supabase
     .from("quiz_questions")
     .insert([{
       quiz_id: quizId,
       question_text: "New Question",
       options: ["Option A", "Option B", "Option C", "Option D"],
       correct_answer: "Option A",
-      order_index: 999
-    }]);
+      order_index: nextIndex
+    }])
+    .select()
+    .single();
 
   if (error) {
     console.error("Add question error:", error);
     return { error: `Failed to add question: ${error.message}` };
   }
 
-  return { success: true };
+  return { success: true, data };
 }
 
 export async function deleteQuizQuestion(questionId: string) {

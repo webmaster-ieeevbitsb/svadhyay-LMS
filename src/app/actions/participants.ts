@@ -5,16 +5,28 @@ import { revalidatePath } from "next/cache";
 
 export async function fetchParticipants() {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: participants, error } = await supabase
     .from("participants")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) {
+  if (error || !participants) {
     console.error("Error fetching participants:", error);
     return [];
   }
-  return data;
+
+  // Fetch completion metrics to tag onto the participant registry
+  const { data: progress } = await supabase
+    .from("student_progress")
+    .select("email")
+    .eq("is_completed", true);
+
+  const completedSet = new Set(progress?.map(p => p.email.toLowerCase()) || []);
+
+  return participants.map(p => ({
+    ...p,
+    is_completed: completedSet.has(p.email?.toLowerCase())
+  }));
 }
 
 export async function addParticipant(prevState: any, formData: FormData) {
@@ -64,6 +76,46 @@ export async function addParticipant(prevState: any, formData: FormData) {
   return { success: true };
 }
 
+export async function addAdmin(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const email = formData.get("email") as string;
+  const name = formData.get("name") as string;
+
+  if (!email || !email.includes("@")) {
+    return { error: "A valid email is required." };
+  }
+
+  const payload: any = { 
+    email: email.toLowerCase(),
+    is_admin: true 
+  };
+  
+  if (name) {
+    payload.name = name;
+  }
+
+  const { error } = await supabase
+    .from("participants")
+    .upsert([payload], { onConflict: "email" });
+
+  if (error) {
+    console.error("Admin Add Error:", error);
+    if (error.code === 'PGRST204' || error.message.includes("column")) {
+      const fallbackPayload = { email: email.toLowerCase(), is_admin: true };
+      const { error: fallbackError } = await supabase.from("participants").upsert([fallbackPayload], { onConflict: "email" });
+      if (fallbackError) {
+         return { error: "Failed to allocate admin privileges." };
+      }
+    } else {
+      return { error: error.message };
+    }
+  }
+
+  revalidatePath("/admin/dashboard");
+  return { success: true };
+}
+
 export async function removeParticipant(email: string) {
   const supabase = await createClient();
 
@@ -84,11 +136,23 @@ export async function removeParticipant(email: string) {
 export async function bulkAddParticipants(participants: { email: string; name?: string }[]) {
   const supabase = await createClient();
   
-  const payload = participants.map(p => ({
-    email: p.email.toLowerCase(),
-    name: p.name || "",
-    is_admin: false
-  }));
+  // 1. Fetch emails of existing admins to protect them
+  const { data: existingAdmins } = await supabase
+    .from("participants")
+    .select("email")
+    .eq("is_admin", true);
+  
+  const adminEmails = new Set(existingAdmins?.map(a => a.email.toLowerCase()) || []);
+
+  const payload = participants.map(p => {
+    const email = p.email.toLowerCase();
+    return {
+      email,
+      name: p.name || "",
+      // If they are already an admin, preserve that. Otherwise, they are a student.
+      is_admin: adminEmails.has(email)
+    };
+  });
 
   const { error } = await supabase
     .from("participants")
@@ -153,4 +217,23 @@ export async function fetchStudentProgress(email: string) {
       modules.find(m => m.id === mId)?.title || `Unknown Module (${mId.slice(0,4)})`
     )
   }));
+}
+
+
+export async function rotateStudentCohort() {
+  const supabase = await createClient();
+
+  // Purge all participants where is_admin is false
+  const { error, count } = await supabase
+    .from("participants")
+    .delete({ count: 'exact' })
+    .eq("is_admin", false);
+
+  if (error) {
+    console.error("Cohort Rotation Error:", error);
+    return { error: "Failed to purge student cohort. Check DB permissions or RLS policies." };
+  }
+
+  revalidatePath("/admin/dashboard");
+  return { success: true, count: count || 0 };
 }

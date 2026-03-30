@@ -8,7 +8,8 @@ import {
   FileQuestion, 
   Layers, 
   Clock,
-  ChevronRight
+  ChevronRight,
+  Award
 } from "lucide-react";
 import { Course, Module, Quiz } from "@/types/database";
 
@@ -45,6 +46,19 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
     .eq("course_id", courseId);
 
   const finalQuiz = quizzes && quizzes.length > 0 && quizzes[0].quiz_questions?.length > 0 ? quizzes[0] : null;
+
+  // 4. Fetch Progress State
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: progress } = await supabase
+    .from("student_progress")
+    .select("is_completed, completed_modules")
+    .eq("course_id", courseId)
+    .eq("email", user?.email?.toLowerCase() || "")
+    .single();
+
+  const isCourseCompleted = progress?.is_completed || false;
+  const completedModuleIds = progress?.completed_modules || [];
+
 
   const metadata = course.metadata || {};
   const goals = metadata.goals_list ? metadata.goals_list.split('\n').filter((g: string) => g.trim()) : [];
@@ -180,26 +194,29 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
       <div className="space-y-8 pt-8 border-t border-white/5">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white shadow-none">
-            Curriculum <span className="text-blue-500">Architecture</span>
+            Course <span className="text-blue-500">Curriculum</span>
           </h2>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          {modules?.map((m: Module, idx: number) => (
-            <Link 
-              key={m.id} 
-              href={`/courses/${courseId}/modules/${m.id}`}
-              className="group flex items-center justify-between p-8 bg-[#0d0d12]/50 border border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03] transition-all duration-300 rounded-[2rem] shadow-xl"
-            >
-              <div className="flex items-center gap-8">
-                <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-zinc-500 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-all font-black italic text-xl pb-1">
-                  {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-white tracking-tight group-hover:translate-x-1 transition-transform uppercase">
-                    {m.title}
-                  </h3>
-                   <div className="flex items-center gap-4 mt-2">
+          {modules?.map((m: Module, idx: number) => {
+            const isCompleted = completedModuleIds.includes(m.id);
+            return (
+              <Link 
+                key={m.id} 
+                href={`/courses/${courseId}/modules/${m.id}`}
+                className={`group flex items-center justify-between p-8 ${isCompleted ? 'bg-green-600/5 hover:bg-green-600/10 border-green-500/20 hover:border-green-500/40' : 'bg-[#0d0d12]/50 border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03]'} transition-all duration-300 rounded-[2rem] shadow-xl`}
+              >
+                <div className="flex items-center gap-8">
+                  <div className={`w-14 h-14 flex items-center justify-center rounded-2xl ${isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-zinc-900 border-white/5 text-zinc-500 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]'}  transition-all font-black italic text-xl pb-1`}>
+                    {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : (idx + 1 < 10 ? `0${idx + 1}` : idx + 1)}
+                  </div>
+                  <div>
+                    <h3 className={`text-xl font-black tracking-tight group-hover:translate-x-1 transition-transform uppercase ${isCompleted ? 'text-green-50' : 'text-white'}`}>
+                      {m.title}
+                    </h3>
+                    <div className="flex items-center gap-4 mt-2">
+
                     <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-1.5 border-r border-white/10 pr-4">
                        <PlayCircle className="w-3.5 h-3.5 text-blue-500" />
                        Interactive Content
@@ -220,37 +237,59 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                  <ChevronRight className="w-5 h-5 text-zinc-800 group-hover:text-blue-500 transition-colors" />
               </div>
             </Link>
-          ))}
+            );
+          })}
 
           {finalQuiz && (
-             <Link 
-               href={`/courses/${courseId}/quiz/${finalQuiz.id}`}
-               className="group flex items-center justify-between p-10 bg-blue-600/5 border border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-600/10 transition-all duration-500 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
+             <div 
+               className={`group flex flex-col md:flex-row md:items-center justify-between p-10 gap-6 ${isCourseCompleted ? 'bg-green-600/10 border border-green-500/40' : 'bg-blue-600/5 border border-blue-500/30'} transition-all duration-500 rounded-[2.5rem] shadow-2xl relative overflow-hidden`}
              >
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:scale-110 group-hover:opacity-10 transition-all duration-700">
-                    <FileQuestion className="w-48 h-48 text-blue-500" />
+                    <FileQuestion className={`w-48 h-48 ${isCourseCompleted ? 'text-green-500' : 'text-blue-500'}`} />
                 </div>
                 
-                <div className="flex items-center gap-8 relative z-10">
-                   <div className="w-16 h-16 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-500/50">
-                      <FileQuestion className="w-8 h-8" />
+                <div className="flex flex-col md:flex-row md:items-center gap-8 relative z-10 w-full">
+                   <div className={`w-16 h-16 flex items-center justify-center rounded-full text-white shadow-lg ${isCourseCompleted ? 'bg-green-500 shadow-green-500/50' : 'bg-blue-600 shadow-blue-500/50'}`}>
+                      {isCourseCompleted ? <CheckCircle2 className="w-8 h-8" /> : <FileQuestion className="w-8 h-8" />}
                    </div>
                    <div>
-                      <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em] mb-1">Final Phase</div>
+                      <div className={`text-[10px] font-black uppercase tracking-[0.4em] mb-1 ${isCourseCompleted ? 'text-green-400' : 'text-blue-400'}`}>Final Assessment</div>
                       <h3 className="text-3xl font-black italic tracking-tighter text-white uppercase leading-none shadow-none">
-                        Initiate Certification Exam
+                        {isCourseCompleted ? "Assessment Certified" : "Certification Exam"}
                       </h3>
                       <p className="text-zinc-500 text-xs mt-3 font-bold uppercase tracking-widest flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Passing Score: {finalQuiz.passing_score_percentage}%
+                        {isCourseCompleted ? (
+                           <>
+                             <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                             Certification Achieved
+                           </>
+                        ) : (
+                           <>
+                             <CheckCircle2 className="w-3.5 h-3.5" />
+                             Passing Score: {finalQuiz.passing_score_percentage}%
+                           </>
+                        )}
                       </p>
                    </div>
                 </div>
 
-                <div className="relative z-10 bg-white text-black px-8 py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl group-hover:scale-105 transition-all">
-                   Start Exam
+                <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10 w-full md:w-auto md:justify-end shrink-0">
+                   {isCourseCompleted && (
+                      <Link 
+                        href={`/certificate/${courseId}`}
+                        className="w-full text-center sm:w-auto px-8 py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-105 transition-all text-green-400 border border-green-400 bg-green-950 flex justify-center items-center gap-2"
+                      >
+                         <Award className="w-4 h-4" /> Download Certificate
+                      </Link>
+                   )}
+                   <Link 
+                     href={`/courses/${courseId}/quiz/${finalQuiz.id}`}
+                     className={`w-full text-center sm:w-auto px-8 py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex justify-center items-center ${isCourseCompleted ? 'bg-green-400 text-green-950' : 'bg-white text-black'}`}
+                   >
+                      {isCourseCompleted ? "View Result" : "Start Exam"}
+                   </Link>
                 </div>
-             </Link>
+             </div>
           )}
         </div>
       </div>
