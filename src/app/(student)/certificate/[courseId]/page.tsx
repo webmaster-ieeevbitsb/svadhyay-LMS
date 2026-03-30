@@ -49,14 +49,27 @@ export default async function CertificatePage({
   // Generate a unique Certificate ID based on their row ID
   const certId = courseId.split("-")[0].toUpperCase() + "-" + new Date().getFullYear();
 
+  const rollNumber = participant?.name || user.email.split("@")[0].toUpperCase();
+
   return (
-    <div className="min-h-screen bg-black text-white">
-       <CertificateViewer 
-          courseTitle={course.title}
-          studentName={participant?.name || user.email.split("@")[0]}
-          date={formattedDate}
-          certificateId={certId}
-       />
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center" style={{ backgroundColor: "#050508" }}>
+      {/* Abstract Background Layer (Hex-Safe) */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.1), transparent 50%)" }} />
+        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full animate-pulse" style={{ backgroundColor: "rgba(37, 99, 235, 0.1)", filter: "blur(120px)" }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full" style={{ backgroundColor: "rgba(8, 145, 178, 0.05)", filter: "blur(100px)" }} />
+      </div>
+
+      <div className="relative z-10 w-full pt-10 pb-20">
+        <CertificateViewer 
+            courseTitle={course.title}
+            rollNumber={rollNumber}
+            fullName={user.user_metadata?.full_name || "STUDENT NAME"}
+            date={formattedDate}
+            certificateId={certId}
+        />
+      </div>
     </div>
   );
 }

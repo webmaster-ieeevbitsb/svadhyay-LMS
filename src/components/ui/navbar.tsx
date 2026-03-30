@@ -17,7 +17,7 @@ export default async function Navbar() {
            {/* AVK LOGO */}
            <div className="relative h-10 w-16 flex items-center justify-center">
             <Image 
-               src="https://avishkar2k25.ieeevbitsb.in/logo/AVK_LOGO.png" 
+               src="/logos/avk.png" 
                alt="Avishkar Logo" fill className="object-contain"
             />
            </div>
@@ -27,7 +27,7 @@ export default async function Navbar() {
            {/* IEEE LOGO */}
            <div className="relative h-10 w-16 flex items-center justify-center">
             <Image 
-               src="https://registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png" 
+               src="/logos/ieee-sb.png" 
                alt="IEEE Logo" fill className="object-contain"
             />
            </div>
