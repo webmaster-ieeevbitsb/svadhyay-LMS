@@ -15,10 +15,13 @@ function LoginForm() {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    const redirectUrl = `${getURL()}/auth/callback`;
+    console.log("Redirecting to:", redirectUrl);
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${getURL()}auth/callback`,
+        redirectTo: redirectUrl,
         queryParams: {
           hd: "vbithyd.ac.in"
         }
