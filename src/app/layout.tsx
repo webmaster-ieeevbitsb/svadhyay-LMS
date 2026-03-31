@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import SmoothScrolling from "@/components/providers/smooth-scrolling";
+import ProgressBar from "@/components/ui/progress-bar";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,15 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <SmoothScrolling>
-          {children}
-          <Toaster theme="dark" position="bottom-right" richColors />
-        </SmoothScrolling>
+    <html lang="en" className="h-full">
+      <body className={`${geistSans.variable} ${geistMono.variable} h-full antialiased min-h-full flex flex-col`}>
+        <Suspense fallback={null}>
+          <ProgressBar />
+        </Suspense>
+        {children}
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );

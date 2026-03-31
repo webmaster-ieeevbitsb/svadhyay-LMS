@@ -12,6 +12,7 @@ import {
   Award
 } from "lucide-react";
 import { Course, Module, Quiz } from "@/types/database";
+import Image from "next/image";
 
 interface StudentCoursePageProps {
   params: Promise<{ courseId: string }>;
@@ -21,41 +22,44 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
   const { courseId } = await params;
   const supabase = await createClient();
 
-  // 1. Fetch Course details
-  const { data: course, error: courseError } = await supabase
-    .from("courses")
-    .select("*")
-    .eq("id", courseId)
-    .single();
+  // 1. Fetch User
+  const { data: { user } } = await supabase.auth.getUser();
+  const userEmail = user?.email?.toLowerCase() || "";
+
+  // 2. Parallelize data fetching
+  const [courseResult, modulesResult, quizzesResult, progressResult] = await Promise.all([
+    supabase
+      .from("courses")
+      .select("*")
+      .eq("id", courseId)
+      .single(),
+    supabase
+      .from("modules")
+      .select("*")
+      .eq("course_id", courseId)
+      .order("order_index", { ascending: true }),
+    supabase
+      .from("quizzes")
+      .select("*, quiz_questions(*)")
+      .eq("course_id", courseId),
+    supabase
+      .from("student_progress")
+      .select("is_completed, completed_modules")
+      .eq("course_id", courseId)
+      .eq("email", userEmail)
+      .maybeSingle(),
+  ]);
+
+  const { data: course, error: courseError } = courseResult;
+  const { data: modules } = modulesResult;
+  const { data: quizzes } = quizzesResult;
+  const { data: progress } = progressResult;
 
   if (courseError || !course) {
     return notFound();
   }
 
-  // 2. Fetch Modules
-  const { data: modules } = await supabase
-    .from("modules")
-    .select("*")
-    .eq("course_id", courseId)
-    .order("order_index", { ascending: true });
-
-  // 3. Fetch Quiz with its questions
-  const { data: quizzes } = await supabase
-    .from("quizzes")
-    .select("*, quiz_questions(*)")
-    .eq("course_id", courseId);
-
   const finalQuiz = quizzes && quizzes.length > 0 && quizzes[0].quiz_questions?.length > 0 ? quizzes[0] : null;
-
-  // 4. Fetch Progress State
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: progress } = await supabase
-    .from("student_progress")
-    .select("is_completed, completed_modules")
-    .eq("course_id", courseId)
-    .eq("email", user?.email?.toLowerCase() || "")
-    .single();
-
   const isCourseCompleted = progress?.is_completed || false;
   const completedModuleIds = progress?.completed_modules || [];
 
@@ -66,14 +70,20 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-12 py-8 space-y-8 animate-in fade-in duration-700 pb-32">
       
-      {/* Navigation */}
-      <Link 
-        href="/dashboard" 
-        className="group flex items-center space-x-2 text-zinc-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest"
-      >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        <span>Back to Curriculum</span>
-      </Link>
+      {/* Navigation & Course Meta */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <Link 
+          href="/dashboard" 
+          className="group flex items-center space-x-2 text-zinc-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Curriculum</span>
+        </Link>
+        <div className="flex items-center gap-2 opacity-30 hidden md:flex">
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-500/50" />
+          <div className="w-8 h-px bg-blue-500/50" />
+        </div>
+      </div>
 
       {/* ── CLEAN MODERN HERO ─────────────────────────────────── */}
       <div className="relative rounded-3xl overflow-hidden px-8 md:px-12 py-10 md:py-14">
@@ -88,6 +98,10 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
         <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-violet-600/15 rounded-full blur-3xl pointer-events-none" />
         {/* Thin border */}
         <div className="absolute inset-0 rounded-3xl border border-white/5 pointer-events-none" />
+        
+        {/* L-Bracket Ornaments */}
+        <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-blue-500/20 rounded-tl-lg pointer-events-none" />
+        <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-blue-500/20 rounded-br-lg pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row gap-10 lg:gap-16 lg:items-center">
 
@@ -162,9 +176,11 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
           {course.thumbnail_url ? (
             <div className="lg:w-[45%] shrink-0">
               <div className="relative rounded-2xl overflow-hidden shadow-[0_8px_50px_rgba(0,0,0,0.6)] group">
-                <img
+                <Image
                   src={course.thumbnail_url}
                   alt={course.title}
+                  width={600}
+                  height={400}
                   className="w-full h-auto max-h-[320px] object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
@@ -217,11 +233,26 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
         </div>
 
       {/* Curriculum Architecture */}
-      <div id="curriculum" className="space-y-8 pt-8 border-t border-white/5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white shadow-none">
-            Course <span className="text-blue-500">Curriculum</span>
-          </h2>
+      <div id="curriculum" className="space-y-8 pt-8 border-t border-white/5 relative">
+        <div className="absolute -top-px left-0 w-32 h-px bg-blue-500/40" />
+        
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 mb-2 h-4">
+               {[...Array(3)].map((_, i) => (
+                 <div key={i} className="w-1 h-1 bg-blue-500/40 rounded-full" />
+               ))}
+               <div className="w-12 h-[1px] bg-gradient-to-r from-blue-500/40 to-transparent" />
+            </div>
+            <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white shadow-none leading-none">
+              Course <span className="text-blue-500">Curriculum</span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-1.5 opacity-20 hidden md:flex mb-1">
+             {[...Array(4)].map((_, i) => (
+               <div key={i} className="w-1 h-1 border border-zinc-500 rotate-45" />
+             ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
@@ -231,7 +262,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
               <Link 
                 key={m.id} 
                 href={`/courses/${courseId}/modules/${m.id}`}
-                className={`group flex items-center justify-between p-8 ${isCompleted ? 'bg-green-600/5 hover:bg-green-600/10 border-green-500/20 hover:border-green-500/40' : 'bg-[#0d0d12]/50 border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03]'} transition-all duration-300 rounded-[2rem] shadow-xl`}
+                className={`group flex items-center justify-between p-8 ${isCompleted ? 'bg-green-600/5 hover:bg-green-600/10 border-green-500/20 hover:border-green-500/40' : 'bg-[#0a0a0f] border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03]'} transition-all duration-300 rounded-2xl shadow-xl relative overflow-hidden`}
               >
                 <div className="flex items-center gap-4 md:gap-8">
                   <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-2xl ${isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-zinc-900 border-white/5 text-zinc-500 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]'}  transition-all font-black italic text-lg md:text-xl pb-1`}>
