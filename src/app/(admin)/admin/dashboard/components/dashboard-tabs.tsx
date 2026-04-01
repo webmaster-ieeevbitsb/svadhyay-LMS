@@ -5,9 +5,17 @@ import { ParticipantRegistry } from "./participant-registry";
 import { AdminRegistry } from "./admin-registry";
 import { Users, ShieldCheck } from "lucide-react";
 
-export function DashboardTabs({ participants: initialParticipants }: { participants: any[] }) {
+interface Participant {
+  email: string;
+  name?: string;
+  is_admin: boolean;
+  is_completed?: boolean;
+  created_at: string;
+}
+
+export function DashboardTabs({ participants: initialParticipants }: { participants: Participant[] }) {
   const [activeTab, setActiveTab] = useState<"students" | "admins">("students");
-  const [participants, setParticipants] = useState<any[]>(initialParticipants);
+  const [participants, setParticipants] = useState<Participant[]>(initialParticipants);
 
 
   return (

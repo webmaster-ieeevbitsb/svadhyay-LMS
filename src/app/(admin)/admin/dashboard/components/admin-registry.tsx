@@ -2,17 +2,25 @@
 
 import { useState } from "react";
 import { addAdmin, toggleAdminStatus } from "@/app/actions/participants";
-import { Search, Loader2, ShieldCheck, ShieldAlert, XIcon, Upload } from "lucide-react";
+import { Search, Loader2, ShieldCheck, ShieldAlert, X, Upload } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
+
+interface Participant {
+  email: string;
+  name?: string;
+  is_admin: boolean;
+  is_completed?: boolean;
+  created_at: string;
+}
 
 export function AdminRegistry({ 
   participants, 
   fullParticipants,
   setFullParticipants 
 }: { 
-  participants: any[], 
-  fullParticipants: any[],
-  setFullParticipants: (val: any) => void
+  participants: Participant[], 
+  fullParticipants: Participant[],
+  setFullParticipants: React.Dispatch<React.SetStateAction<Participant[]>>
 }) {
   const [filter, setFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -34,12 +42,12 @@ export function AdminRegistry({
       setErrorLine(res.error);
     } else {
       if (!fullParticipants.some(p => p.email === email)) {
-        setFullParticipants([{
+        setFullParticipants(prev => [{
           email: email.toLowerCase(), 
-          name: formData.get("name") || "",
+          name: (formData.get("name") as string) || "",
           is_admin: true,
           created_at: new Date().toISOString()
-        }, ...fullParticipants]);
+        }, ...prev]);
       }
       (e.target as HTMLFormElement).reset();
     }
@@ -57,7 +65,7 @@ export function AdminRegistry({
          setErrorLine(`Security Override Failed: ${res.error}`);
       } else {
          // Update the LIFTED state
-         setFullParticipants(prev => prev.map(p => 
+         setFullParticipants((prev: Participant[]) => prev.map((p: Participant) => 
            p.email.toLowerCase() === email.toLowerCase() 
            ? { ...p, is_admin: false } 
            : p
@@ -204,7 +212,7 @@ export function AdminRegistry({
                     {processingEmail === p.email ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <XIcon className="w-4 h-4" />
+                      <X className="w-4 h-4" />
                     )} 
                     {processingEmail === p.email ? "Processing..." : "Revoke Authorization"}
                   </button>

@@ -6,14 +6,22 @@ import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, 
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
 
+interface Participant {
+  email: string;
+  name?: string;
+  is_admin: boolean;
+  is_completed?: boolean;
+  created_at: string;
+}
+
 export function ParticipantRegistry({ 
   participants,
   fullParticipants,
   setFullParticipants
 }: { 
-  participants: any[],
-  fullParticipants: any[],
-  setFullParticipants: React.Dispatch<React.SetStateAction<any[]>>
+  participants: Participant[],
+  fullParticipants: Participant[],
+  setFullParticipants: React.Dispatch<React.SetStateAction<Participant[]>>
 }) {
   const [filter, setFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -37,7 +45,7 @@ export function ParticipantRegistry({
       if (!fullParticipants.some(p => p.email === email)) {
         setFullParticipants(prev => [{
           email: email.toLowerCase(), 
-          name: formData.get("name") || "",
+          name: (formData.get("name") as string) || "",
           is_admin: false,
           created_at: new Date().toISOString()
         }, ...prev]);
