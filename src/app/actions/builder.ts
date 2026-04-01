@@ -197,6 +197,7 @@ export async function addQuizQuestion(quizId: string) {
 }
 
 export async function deleteQuizQuestion(questionId: string) {
+  console.log(`🛠️ DELETE_ACTION: Attempting to deallocate node ${questionId}`);
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -205,9 +206,32 @@ export async function deleteQuizQuestion(questionId: string) {
     .eq("id", questionId);
 
   if (error) {
-    console.error("Delete question error:", error);
-    return { error: `Deletion failed: ${error.message}` };
+    console.error("❌ DELETE_QUESTION_ERROR:", error);
+    return { error: `Security/Database Rejection: ${error.message}` };
   }
 
+  console.log(`✅ DELETE_SUCCESS: Node ${questionId} removed.`);
+  return { success: true };
+}
+
+export async function deleteQuiz(courseId: string) {
+  console.log(`🛠️ DELETE_QUIZ: Deallocating entire assessment for course ${courseId}`);
+  const supabase = await createClient();
+
+  // This will delete the quiz and cascade to questions (if DB set to cascade) 
+  // or we need to ensure questions are gone. 
+  // RLS will check if current user is admin.
+  const { error } = await supabase
+    .from("quizzes")
+    .delete()
+    .eq("course_id", courseId);
+
+  if (error) {
+    console.error("❌ DELETE_QUIZ_ERROR:", error);
+    return { error: `Security Failure: ${error.message}` };
+  }
+
+  console.log(`✅ DELETE_QUIZ_SUCCESS: Course ${courseId} is now assessment-free.`);
+  revalidatePath(`/admin/courses/${courseId}`);
   return { success: true };
 }

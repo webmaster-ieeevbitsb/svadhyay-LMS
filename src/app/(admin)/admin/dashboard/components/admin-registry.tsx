@@ -1,16 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { addAdmin, removeParticipant } from "@/app/actions/participants";
+import { addAdmin, toggleAdminStatus } from "@/app/actions/participants";
 import { Search, Loader2, ShieldCheck, ShieldAlert, XIcon, Upload } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 
-export function AdminRegistry({ initialParticipants }: { initialParticipants: any[] }) {
-  const [participants, setParticipants] = useState(initialParticipants.filter(p => p.is_admin));
+export function AdminRegistry({ 
+  participants, 
+  fullParticipants,
+  setFullParticipants 
+}: { 
+  participants: any[], 
+  fullParticipants: any[],
+  setFullParticipants: (val: any) => void
+}) {
   const [filter, setFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [errorLine, setErrorLine] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [processingEmail, setProcessingEmail] = useState<string | null>(null);
+  const [confirmingEmail, setConfirmingEmail] = useState<string | null>(null);
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,29 +33,40 @@ export function AdminRegistry({ initialParticipants }: { initialParticipants: an
     if (res.error) {
       setErrorLine(res.error);
     } else {
-      // Check if they are already in the list
-      if (!participants.some(p => p.email === email)) {
-        setParticipants([{
+      if (!fullParticipants.some(p => p.email === email)) {
+        setFullParticipants([{
           email: email.toLowerCase(), 
           name: formData.get("name") || "",
           is_admin: true,
           created_at: new Date().toISOString()
-        }, ...participants]);
+        }, ...fullParticipants]);
       }
       (e.target as HTMLFormElement).reset();
     }
     setIsAdding(false);
   };
 
-  const handleRemove = async (email: string) => {
-    // Basic protection against removing oneself could be added here, 
-    // but the backend doesn't explicitly block it yet.
-    if (!confirm("Are you sure you want to completely remove this admin record?")) return;
+  const handleRevoke = async (email: string) => {
+    setConfirmingEmail(null);
+    setProcessingEmail(email);
+    setErrorLine("");
     
-    setParticipants(participants.filter(p => p.email !== email));
-    const res = await removeParticipant(email);
-    if (res.error) {
-       setErrorLine(`Failed to remove ${email}`);
+    try {
+      const res = await toggleAdminStatus(email, true);
+      if (res.error) {
+         setErrorLine(`Security Override Failed: ${res.error}`);
+      } else {
+         // Update the LIFTED state
+         setFullParticipants(prev => prev.map(p => 
+           p.email.toLowerCase() === email.toLowerCase() 
+           ? { ...p, is_admin: false } 
+           : p
+         ));
+      }
+    } catch (err: any) {
+      setErrorLine(`System Error: ${err.message || "Terminal connection interrupted."}`);
+    } finally {
+      setProcessingEmail(null);
     }
   };
 
@@ -62,6 +82,32 @@ export function AdminRegistry({ initialParticipants }: { initialParticipants: an
         onClose={() => setIsImportOpen(false)} 
         isAdminMode={true} 
       />
+
+      {/* 🛡️ TACTICAL CONFIRMATION MODAL */}
+      {confirmingEmail && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+           <div className="bg-[#0a0a0f] border border-red-500/30 rounded-[2rem] p-8 max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+              <ShieldAlert className="w-12 h-12 text-red-500 mb-6 mx-auto" />
+              <h4 className="text-xl font-black italic tracking-tight uppercase text-white text-center mb-2">Revoke Authority?</h4>
+              <p className="text-zinc-500 text-xs text-center font-bold mb-8 uppercase tracking-widest">Target: {confirmingEmail}</p>
+              <div className="grid grid-cols-2 gap-4">
+                 <button 
+                   onClick={() => setConfirmingEmail(null)}
+                   className="px-6 py-4 bg-white/5 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-white/10 transition-all"
+                 >
+                    Abort
+                 </button>
+                 <button 
+                   onClick={() => handleRevoke(confirmingEmail)}
+                   className="px-6 py-4 bg-red-600 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all"
+                 >
+                    Confirm
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
+
       <div className="bg-[#0a0a0e] border border-blue-500/20 rounded-[2.5rem] p-8 lg:p-12 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.05)]">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[150px] pointer-events-none rounded-full" />
       
@@ -151,10 +197,16 @@ export function AdminRegistry({ initialParticipants }: { initialParticipants: an
                 
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => handleRemove(p.email)}
-                    className="flex items-center gap-2 px-4 py-3 bg-red-500/5 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest active:scale-95"
+                    onClick={() => setConfirmingEmail(p.email)}
+                    disabled={processingEmail === p.email}
+                    className="flex items-center gap-2 px-4 py-3 bg-red-500/5 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest active:scale-95 disabled:opacity-50"
                   >
-                    <XIcon className="w-4 h-4" /> Remove Access
+                    {processingEmail === p.email ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <XIcon className="w-4 h-4" />
+                    )} 
+                    {processingEmail === p.email ? "Processing..." : "Revoke Authorization"}
                   </button>
                 </div>
               </div>

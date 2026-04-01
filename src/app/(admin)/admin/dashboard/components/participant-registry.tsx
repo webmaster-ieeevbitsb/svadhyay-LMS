@@ -6,9 +6,15 @@ import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, 
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
 
-export function ParticipantRegistry({ initialParticipants }: { initialParticipants: any[] }) {
-  // Only show students (non-admins) in this registry
-  const [participants, setParticipants] = useState(initialParticipants.filter(p => !p.is_admin));
+export function ParticipantRegistry({ 
+  participants,
+  fullParticipants,
+  setFullParticipants
+}: { 
+  participants: any[],
+  fullParticipants: any[],
+  setFullParticipants: React.Dispatch<React.SetStateAction<any[]>>
+}) {
   const [filter, setFilter] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [errorLine, setErrorLine] = useState("");
@@ -28,12 +34,14 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
     if (res.error) {
       setErrorLine(res.error);
     } else {
-      setParticipants([{
-        email: email, 
-        name: formData.get("name") || "",
-        is_admin: false,
-        created_at: new Date().toISOString()
-      }, ...participants]);
+      if (!fullParticipants.some(p => p.email === email)) {
+        setFullParticipants(prev => [{
+          email: email.toLowerCase(), 
+          name: formData.get("name") || "",
+          is_admin: false,
+          created_at: new Date().toISOString()
+        }, ...prev]);
+      }
       (e.target as HTMLFormElement).reset();
     }
     setIsAdding(false);
@@ -41,10 +49,13 @@ export function ParticipantRegistry({ initialParticipants }: { initialParticipan
 
 
   const handleRemove = async (email: string) => {
-    setParticipants(participants.filter(p => p.email !== email));
+    if (!confirm("Are you sure? This will permanently delete this student record and all their progress.")) return;
+    
     const res = await removeParticipant(email);
     if (res.error) {
-       setErrorLine(`Failed to remove ${email}`);
+      setErrorLine(`Failed to remove ${email}: ${res.error}`);
+    } else {
+      setFullParticipants(prev => prev.filter(p => p.email.toLowerCase() !== email.toLowerCase()));
     }
   };
 

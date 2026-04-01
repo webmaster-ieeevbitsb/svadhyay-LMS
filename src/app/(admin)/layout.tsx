@@ -20,25 +20,17 @@ export default async function AdminLayout({
 
   const email = user.email.toLowerCase();
   
-  // Developer Bypass - Hardcoded Admin for Initial Setup
-  const isHardcodedAdmin = email === "22p61a0480@vbithyd.ac.in";
-  
-  let isAdmin = false;
-  if (isHardcodedAdmin) {
-    isAdmin = true;
-  } else {
-    // Check if is_admin in participants table
-    const { data: participant } = await supabase
-      .from("participants")
-      .select("is_admin")
-      .eq("email", email)
-      .single();
+  // Check if is_admin in participants table
+  const { data: participant, error: dbError } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", email)
+    .single();
 
-    if (participant?.is_admin) isAdmin = true;
-  }
+  const isAdmin = !!participant?.is_admin;
 
-  if (!isAdmin) {
-    redirect("/dashboard"); // Kick out non-admins to dashboard
+  if (dbError || !isAdmin) {
+    redirect("/dashboard"); // Kick out non-admins or unregistered users to dashboard
   }
 
   return (

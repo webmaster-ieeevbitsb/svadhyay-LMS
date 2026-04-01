@@ -5,8 +5,10 @@ import { ParticipantRegistry } from "./participant-registry";
 import { AdminRegistry } from "./admin-registry";
 import { Users, ShieldCheck } from "lucide-react";
 
-export function DashboardTabs({ participants }: { participants: any[] }) {
+export function DashboardTabs({ participants: initialParticipants }: { participants: any[] }) {
   const [activeTab, setActiveTab] = useState<"students" | "admins">("students");
+  const [participants, setParticipants] = useState<any[]>(initialParticipants);
+
 
   return (
     <div className="space-y-6">
@@ -35,10 +37,18 @@ export function DashboardTabs({ participants }: { participants: any[] }) {
        {/* Tab Content Display */}
        <div className="relative">
           <div className={`${activeTab === 'students' ? 'block animate-in fade-in zoom-in-95 duration-500' : 'hidden'}`}>
-             <ParticipantRegistry initialParticipants={participants} />
+             <ParticipantRegistry 
+               participants={participants.filter(p => !p.is_admin)} 
+               fullParticipants={participants}
+               setFullParticipants={setParticipants}
+             />
           </div>
           <div className={`${activeTab === 'admins' ? 'block animate-in fade-in zoom-in-95 duration-500' : 'hidden'}`}>
-             <AdminRegistry initialParticipants={participants} />
+             <AdminRegistry 
+               participants={participants.filter(p => p.is_admin)} 
+               fullParticipants={participants}
+               setFullParticipants={setParticipants}
+             />
           </div>
        </div>
     </div>

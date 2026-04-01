@@ -5,6 +5,8 @@ import { BookOpen, ArrowRight } from "lucide-react";
 import { Course } from "@/types/database";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   
@@ -14,15 +16,12 @@ export default async function DashboardPage() {
     redirect("/?error=unauthorized");
   }
 
-  const email = user.email.toLowerCase();
-  const isHardcodedAdmin = email === "22p61a0480@vbithyd.ac.in";
-
   // Parallelize data fetching
   const [participantResult, coursesResult, progressResult] = await Promise.all([
     supabase
       .from("participants")
       .select("is_admin")
-      .eq("email", email)
+      .eq("email", user.email.toLowerCase())
       .single(),
     supabase
       .from("courses")
@@ -31,14 +30,18 @@ export default async function DashboardPage() {
     supabase
       .from("student_progress")
       .select("course_id, is_completed, completed_modules")
-      .eq("email", email),
+      .eq("email", user.email.toLowerCase()),
   ]);
+
+  // Server-side Debugging
+  if (coursesResult.error) console.error("❌ COURSE_FETCH_ERROR:", coursesResult.error.message);
+  if (participantResult.error) console.error("❌ PARTICIPANT_FETCH_ERROR:", participantResult.error.message);
 
   const participant = participantResult.data;
   const courses = coursesResult.data;
   const progress = progressResult.data;
 
-  const isAdmin = isHardcodedAdmin || participant?.is_admin;
+  const isAdmin = !!participant?.is_admin;
 
   return (
     <div className="relative min-h-screen">

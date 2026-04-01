@@ -2,6 +2,8 @@ import { fetchParticipants } from "@/app/actions/participants";
 import { DashboardTabs } from "./components/dashboard-tabs";
 import CohortRotator from "./components/cohort-rotator";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const participants = await fetchParticipants();
   
