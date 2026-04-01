@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Avishkar Learning Portal",
-  description: "Next-gen learning architecture for premium engineers.",
+  title: "LMS",
+  description: "Exclusive for Freshman of VBIT",
   icons: {
     icon: "https://avishkar2k25.ieeevbitsb.in/logo/AVK_LOGO.png",
   },
