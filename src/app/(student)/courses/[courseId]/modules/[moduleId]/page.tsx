@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Accordion } from "@/components/ui/accordion";
 import { StudentMiniQuiz } from "./components/student-mini-quiz";
+import { LearningPathwayHUD } from "./components/learning-pathway-hud";
 import MarkCompleteButton from "./components/mark-complete-button";
 import { ModuleContent } from "@/types/database";
 
@@ -42,7 +43,7 @@ export default async function StudentModulePage({ params }: StudentModulePagePro
   const sc = module.structured_content as ModuleContent | null;
 
   return (
-    <div className="flex flex-col bg-[#050508] min-h-full selection:bg-blue-500/30 relative">
+    <div className="flex flex-col bg-[#050508] selection:bg-blue-500/30 relative">
       
       {/* 💠 Tactical Abstracts — Main Background Depth */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40 z-0">
@@ -69,118 +70,13 @@ export default async function StudentModulePage({ params }: StudentModulePagePro
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-h-0 bg-transparent relative z-10">
+        <LearningPathwayHUD 
+          courseId={courseId}
+          moduleId={moduleId}
+          allModules={allModules || []}
+        />
         
-        {/* 🧭 Strategic Command HUD — authoratative mapping overlay */}
-        <div className="group fixed top-20 left-0 w-full z-40 bg-transparent">
-          {/* 🔘 Data Rail — The always-visible tactical backbone */}
-          <div className="h-10 w-full bg-white/[0.03] overflow-hidden relative border-b border-white/[0.05] transition-all group-hover:h-1">
-             {/* Pulsing Data Stream */}
-             <div className="absolute inset-y-0 left-0 bg-blue-500/30 w-full animate-[pulse_3s_infinite] blur-sm opacity-20" />
-             
-             {/* 🧭 Interaction Indicator — High visibility 'thingy' */}
-             <div className="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity">
-                <div className="flex items-center gap-6 px-10 py-2 border-x border-blue-500/20 bg-blue-500/5">
-                   <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_12px_#3b82f6]" />
-                   <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400">EXPLORE_COURSE_PATH</span>
-                   <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_12px_#3b82f6]" />
-                </div>
-             </div>
-
-             {/* Node Pips — Compact mapping markers (Hidden on hover to clean up) */}
-             <div className="absolute inset-y-0 left-0 w-full flex items-center justify-around px-24 opacity-40 group-hover:opacity-0 transition-opacity">
-                {allModules?.map((m) => (
-                  <div key={m.id} className={`w-1 h-1 rounded-full ${m.id === moduleId ? 'bg-blue-400 shadow-[0_0_8px_#3b82f6]' : 'bg-white/20'}`} />
-                ))}
-             </div>
-          </div>
-
-          {/* 🖥️ Command Overlay — The expanded strategic view */}
-          <div className="h-0 group-hover:h-[350px] bg-[#050508]/95 backdrop-blur-3xl border-b border-blue-500/10 overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
-             <div className="max-w-7xl mx-auto h-full px-12 py-8 flex flex-col items-center relative">
-                {/* HUD Header */}
-                <div className="w-full flex items-center justify-between mb-12 border-b border-white/5 pb-4">
-                   <div className="flex items-center gap-4">
-                      <div className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-[9px] font-black tracking-[0.3em] text-blue-400">
-                         LEARNING_PATHWAY
-                      </div>
-                   </div>
-                   <Link href={`/courses/${courseId}`} className="group/btn flex items-center gap-3 text-[10px] font-black text-zinc-400 hover:text-white transition-all uppercase tracking-widest">
-                      <ArrowLeft className="w-4 h-4 group-hover/btn:-translate-x-1 transition-transform" />
-                      <span>Back to Path Overview</span>
-                   </Link>
-                </div>
-
-                {/* 🔗 Symmetric Data Path */}
-                <div className="flex-1 w-full flex items-center justify-center gap-32 relative">
-                   {/* Background connection line */}
-                   <div className="absolute top-1/2 left-[10%] right-[10%] h-[2px] bg-white/[0.03] z-0 shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
-                   
-                   {allModules?.map((m, idx) => {
-                     const isActive = m.id === moduleId;
-                     const isCompleted = idx < currentIndex;
-                     
-                     return (
-                       <Link 
-                        key={m.id} 
-                        href={`/courses/${courseId}/modules/${m.id}`}
-                        className="relative z-10 group/node"
-                       >
-                         {/* Node Connector Line (Animated for current path) */}
-                         {idx > 0 && (
-                            <div className={`absolute right-full top-1/2 -translate-y-1/2 h-px transition-all duration-1000 ${
-                              isActive || isCompleted ? 'w-2 sm:w-4 md:w-8 lg:w-12 xl:w-16 bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'w-0 bg-white/5'
-                            }`} />
-                         )}
-
-                         <div className="flex flex-col items-center gap-6">
-                            {/* The Node Identifier */}
-                            <div className={`w-16 h-16 rounded-2xl border-2 rotate-45 flex items-center justify-center transition-all duration-500 overflow-hidden relative ${
-                               isActive 
-                                 ? 'bg-blue-600/20 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-110' 
-                                 : 'bg-[#0a0a0f] border-white/10 hover:border-blue-500/50 hover:bg-white/[0.03]'
-                            }`}>
-                               <span className={`-rotate-45 text-sm font-black italic tracking-tighter ${isActive ? 'text-white' : 'text-zinc-600 group-hover/node:text-white'}`}>
-                                 {m.order_index < 10 ? `0${m.order_index}` : m.order_index}
-                               </span>
-                               
-                               {/* Active Pulse scan line */}
-                               {isActive && (
-                                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-400/20 to-transparent -translate-y-full animate-[scan_2s_linear_infinite]" />
-                               )}
-                            </div>
-
-                            {/* Node Metadata (Reveals on parent hover or if active) */}
-                            <div className={`absolute top-24 w-48 text-center flex flex-col items-center gap-1 transition-all duration-500 ${
-                               isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90 group-hover/node:opacity-100 group-hover/node:scale-100'
-                            }`}>
-                               <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${isActive ? 'text-blue-400' : 'text-zinc-600'}`}>
-                                 {isActive ? 'CURRENT_SESSION' : ''}
-                               </span>
-                               <h4 className="text-[11px] font-black uppercase tracking-tight text-white line-clamp-2 leading-tight">
-                                 {m.title}
-                               </h4>
-                            </div>
-                         </div>
-                       </Link>
-                     )
-                   })}
-                </div>
-
-                {/* HUD Footer status */}
-                <div className="w-full flex justify-between items-center mt-auto border-t border-white/5 pt-4 opacity-30">
-                   <div className="flex gap-4">
-                      <div className="w-1 h-3 bg-zinc-700" />
-                      <div className="w-1 h-3 bg-zinc-700" />
-                      <div className="w-1 h-3 bg-zinc-700" />
-                   </div>
-                   <div className="text-[8px] font-mono text-zinc-500 uppercase tracking-widest">
-                      AUTHENTICATED_SESSION_ACTIVE
-                   </div>
-                </div>
-             </div>
-          </div>
-        </div>
-        <div className="max-w-4xl mx-auto w-full p-6 md:p-12 space-y-16 pb-64 relative z-10">
+        <div className="max-w-4xl mx-auto w-full p-6 md:p-12 space-y-16 pb-96 relative z-10">
           
           <div className="space-y-6">
             <div className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -338,33 +234,33 @@ export default async function StudentModulePage({ params }: StudentModulePagePro
           />
 
           {/* Navigation Controls */}
-          <div className="flex items-center justify-between pt-12 border-t border-white/10 mt-20">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 pt-12 border-t border-white/10 mt-20">
             {prevModule ? (
               <Link 
                 href={`/courses/${courseId}/modules/${prevModule.id}`}
-                className="group flex flex-col items-start gap-2"
+                className="group flex flex-col items-center md:items-start gap-2 w-full md:w-auto"
               >
                 <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Previous Phase</span>
                 <div className="flex items-center space-x-2 text-white font-bold group-hover:text-blue-500 transition-colors">
-                   <ChevronLeft className="w-5 h-5" />
-                   <span className="text-lg">{prevModule.title}</span>
+                   <ChevronLeft className="w-5 h-5 shrink-0" />
+                   <span className="text-base md:text-lg text-center md:text-left">{prevModule.title}</span>
                 </div>
               </Link>
-            ) : <div />}
+            ) : <div className="hidden md:block" />}
 
             {nextModule ? (
               <Link 
                 href={`/courses/${courseId}/modules/${nextModule.id}`}
-                className="group flex flex-col items-end gap-2 text-right"
+                className="group flex flex-col items-center md:items-end gap-2 text-center md:text-right w-full md:w-auto"
               >
                 <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Next Phase</span>
                 <div className="flex items-center space-x-2 text-white font-bold group-hover:text-blue-500 transition-colors">
-                   <span className="text-lg">{nextModule.title}</span>
-                   <ChevronRight className="w-5 h-5" />
+                   <span className="text-base md:text-lg text-center md:text-right">{nextModule.title}</span>
+                   <ChevronRight className="w-5 h-5 shrink-0" />
                 </div>
               </Link>
             ) : (
-               <div className="flex flex-col items-end gap-2 text-right">
+               <div className="flex flex-col items-center md:items-end gap-2 text-center md:text-right w-full md:w-auto">
                 <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Module Finalized</span>
                 <Link href={`/courses/${courseId}`} className="text-blue-500 hover:text-white transition-colors flex items-center gap-2 font-black italic uppercase tracking-tighter text-xl">
                    <span>Back to Path</span>

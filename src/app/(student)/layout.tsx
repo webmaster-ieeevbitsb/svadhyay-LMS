@@ -119,7 +119,7 @@ export default async function StudentLayout({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(5,5,8,0.4)_70%,rgba(5,5,8,0.8)_100%)]" />
       </div>
       <Navbar />
-      <main className="flex-1 w-full relative z-10">
+      <main className="flex-1 w-full relative z-10 mb-24">
         {children}
       </main>
 
