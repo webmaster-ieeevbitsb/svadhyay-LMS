@@ -77,6 +77,7 @@ export default function ModuleEditorForm({
         example: "", 
         common_mistake: "", 
         try_it: "",
+        video_url: "",
         custom_sections: []
       }]
     });
@@ -252,6 +253,17 @@ export default function ModuleEditorForm({
                     <div className="md:col-span-2">
                        <RichTextarea label="Try It" value={dd.try_it} onChange={(val: string) => updateDropdown(idx, "try_it", val)} />
                     </div>
+
+                    <div className="md:col-span-2 space-y-2">
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block">Sub-module Video URL (Optional)</label>
+                       <input 
+                         value={dd.video_url || ""}
+                         onChange={(e) => updateDropdown(idx, "video_url", e.target.value)}
+                         className="w-full bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
+                         placeholder="https://www.youtube.com/embed/..."
+                       />
+                    </div>
+
 
                     {/* Custom Sections */}
                     {dd.custom_sections?.map((section, sIdx) => (

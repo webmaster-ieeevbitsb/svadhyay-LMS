@@ -24,6 +24,7 @@ export type ModuleContent = {
     example: string;
     common_mistake: string;
     try_it: string;
+    video_url?: string | null;
     custom_sections?: Array<{
       heading: string;
       content: string;

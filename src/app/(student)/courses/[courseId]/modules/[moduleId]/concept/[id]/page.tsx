@@ -47,6 +47,24 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
           <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">{concept.title}</h1>
         </div>
 
+        {/* 🎬 CONCEPT_VIDEO_DEPLOYMENT (Optional) */}
+        {concept.video_url && (
+           <div className="space-y-4">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl relative group shadow-blue-500/10">
+                 <iframe 
+                   src={concept.video_url}
+                   className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
+                   allowFullScreen
+                 />
+                 <div className="absolute inset-0 pointer-events-none border-[2px] border-white/[0.05] rounded-2xl shadow-inner" />
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/5 border border-blue-500/10 rounded-lg w-fit">
+                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400">Master_Concept_Feed_Active</span>
+              </div>
+           </div>
+        )}
+
         <div className="grid grid-cols-1 gap-12">
           {/* Boilerplate Sections */}
           <Section label="What it is" content={concept.what_it_is} />
