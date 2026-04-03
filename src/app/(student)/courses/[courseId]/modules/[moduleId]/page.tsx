@@ -87,11 +87,19 @@ export default async function ModulePage({ params }: ModulePageProps) {
            </div>
 
            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl relative group">
-              <iframe 
-                src={module.video_url || ""}
-                className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
-                allowFullScreen
-              />
+              {module.video_url ? (
+                <iframe 
+                  src={module.video_url}
+                  className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-950/50">
+                   <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] animate-pulse">
+                      CORE_VIDEO_FEED_OFFLINE
+                   </div>
+                </div>
+              )}
               <div className="absolute inset-0 pointer-events-none border-[20px] border-white/[0.02] rounded-2xl" />
            </div>
 
