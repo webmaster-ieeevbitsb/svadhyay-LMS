@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered } from "lucide-react";
+import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video } from "lucide-react";
 
 interface RichTextareaProps {
   value: string;
@@ -49,6 +49,16 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
     }, 0);
   };
 
+  const handleInsertImage = () => {
+    const url = window.prompt("Enter Image URL:");
+    if (url) insertMarker(`![image](${url})`, "");
+  };
+
+  const handleInsertVideo = () => {
+    const url = window.prompt("Enter Video Link (YouTube/Vimeo Embed URL):");
+    if (url) insertMarker(`![video](${url})`, "");
+  };
+
   return (
     <div className={`space-y-2 group/rt ${className}`}>
       <div className="flex items-center justify-between">
@@ -78,6 +88,9 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
           <div className="w-px h-4 bg-white/10 mx-1" />
           <ToolbarButton icon={<Superscript className="w-3.5 h-3.5" />} onClick={() => insertMarker("^", "^")} tooltip="Superscript" />
           <ToolbarButton icon={<Subscript className="w-3.5 h-3.5" />} onClick={() => insertMarker("~", "~")} tooltip="Subscript" />
+          <div className="w-px h-4 bg-white/10 mx-1" />
+          <ToolbarButton icon={<Image className="w-3.5 h-3.5" />} onClick={handleInsertImage} tooltip="Insert Image" />
+          <ToolbarButton icon={<Video className="w-3.5 h-3.5" />} onClick={handleInsertVideo} tooltip="Insert Video" />
         </div>
       )}
 
