@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import AdminSidebar from "./components/admin-sidebar";
 import AdminHeader from "./components/admin-header";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
 
 export default async function AdminLayout({
   children,
@@ -35,6 +36,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-[#0a0a0e] text-zinc-400 font-sans flex flex-col items-stretch overflow-hidden">
+      <ScrollToTop />
       <AdminHeader />
       <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-80px)] overflow-hidden">
         <AdminSidebar />

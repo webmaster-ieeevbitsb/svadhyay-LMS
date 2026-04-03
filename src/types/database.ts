@@ -24,6 +24,10 @@ export type ModuleContent = {
     example: string;
     common_mistake: string;
     try_it: string;
+    custom_sections?: Array<{
+      heading: string;
+      content: string;
+    }>;
   }>;
   activity_block: {
     title: string;

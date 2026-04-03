@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Save, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { updateModuleContent } from "@/app/actions/builder";
 import { ModuleContent } from "@/types/database";
+import { RichTextarea } from "@/app/(admin)/components/rich-textarea";
 
 interface ModuleData {
   title: string;
@@ -69,8 +70,39 @@ export default function ModuleEditorForm({
 
   const addDropdown = () => {
     updateSC({
-      drop_downs: [...sc.drop_downs, { title: "New Concept", what_it_is: "", why_it_matters: "", example: "", common_mistake: "", try_it: "" }]
+      drop_downs: [...sc.drop_downs, { 
+        title: "New Concept", 
+        what_it_is: "", 
+        why_it_matters: "", 
+        example: "", 
+        common_mistake: "", 
+        try_it: "",
+        custom_sections: []
+      }]
     });
+  };
+
+  const addCustomSection = (dropdownIndex: number) => {
+    const newDDs = [...sc.drop_downs];
+    newDDs[dropdownIndex].custom_sections = [
+      ...(newDDs[dropdownIndex].custom_sections || []),
+      { heading: "New Subheading", content: "" }
+    ];
+    updateSC({ drop_downs: newDDs });
+  };
+
+  const updateCustomSection = (dropdownIndex: number, sectionIndex: number, field: "heading" | "content", value: string) => {
+    const newDDs = [...sc.drop_downs];
+    if (newDDs[dropdownIndex].custom_sections) {
+      newDDs[dropdownIndex].custom_sections![sectionIndex][field] = value;
+      updateSC({ drop_downs: newDDs });
+    }
+  };
+
+  const removeCustomSection = (dropdownIndex: number, sectionIndex: number) => {
+    const newDDs = [...sc.drop_downs];
+    newDDs[dropdownIndex].custom_sections = newDDs[dropdownIndex].custom_sections?.filter((_, i) => i !== sectionIndex);
+    updateSC({ drop_downs: newDDs });
   };
 
   const removeDropdown = (index: number) => {
@@ -79,10 +111,14 @@ export default function ModuleEditorForm({
     });
   };
 
-  const updateDropdown = (index: number, field: keyof ModuleContent["drop_downs"][0], value: string) => {
+  const updateDropdown = (index: number, field: keyof Omit<ModuleContent["drop_downs"][0], "custom_sections">, value: string) => {
     const newDDs = [...sc.drop_downs];
-    newDDs[index][field] = value;
+    (newDDs[index] as any)[field] = value;
     updateSC({ drop_downs: newDDs });
+  };
+
+  const removeQuiz = () => {
+    updateSC({ mini_quiz: { title: "Mini Quiz", questions: [] } });
   };
 
   const addReference = () => {
@@ -127,12 +163,11 @@ export default function ModuleEditorForm({
            <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2">Core Identity & Video</h3>
            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2">Module Objective (One-line)</label>
-                  <input 
+                <div className="md:col-span-2">
+                  <RichTextarea 
+                    label="Module Objective (Multiline)"
                     value={sc.module_objective || ""}
-                    onChange={(e) => updateSC({ module_objective: e.target.value })}
-                    className="w-full bg-zinc-950/50 border border-white/10 p-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm rounded"
+                    onChange={(val: string) => updateSC({ module_objective: val })}
                     placeholder="Build mental clarity about..."
                   />
                 </div>
@@ -147,15 +182,12 @@ export default function ModuleEditorForm({
                 </div>
               </div>
 
-              <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2">Module Intro Text</label>
-                <textarea 
-                  value={sc.intro_text || ""}
-                  onChange={(e) => updateSC({ intro_text: e.target.value })}
-                  className="w-full bg-zinc-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-blue-500 transition-colors min-h-[100px] text-sm rounded"
-                  placeholder="This module builds the foundation..."
-                />
-              </div>
+              <RichTextarea 
+                label="Module Intro Text"
+                value={sc.intro_text || ""}
+                onChange={(val: string) => updateSC({ intro_text: val })}
+                placeholder="This module builds the foundation..."
+              />
 
               <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-4">
                 <div>
@@ -192,52 +224,65 @@ export default function ModuleEditorForm({
         </section>
 
         {/* Dropdowns (Accordions) */}
-        <section className="space-y-4">
-           <div className="flex items-center justify-between border-b border-white/5 pb-2">
-             <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest">Concept Dropdowns</h3>
-             <button onClick={addDropdown} className="text-blue-500 hover:text-blue-400 text-xs flex items-center gap-1 uppercase font-bold tracking-widest">
-               <Plus className="w-4 h-4" /> Add Dropdown
-             </button>
-           </div>
+         <section className="space-y-4">
+            <div className="flex items-center justify-between border-b border-white/5 pb-2">
+              <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest">Conceptual Sub-modules</h3>
+              <button type="button" onClick={addDropdown} className="text-blue-500 hover:text-blue-400 text-xs flex items-center gap-1.5 uppercase font-bold tracking-widest">
+                <Plus className="w-4 h-4" /> Add Sub-module
+              </button>
+            </div>
            
            <div className="space-y-6">
               {sc.drop_downs.map((dd, idx) => (
                 <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 relative group">
-                  <button onClick={() => removeDropdown(idx)} className="absolute top-4 right-4 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button type="button" onClick={() => removeDropdown(idx)} className="absolute top-4 right-4 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <input 
                     value={dd.title}
                     onChange={(e) => updateDropdown(idx, "title", e.target.value)}
                     className="bg-transparent text-lg font-bold text-white focus:outline-none border-b border-white/10 focus:border-blue-500 w-full pb-2"
-                    placeholder="Dropdown Title (e.g., AI vs ML vs DL)"
+                    placeholder="Sub-module Title (e.g., AI vs ML vs DL)"
                   />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-[10px] uppercase text-zinc-500 block mb-1">What it is</label>
-                      <textarea value={dd.what_it_is} onChange={e => updateDropdown(idx, "what_it_is", e.target.value)} className="w-full bg-black/30 border border-white/5 p-2 text-xs text-zinc-300 rounded h-24" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase text-zinc-500 block mb-1">Why it matters</label>
-                      <textarea value={dd.why_it_matters} onChange={e => updateDropdown(idx, "why_it_matters", e.target.value)} className="w-full bg-black/30 border border-white/5 p-2 text-xs text-zinc-300 rounded h-24" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase text-zinc-500 block mb-1">Example</label>
-                      <textarea value={dd.example} onChange={e => updateDropdown(idx, "example", e.target.value)} className="w-full bg-black/30 border border-white/5 p-2 text-xs text-zinc-300 rounded h-24" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase text-zinc-500 block mb-1">Common Mistake</label>
-                      <textarea value={dd.common_mistake} onChange={e => updateDropdown(idx, "common_mistake", e.target.value)} className="w-full bg-black/30 border border-white/5 p-2 text-xs text-zinc-300 rounded h-24" />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <RichTextarea label="What it is" value={dd.what_it_is} onChange={(val: string) => updateDropdown(idx, "what_it_is", val)} />
+                    <RichTextarea label="Why it matters" value={dd.why_it_matters} onChange={(val: string) => updateDropdown(idx, "why_it_matters", val)} />
+                    <RichTextarea label="Example" value={dd.example} onChange={(val: string) => updateDropdown(idx, "example", val)} />
+                    <RichTextarea label="Common Mistake" value={dd.common_mistake} onChange={(val: string) => updateDropdown(idx, "common_mistake", val)} />
                     <div className="md:col-span-2">
-                      <label className="text-[10px] uppercase text-zinc-500 block mb-1">Try It</label>
-                      <textarea value={dd.try_it} onChange={e => updateDropdown(idx, "try_it", e.target.value)} className="w-full bg-black/30 border border-white/5 p-2 text-xs text-zinc-300 rounded h-16" />
+                       <RichTextarea label="Try It" value={dd.try_it} onChange={(val: string) => updateDropdown(idx, "try_it", val)} />
+                    </div>
+
+                    {/* Custom Sections */}
+                    {dd.custom_sections?.map((section, sIdx) => (
+                      <div key={sIdx} className="md:col-span-2 bg-black/20 p-4 rounded-xl border border-white/5 space-y-4 relative group/section">
+                        <button type="button" onClick={() => removeCustomSection(idx, sIdx)} className="absolute top-2 right-2 text-zinc-600 hover:text-red-500 opacity-0 group-hover/section:opacity-100 transition-opacity">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <input 
+                          value={section.heading}
+                          onChange={e => updateCustomSection(idx, sIdx, "heading", e.target.value)}
+                          className="bg-transparent text-sm font-bold text-blue-400 focus:outline-none border-b border-white/5 w-full pb-1"
+                          placeholder="Custom Subheading..."
+                        />
+                        <RichTextarea value={section.content} onChange={(val: string) => updateCustomSection(idx, sIdx, "content", val)} className="mt-2" />
+                      </div>
+                    ))}
+                    
+                    <div className="md:col-span-2 pt-2">
+                      <button 
+                        type="button"
+                        onClick={() => addCustomSection(idx)}
+                        className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-blue-400 flex items-center gap-1.5 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Custom Subheading & Para
+                      </button>
                     </div>
                   </div>
                 </div>
               ))}
               {sc.drop_downs.length === 0 && (
-                <div className="text-center p-8 border border-dashed border-white/10 rounded-lg text-zinc-600 text-xs">No dropdowns added.</div>
+                <div className="text-center p-8 border border-dashed border-white/10 rounded-lg text-zinc-600 text-xs">No sub-modules added.</div>
               )}
            </div>
         </section>
@@ -252,33 +297,33 @@ export default function ModuleEditorForm({
                 className="bg-transparent text-lg font-bold text-white focus:outline-none border-b border-white/10 focus:border-blue-500 w-full pb-2"
                 placeholder="Activity Title..."
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] uppercase text-zinc-500 block mb-1">Instructions / Tasks</label>
-                  <textarea 
-                    value={sc.activity_block?.instructions || ""} 
-                    onChange={e => updateSC({ activity_block: { ...sc.activity_block, instructions: e.target.value } as any })} 
-                    className="w-full bg-black/30 border border-white/5 p-3 text-xs text-zinc-300 rounded h-32" 
-                    placeholder="Give tasks..."
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] uppercase text-zinc-500 block mb-1">Expected Outcome</label>
-                  <textarea 
-                    value={sc.activity_block?.outcome_expected || ""} 
-                    onChange={e => updateSC({ activity_block: { ...sc.activity_block, outcome_expected: e.target.value } as any })} 
-                    className="w-full bg-black/30 border border-white/5 p-3 text-xs text-zinc-300 rounded h-32" 
-                    placeholder="Learners should understand that..."
-                  />
-                </div>
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <RichTextarea 
+                   label="Instructions / Tasks" 
+                   value={sc.activity_block?.instructions || ""} 
+                   onChange={(val: string) => updateSC({ activity_block: { ...sc.activity_block, instructions: val } as any })} 
+                   placeholder="Give tasks..."
+                 />
+                 <RichTextarea 
+                   label="Expected Outcome" 
+                   value={sc.activity_block?.outcome_expected || ""} 
+                   onChange={(val: string) => updateSC({ activity_block: { ...sc.activity_block, outcome_expected: val } as any })} 
+                   placeholder="Learners should understand that..."
+                 />
+               </div>
            </div>
         </section>
 
-        {/* Mini Quiz */}
-        <section className="space-y-4">
-           <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2">Mini Quiz</h3>
-           <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-6 space-y-4">
+         <section className="space-y-4">
+            <div className="flex items-center justify-between border-b border-white/5 pb-2">
+               <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest">Mini Quiz</h3>
+               {(sc.mini_quiz?.questions?.length ?? 0) > 0 && (
+                 <button type="button" onClick={removeQuiz} className="text-red-500/50 hover:text-red-500 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                    <Trash2 className="w-3 h-3" /> Terminate Assessment
+                 </button>
+               )}
+            </div>
+            <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-6 space-y-4">
               <div className="space-y-3">
                 {(sc.mini_quiz?.questions || []).map((q, idx) => (
                   <div key={idx} className="flex gap-4 items-center bg-black/40 p-3 rounded border border-white/5">
@@ -304,9 +349,10 @@ export default function ModuleEditorForm({
                       <option value="true">True</option>
                       <option value="false">False</option>
                     </select>
-                    <button onClick={() => {
-                        const newQ = sc.mini_quiz!.questions.filter((_, i) => i !== idx);
-                        updateSC({ mini_quiz: { ...sc.mini_quiz!, questions: newQ } });
+                    <button type="button" onClick={() => {
+                        const questions = sc.mini_quiz?.questions || [];
+                        const newQ = questions.filter((_, i) => i !== idx);
+                        updateSC({ mini_quiz: { title: sc.mini_quiz?.title || "Mini Quiz", questions: newQ } });
                     }} className="text-red-500 opacity-50 hover:opacity-100">
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -314,6 +360,7 @@ export default function ModuleEditorForm({
                 ))}
                 
                 <button 
+                  type="button"
                   onClick={() => {
                      const q = sc.mini_quiz?.questions || [];
                      updateSC({ mini_quiz: { ...sc.mini_quiz!, questions: [...q, { question_text: "", correct_answer: true }] } });

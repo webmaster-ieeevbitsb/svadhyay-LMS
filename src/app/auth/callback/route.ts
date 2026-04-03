@@ -13,7 +13,32 @@ export async function GET(request: Request) {
     
     if (error) {
       console.error('Auth callback error:', error.message)
-      return NextResponse.redirect(`${origin}${next}/?error=${encodeURIComponent(error.message)}`)
+      return NextResponse.redirect(`${origin}/?error=${encodeURIComponent(error.message)}`)
+    }
+
+    // After successful session exchange, verify registry and domain
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (user?.email) {
+      const email = user.email.toLowerCase()
+      
+      // 1. Registry Check (Primary Authority)
+      const { data: participant } = await supabase
+        .from('participants')
+        .select('email')
+        .eq('email', email)
+        .single()
+
+      if (!participant) {
+        // 2. Fallback Domain Check for localized error messaging
+        await supabase.auth.signOut()
+        
+        if (!email.endsWith('@vbithyd.ac.in')) {
+          return NextResponse.redirect(`${origin}/?error=invalid_domain`)
+        } else {
+          return NextResponse.redirect(`${origin}/?error=unauthorized_institutional`)
+        }
+      }
     }
 
     // Success - direct server-side redirect to dashboard

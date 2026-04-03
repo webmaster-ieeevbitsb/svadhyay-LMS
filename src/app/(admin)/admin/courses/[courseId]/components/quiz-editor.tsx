@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateQuizQuestion, addQuizQuestion, deleteQuizQuestion } from "@/app/actions/builder";
-import { Loader2, Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { updateQuizQuestion, addQuizQuestion, deleteQuizQuestion, deleteQuiz } from "@/app/actions/builder";
+import { Loader2, Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz: any, questions: any[] }) {
@@ -39,34 +39,67 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
     });
   };
 
-  const handleDeleteQuestion = (id: string) => {
+  const handleDeleteQuestion = async (id: string) => {
     if (!confirm("Are you sure you want to deallocate this assessment node?")) return;
-    startTransition(async () => {
-      const res = await deleteQuizQuestion(id);
-      if (res.error) {
-        toast.error(res.error);
-      } else {
-        setQuestions(questions.filter(q => q.id !== id));
-        toast.success("Node Deallocated");
-      }
-    });
+    const toastId = toast.loading("Deallocating Node...");
+    
+    try {
+      const response = await fetch(`/api/admin/assessment/question/${id}`, { method: 'DELETE' });
+      const res = await response.json();
+
+      if (!response.ok) throw new Error(res.error || "Deallocation Failed");
+
+      setQuestions(prev => prev.filter(q => q.id !== id));
+      toast.success("Node Deallocated", { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "Deallocation Failure", { id: toastId });
+    }
+  };
+
+  const handleTerminateAssessment = async () => {
+    if (!confirm("CRITICAL WARNING: This will entirely deallocate the assessment architecture for this course. Proceed?")) return;
+    const toastId = toast.loading("Terminating Evaluation Protocol...");
+    
+    try {
+      const response = await fetch(`/api/admin/assessment/terminate?courseId=${quiz.course_id}`, { method: 'DELETE' });
+      const res = await response.json();
+
+      if (!response.ok) throw new Error(res.error || "Termination Failed");
+
+      toast.success("Assessment Terminated", { id: toastId });
+      window.location.reload();
+    } catch (err: any) {
+       toast.error(err.message || "Termination Failure", { id: toastId });
+    }
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="flex items-center justify-between border-b border-white/5 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-6">
          <div>
             <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white">Assessment <span className="text-blue-500">Editor</span></h2>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Configure Final Certification Criteria</p>
          </div>
-         <button 
-           onClick={handleAddQuestion}
-           disabled={isPending}
-           className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-95 flex items-center gap-2 group"
-         >
-           {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />}
-           Add Question
-         </button>
+         <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={handleTerminateAssessment}
+              disabled={isPending}
+              className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold uppercase text-[9px] tracking-widest rounded-xl transition-all border border-red-500/20 active:scale-95 flex items-center gap-2"
+            >
+              <XCircle className="w-4 h-4" />
+              Terminate Assessment
+            </button>
+            <button 
+              type="button"
+              onClick={handleAddQuestion}
+              disabled={isPending}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-95 flex items-center gap-2 group"
+            >
+              {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />}
+              Add Question
+            </button>
+         </div>
       </div>
 
       <div className="space-y-6">
@@ -90,6 +123,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
                  </div>
                  <div className="flex items-center gap-3 ml-6">
                     <button 
+                      type="button"
                       onClick={() => handleSaveQuestion(q)}
                       disabled={isSaving}
                       className={`p-4 rounded-xl transition-all flex items-center justify-center ${isSaving ? 'bg-blue-600/20 text-blue-500' : 'bg-white/5 border border-white/5 hover:bg-blue-600 hover:text-white text-zinc-500'}`}
@@ -98,6 +132,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
                       {isSaving ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                     </button>
                     <button 
+                      type="button"
                       onClick={() => handleDeleteQuestion(q.id)}
                       className="p-4 bg-white/5 border border-white/5 hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-500 rounded-xl text-zinc-600 transition-all"
                       title="Deallocate Node"
@@ -111,6 +146,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
                  {q.options?.map((opt: string, oidx: number) => (
                    <div key={oidx} className="flex items-center gap-4 p-5 bg-black/60 border border-white/5 rounded-2xl group/opt focus-within:border-blue-500/40 transition-all">
                       <button 
+                        type="button"
                         onClick={() => handleUpdateQuestion(q.id, 'correct_answer', opt)}
                         className={`w-8 h-8 rounded-xl border transition-all flex items-center justify-center shrink-0 ${q.correct_answer === opt ? 'bg-blue-600 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'border-white/10 hover:border-white/20'}`}
                       >
@@ -137,7 +173,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
           <div className="p-24 border border-dashed border-white/5 rounded-[3rem] text-center bg-white/[0.01]">
              <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center mx-auto mb-6">
                 <AlertCircle className="w-8 h-8 text-zinc-700" />
-             </div>
+              </div>
              <p className="text-zinc-600 uppercase font-black tracking-[0.4em] text-[10px]">No assessment nodes initialized</p>
              <p className="text-zinc-800 text-[10px] mt-2 font-bold uppercase tracking-widest">Protocol requires at least one evaluative parameter</p>
           </div>

@@ -200,14 +200,35 @@ export async function deleteQuizQuestion(questionId: string) {
   console.log(`🛠️ DELETE_ACTION: Attempting to deallocate node ${questionId}`);
   const supabase = await createClient();
 
-  const { error } = await supabase
+  // 1. Verify Admin Status Manually (Bypass RLS dependency for logic check)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { error: "Authorization Protocol Failure" };
+
+  const { data: adminCheck } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", user.email.toLowerCase())
+    .single();
+
+  if (!adminCheck?.is_admin) {
+    console.warn(`🛑 Permission Denied: ${user.email} is not a verified admin.`);
+    return { error: "Security Access Violation: Admin Clearance Required" };
+  }
+
+  // 2. Attempt Delete with detailed feedback
+  const { error, count } = await supabase
     .from("quiz_questions")
-    .delete()
+    .delete({ count: 'exact' })
     .eq("id", questionId);
 
   if (error) {
     console.error("❌ DELETE_QUESTION_ERROR:", error);
-    return { error: `Security/Database Rejection: ${error.message}` };
+    return { error: `Database Rejection: ${error.message}` };
+  }
+
+  if (count === 0) {
+    console.warn("⚠️ DELETE_NOP: No rows affected. This points to an RLS policy block.");
+    return { error: "RLS Access Restriction: The database rejected the delete command despite admin status." };
   }
 
   console.log(`✅ DELETE_SUCCESS: Node ${questionId} removed.`);
@@ -218,17 +239,41 @@ export async function deleteQuiz(courseId: string) {
   console.log(`🛠️ DELETE_QUIZ: Deallocating entire assessment for course ${courseId}`);
   const supabase = await createClient();
 
-  // This will delete the quiz and cascade to questions (if DB set to cascade) 
-  // or we need to ensure questions are gone. 
-  // RLS will check if current user is admin.
-  const { error } = await supabase
+  // 1. Verify Admin Status
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { error: "Authorization Protocol Failure" };
+  const { data: adminCheck } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", user.email.toLowerCase())
+    .single();
+
+  if (!adminCheck?.is_admin) return { error: "Security Access Violation" };
+
+  // 2. Get the quiz ID safely
+  const { data: quiz, error: fetchError } = await supabase
     .from("quizzes")
-    .delete()
+    .select("id")
+    .eq("course_id", courseId)
+    .maybeSingle();
+
+  if (fetchError) return { error: `Database Lookup Failure: ${fetchError.message}` };
+
+  if (quiz) {
+    console.log(`🛠️ Force-clearing questions for quiz ${quiz.id}`);
+    await supabase.from("quiz_questions").delete().eq("quiz_id", quiz.id);
+  }
+
+  // 3. Delete the quiz header with count verification
+  const { error: deleteError, count } = await supabase
+    .from("quizzes")
+    .delete({ count: 'exact' })
     .eq("course_id", courseId);
 
-  if (error) {
-    console.error("❌ DELETE_QUIZ_ERROR:", error);
-    return { error: `Security Failure: ${error.message}` };
+  if (deleteError) return { error: `Termination Protocol Rejected: ${deleteError.message}` };
+  
+  if (count === 0) {
+    return { error: "RLS Access Restriction: Database rejected the assessment termination." };
   }
 
   console.log(`✅ DELETE_QUIZ_SUCCESS: Course ${courseId} is now assessment-free.`);

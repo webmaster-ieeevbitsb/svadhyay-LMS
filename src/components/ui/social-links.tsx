@@ -45,7 +45,7 @@ export function SocialLinks({ className = "" }: { className?: string }) {
   ];
 
   return (
-    <div className={`flex items-center gap-8 ${className}`}>
+    <div className={`flex items-center gap-4 sm:gap-6 md:gap-8 ${className}`}>
       {links.map((link) => (
         <Link
           key={link.name}
@@ -53,15 +53,15 @@ export function SocialLinks({ className = "" }: { className?: string }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={link.name}
-          className="group relative"
+          className="group/social relative"
           style={{ "--hover-color": link.hoverColor } as React.CSSProperties}
         >
           {/* Concentric Glowing Rings (Color-coded on Hover) */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border border-[var(--hover-color)] opacity-0 scale-0 group-hover:scale-125 group-hover:opacity-40 transition-all duration-500" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border border-[var(--hover-color)] opacity-0 scale-0 group-hover:scale-150 group-hover:opacity-20 transition-all duration-700 delay-100" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border border-[var(--hover-color)] opacity-0 scale-0 group-hover/social:scale-125 group-hover/social:opacity-40 transition-all duration-500" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border border-[var(--hover-color)] opacity-0 scale-0 group-hover/social:scale-150 group-hover/social:opacity-20 transition-all duration-700 delay-100" />
 
           {/* Subtle Color Glow Background */}
-          <div className="absolute -inset-3 blur-xl opacity-0 group-hover:opacity-10 transition-all duration-500" style={{ backgroundColor: link.hoverColor }} />
+          <div className="absolute -inset-3 blur-xl opacity-0 group-hover/social:opacity-10 transition-all duration-500" style={{ backgroundColor: link.hoverColor }} />
 
           {link.svg ? (
             <svg
@@ -73,10 +73,9 @@ export function SocialLinks({ className = "" }: { className?: string }) {
               clipRule={link.customViewBox ? "evenodd" : undefined}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="w-5 h-5 text-zinc-500 group-hover:text-[var(--hover-color)] transition-all duration-300 relative z-10 filter drop-shadow-[0_0_8px_rgba(255,255,255,0)] group-hover:drop-shadow-[0_0_12px_var(--hover-color)]"
+              className="w-5 h-5 text-zinc-500 group-hover/social:text-[var(--hover-color)] transition-all duration-300 relative z-10 filter drop-shadow-[0_0_8px_rgba(255,255,255,0)] group-hover/social:drop-shadow-[0_0_12px_var(--hover-color)]"
               style={{
                 fill: link.customViewBox ? "currentColor" : "none",
-                // We'll use currentColor for the WhatsApp path but it's complex.
               }}
             >
               {link.svg}
@@ -92,13 +91,13 @@ export function SocialLinks({ className = "" }: { className?: string }) {
             </svg>
           ) : link.icon && (
             <link.icon
-              className="w-5 h-5 text-zinc-500 group-hover:text-[var(--hover-color)] transition-all duration-300 relative z-10 filter drop-shadow-[0_0_8px_rgba(255,255,255,0)] group-hover:drop-shadow-[0_0_12px_var(--hover-color)]"
+              className="w-5 h-5 text-zinc-500 group-hover/social:text-[var(--hover-color)] transition-all duration-300 relative z-10 filter drop-shadow-[0_0_8px_rgba(255,255,255,0)] group-hover/social:drop-shadow-[0_0_12px_var(--hover-color)]"
               strokeWidth={2}
             />
           )}
 
           {/* Label tooltip (Matches Brand Color) */}
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-white text-[8px] font-black px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-all pointer-events-none tracking-widest whitespace-nowrap shadow-2xl" style={{ backgroundColor: link.hoverColor }}>
+          <span className="absolute -top-10 left-1/2 -translate-x-1/2 text-white text-[9px] font-bold px-3 py-1 rounded-full opacity-0 translate-y-2 group-hover/social:opacity-100 group-hover/social:translate-y-0 transition-all duration-300 pointer-events-none tracking-[0.1em] whitespace-nowrap shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-white/10" style={{ backgroundColor: link.hoverColor }}>
             {link.name}
           </span>
         </Link>
