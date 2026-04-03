@@ -57,8 +57,8 @@ export function LearningPathwayHUD({ courseId, moduleId, allModules, structuredC
         </div>
 
         {/* 🗄️ EXPANDED COMMAND DRAWER */}
-        <div className={`absolute top-0 left-0 w-full bg-[#050508]/98 backdrop-blur-3xl border-b border-blue-500/20 overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_40px_100px_rgba(0,0,0,0.9)] ${isOpen ? 'h-[320px] md:h-[420px] opacity-100 visible' : 'h-0 opacity-0 invisible'}`}>
-          <div className="max-w-7xl mx-auto h-full px-6 md:px-12 pt-6 pb-2 flex flex-col relative">
+        <div className={`absolute top-0 left-0 w-full bg-[#050508]/98 backdrop-blur-3xl border-b border-blue-500/20 overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_40px_100px_rgba(0,0,0,0.9)] ${isOpen ? 'h-[450px] md:h-[600px] opacity-100 visible' : 'h-0 opacity-0 invisible'}`}>
+          <div className="max-w-7xl mx-auto min-h-full px-6 md:px-12 pt-6 pb-8 flex flex-col relative">
             
             {/* Header Area */}
             <div className="w-full flex items-center justify-between border-b border-white/5 pb-4 mb-8">
