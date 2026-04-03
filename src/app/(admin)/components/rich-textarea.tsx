@@ -1,7 +1,7 @@
-"use client";
-
 import { useState, useRef } from "react";
-import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video } from "lucide-react";
+import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video, Loader2 } from "lucide-react";
+import { uploadSubmoduleMedia } from "@/app/actions/media";
+import { MediaModal } from "@/components/ui/media-modal";
 
 interface RichTextareaProps {
   value: string;
@@ -13,7 +13,11 @@ interface RichTextareaProps {
 
 export function RichTextarea({ value, onChange, placeholder, className, label }: RichTextareaProps) {
   const [showToolbar, setShowToolbar] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{ type: "image" | "video"; isOpen: boolean } | null>(null);
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const insertMarker = (startMarker: string, endMarker: string = startMarker) => {
     const textarea = textareaRef.current;
@@ -49,14 +53,52 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
     }, 0);
   };
 
-  const handleInsertImage = () => {
-    const url = window.prompt("Enter Image URL:");
-    if (url) insertMarker(`![image](${url})`, "");
+  const handleImageClick = (e: React.MouseEvent) => {
+    if (e.shiftKey) {
+      setModalConfig({ type: "image", isOpen: true });
+    } else {
+      fileInputRef.current?.click();
+    }
   };
 
-  const handleInsertVideo = () => {
-    const url = window.prompt("Enter Video Link (YouTube/Vimeo Embed URL):");
-    if (url) insertMarker(`![video](${url})`, "");
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Tactical Warning: File exceeds 10MB. Please compress and retry.");
+      return;
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const result = await uploadSubmoduleMedia(formData);
+      if (result.error) {
+        alert(result.error);
+      } else if (result.publicUrl) {
+        insertMarker(`![image](${result.publicUrl})`, "");
+      }
+    } catch (err) {
+      console.error("Upload Error:", err);
+      alert("Fatal transmission failure. Check repository logs.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleVideoClick = () => {
+    setModalConfig({ type: "video", isOpen: true });
+  };
+
+  const handleModalSubmit = (url: string) => {
+    if (url && modalConfig) {
+      insertMarker(`![${modalConfig.type}](${url})`, "");
+    }
+    setModalConfig(null);
   };
 
   return (
@@ -64,6 +106,7 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
       <div className="flex items-center justify-between">
         {label && <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{label}</label>}
         <button 
+          type="button"
           onClick={() => setShowToolbar(!showToolbar)}
           className={`p-1.5 rounded-md border transition-all flex items-center gap-1.5 ${
             showToolbar 
@@ -79,6 +122,14 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
         </button>
       </div>
 
+      <input 
+        type="file" 
+        ref={fileInputRef}
+        className="hidden" 
+        accept="image/*"
+        onChange={handleFileChange}
+      />
+
       {showToolbar && (
         <div className="flex items-center gap-1 p-1.5 bg-zinc-950 border border-white/10 rounded-lg shadow-xl animate-in fade-in slide-in-from-top-1 duration-200">
           <ToolbarButton icon={<Bold className="w-3.5 h-3.5" />} onClick={() => insertMarker("**")} tooltip="Bold" />
@@ -89,8 +140,13 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
           <ToolbarButton icon={<Superscript className="w-3.5 h-3.5" />} onClick={() => insertMarker("^", "^")} tooltip="Superscript" />
           <ToolbarButton icon={<Subscript className="w-3.5 h-3.5" />} onClick={() => insertMarker("~", "~")} tooltip="Subscript" />
           <div className="w-px h-4 bg-white/10 mx-1" />
-          <ToolbarButton icon={<Image className="w-3.5 h-3.5" />} onClick={handleInsertImage} tooltip="Insert Image" />
-          <ToolbarButton icon={<Video className="w-3.5 h-3.5" />} onClick={handleInsertVideo} tooltip="Insert Video" />
+          <ToolbarButton 
+            disabled={isUploading}
+            icon={isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Image className="w-3.5 h-3.5" />} 
+            onClick={handleImageClick} 
+            tooltip={isUploading ? "Uploading..." : "Upload Image (Shift+Click for URL)"} 
+          />
+          <ToolbarButton icon={<Video className="w-3.5 h-3.5" />} onClick={handleVideoClick} tooltip="Insert Video Link" />
         </div>
       )}
 
@@ -101,16 +157,29 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
         placeholder={placeholder}
         className="w-full bg-zinc-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-blue-500 transition-colors min-h-[120px] text-sm rounded-xl font-medium placeholder:text-zinc-700"
       />
+
+      <MediaModal 
+        isOpen={!!modalConfig}
+        type={modalConfig?.type || "video"}
+        onClose={() => setModalConfig(null)}
+        onSubmit={handleModalSubmit}
+      />
     </div>
   );
 }
 
-function ToolbarButton({ icon, onClick, tooltip }: { icon: React.ReactNode, onClick: () => void, tooltip: string }) {
+function ToolbarButton({ icon, onClick, tooltip, disabled }: { icon: React.ReactNode, onClick: (e: React.MouseEvent) => void, tooltip: string, disabled?: boolean }) {
   return (
     <button
+      type="button"
       onClick={onClick}
+      disabled={disabled}
       title={tooltip}
-      className="p-2 hover:bg-white/10 rounded text-zinc-400 hover:text-white transition-all"
+      className={`p-2 rounded transition-all ${
+        disabled 
+          ? 'opacity-50 cursor-not-allowed text-zinc-600' 
+          : 'hover:bg-white/10 text-zinc-400 hover:text-white'
+      }`}
     >
       {icon}
     </button>

@@ -54,38 +54,14 @@ export default async function QuizPage({ params }: QuizPageProps) {
            I'll keep it as a tactical "Knowledge Check" view.
         */}
         <div className="space-y-6">
-           {quiz.questions.map((q, idx) => (
-             <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6">
-                <h4 className="text-xl font-bold text-white uppercase tracking-tighter leading-tight italic">
-                   {idx + 1}. {q.question_text}
-                </h4>
-                <div className="flex gap-4">
-                   <div className="flex-1 p-4 bg-zinc-950/50 border border-white/5 rounded-xl flex items-center gap-3 text-zinc-500 hover:text-white transition-all cursor-pointer hover:border-blue-500/30">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span className="text-sm font-bold uppercase tracking-widest">TRUE</span>
-                   </div>
-                   <div className="flex-1 p-4 bg-zinc-950/50 border border-white/5 rounded-xl flex items-center gap-3 text-zinc-500 hover:text-white transition-all cursor-pointer hover:border-red-500/30">
-                      <XCircle className="w-5 h-5" />
-                      <span className="text-sm font-bold uppercase tracking-widest">FALSE</span>
-                   </div>
-                </div>
-             </div>
-           ))}
+           <TacticalQuiz 
+             questions={quiz.questions} 
+             nextModuleUrl={nextModule ? `/courses/${courseId}/modules/${nextModule.id}` : undefined}
+             courseUrl={`/courses/${courseId}`}
+             nextModuleOrderIndex={nextModule?.order_index}
+           />
         </div>
 
-        <div className="pt-12 border-t border-white/10 flex justify-end">
-            {nextModule ? (
-                <Link scroll={true} href={`/courses/${courseId}/modules/${nextModule.id}`} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center gap-3 group">
-                   <span>Proceed to Module {nextModule.order_index}</span>
-                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-            ) : (
-                <Link scroll={true} href={`/courses/${courseId}`} className="px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all flex items-center gap-3">
-                   <span>Course Completed: Back to Summary</span>
-                   <ChevronRight className="w-4 h-4" />
-                </Link>
-            )}
-        </div>
       </main>
     </div>
   );
