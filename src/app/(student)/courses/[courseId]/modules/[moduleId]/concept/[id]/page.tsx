@@ -58,10 +58,6 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
                  />
                  <div className="absolute inset-0 pointer-events-none border-[2px] border-white/[0.05] rounded-2xl shadow-inner" />
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/5 border border-blue-500/10 rounded-lg w-fit">
-                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400">Master_Concept_Feed_Active</span>
-              </div>
            </div>
         )}
 
