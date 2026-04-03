@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, Award, CheckCircle2, XCircle } from "lucide-react";
 import { LearningPathwayHUD } from "../components/learning-pathway-hud";
 import { ModuleContent } from "@/types/database";
+import { TacticalQuiz } from "./components/tactical-quiz";
 
 interface QuizPageProps {
   params: Promise<{ courseId: string; moduleId: string }>;
