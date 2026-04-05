@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Award, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { syncMastery } from "@/app/actions/progress";
 import { cn } from "@/utils/cn";
 
 interface Question {
@@ -13,6 +14,8 @@ interface Question {
 
 interface TacticalQuizProps {
   questions: Question[];
+  courseId: string;
+  moduleId: string;
   nextModuleUrl?: string;
   courseUrl?: string;
   nextModuleOrderIndex?: number;
@@ -20,6 +23,8 @@ interface TacticalQuizProps {
 
 export function TacticalQuiz({ 
   questions, 
+  courseId,
+  moduleId,
   nextModuleUrl, 
   courseUrl, 
   nextModuleOrderIndex 
@@ -27,6 +32,7 @@ export function TacticalQuiz({
   const [currentAnswers, setCurrentAnswers] = useState<(boolean | null)[]>(new Array(questions.length).fill(null));
   const [feedback, setFeedback] = useState<( "correct" | "incorrect" | null)[]>(new Array(questions.length).fill(null));
   const [isMastered, setIsMastered] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [shakeIndex, setShakeIndex] = useState<number | null>(null);
 
   const handleAnswer = (index: number, answer: boolean) => {
@@ -50,12 +56,26 @@ export function TacticalQuiz({
 
   useEffect(() => {
     const allCorrect = feedback.every(f => f === "correct");
-    if (allCorrect && questions.length > 0) {
+    if (allCorrect && questions.length > 0 && !isMastered) {
       setIsMastered(true);
-    } else {
+      
+      // Trigger server-side synchronization
+      const triggerSync = async () => {
+        setIsSyncing(true);
+        try {
+          await syncMastery(courseId, moduleId);
+        } catch (err) {
+          console.error("Mastery synchronization failed:", err);
+        } finally {
+          setIsSyncing(false);
+        }
+      };
+      
+      triggerSync();
+    } else if (!allCorrect) {
       setIsMastered(false);
     }
-  }, [feedback, questions.length]);
+  }, [feedback, questions.length, isMastered, courseId, moduleId]);
 
   return (
     <div className="space-y-8">
@@ -69,7 +89,7 @@ export function TacticalQuiz({
           />
         </div>
         <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest tabular-nums">
-          DECIPHERED: {feedback.filter(f => f === "correct").length}/{questions.length}
+          PROGRESS: {feedback.filter(f => f === "correct").length}/{questions.length}
         </div>
       </div>
 
@@ -125,10 +145,7 @@ export function TacticalQuiz({
                 />
               </div>
 
-              {/* TACTICAL STATUS MARKER */}
-              <div className="absolute top-2 right-4 text-[7px] font-black uppercase tracking-[0.4em] text-zinc-800">
-                {status === "correct" ? "NODE_SECURED" : status === "incorrect" ? "UPLINK_DENIED" : "AWAITING_INPUT"}
-              </div>
+              {/* STATUS MARKER REMOVED */}
             </motion.div>
           );
         })}
@@ -145,15 +162,15 @@ export function TacticalQuiz({
               className="flex flex-col items-end gap-4"
             >
               <div className="flex items-center gap-3 text-emerald-400 font-black italic uppercase text-[11px] tracking-widest animate-pulse">
-                <Award className="w-5 h-5" />
-                TACTICAL_MASTERY_ACHIEVED: MODULE_CONNECTION_DECRYPTED
+                {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Award className="w-5 h-5" />}
+                {isSyncing ? "Saving progress..." : "Mastery Achieved"}
               </div>
               {nextModuleUrl ? (
                 <Link 
                   href={nextModuleUrl}
                   className="px-12 py-5 bg-blue-600 hover:bg-emerald-500 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(16,185,129,0.2)] hover:scale-105 active:scale-95 group flex items-center gap-4 border border-white/10"
                 >
-                   <span>Initialize Module {nextModuleOrderIndex} Link</span>
+                   <span>Proceed to Module {nextModuleOrderIndex}</span>
                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               ) : (
@@ -161,7 +178,7 @@ export function TacticalQuiz({
                   href={courseUrl || "#"}
                   className="px-12 py-5 bg-zinc-800 hover:bg-zinc-700 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all group flex items-center gap-4"
                 >
-                   <span>Mission Accomplished: Overview</span>
+                   <span>Continue to Course Overview</span>
                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               )}
@@ -174,8 +191,7 @@ export function TacticalQuiz({
                className="flex justify-end"
             >
               <div className="px-10 py-5 bg-white/5 border border-white/5 rounded-2xl text-zinc-700 text-[10px] font-black uppercase tracking-[0.5em] flex items-center gap-4 cursor-not-allowed">
-                 <Loader2 className="w-4 h-4 animate-spin" />
-                 Validating Security Protocols...
+                 Quiz in Progress...
               </div>
             </motion.div>
           )}

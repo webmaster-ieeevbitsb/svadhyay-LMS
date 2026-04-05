@@ -44,7 +44,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
       .eq("course_id", courseId),
     supabase
       .from("student_progress")
-      .select("is_completed, completed_modules")
+      .select("is_completed, completed_modules, last_viewed_module_id")
       .eq("course_id", courseId)
       .eq("email", userEmail)
       .maybeSingle(),
@@ -62,6 +62,12 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
   const finalQuiz = quizzes && quizzes.length > 0 && quizzes[0].quiz_questions?.length > 0 ? quizzes[0] : null;
   const isCourseCompleted = progress?.is_completed || false;
   const completedModuleIds = progress?.completed_modules || [];
+  const hasStarted = !!progress; // Any engagement record means they've started
+
+  // Find the first module that isn't completed yet, prioritizing the last viewed one if they just started
+  const nextTargetModule = modules?.find(m => !completedModuleIds.includes(m.id)) 
+    || (modules?.find(m => m.id === progress?.last_viewed_module_id))
+    || (modules?.[0]);
 
 
   const metadata = course.metadata || {};
@@ -159,14 +165,14 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
             </div>
 
             {/* Single CTA — Start Course only */}
-            {modules && modules.length > 0 && (
+            {modules && modules.length > 0 && nextTargetModule && (
               <div className="pt-1">
                 <Link
-                  href={`/courses/${courseId}/modules/${modules[0].id}`}
+                  href={`/courses/${courseId}/modules/${nextTargetModule.id}`}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-500/35 active:scale-95"
                 >
                   <PlayCircle className="w-4 h-4" />
-                  {isCourseCompleted ? "Continue Learning" : "Start Course"}
+                  {isCourseCompleted ? "Continue Learning" : hasStarted ? "Resume Course" : "Start Course"}
                 </Link>
               </div>
             )}

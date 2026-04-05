@@ -32,11 +32,11 @@ export function ContentRenderer({ content, className }: ContentRendererProps) {
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
-          p: ({ children }) => <div className="mb-4 last:mb-0">{children}</div>,
+          p: ({ children }) => <div className="mb-4 last:mb-0 text-justify">{children}</div>,
           strong: ({ children }) => <strong className="font-bold text-white/90">{children}</strong>,
           ul: ({ children }) => <ul className="list-disc pl-6 space-y-2 mb-4">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-6 space-y-2 mb-4">{children}</ol>,
-          li: ({ children }) => <li className="text-zinc-300">{children}</li>,
+          li: ({ children }) => <li className="text-zinc-300 text-justify">{children}</li>,
           img: ({ src, alt, ...props }) => {
             let source = typeof src === "string" ? src : "";
             if (!source) return null;

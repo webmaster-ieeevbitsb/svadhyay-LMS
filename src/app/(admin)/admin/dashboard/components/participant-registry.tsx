@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { addParticipant, removeParticipant } from "@/app/actions/participants";
-import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, CheckCircle2 } from "lucide-react";
+import { addParticipant, removeParticipant, rotateStudentCohort } from "@/app/actions/participants";
+import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, CheckCircle2, RefreshCw } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
 
@@ -29,6 +29,7 @@ export function ParticipantRegistry({
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState("");
+  const [isRotating, setIsRotating] = useState(false);
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,6 +68,19 @@ export function ParticipantRegistry({
     }
   };
 
+  const handleRotate = async () => {
+    if (!confirm("CRITICAL: This will purge ALL registered students and their progress. This action cannot be undone. Proceed?")) return;
+    setIsRotating(true);
+    const res = await rotateStudentCohort();
+    if (res.error) {
+      setErrorLine(res.error);
+    } else {
+      setFullParticipants(prev => prev.filter(p => p.is_admin));
+      alert(`Purge Complete: ${res.count} student records deallocated.`);
+    }
+    setIsRotating(false);
+  };
+
   const filtered = participants.filter(p => 
     p.email?.toLowerCase().includes(filter.toLowerCase()) || 
     p.name?.toLowerCase().includes(filter.toLowerCase())
@@ -85,14 +99,24 @@ export function ParticipantRegistry({
             </h3>
             <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest pl-12">Enrollment Control & Access Management</p>
           </div>
-          <button 
-            type="button" 
-            onClick={() => setIsImportOpen(true)}
-            className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-3"
-          >
-             <UploadIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-             Bulk Enrollment Upload
-          </button>
+          <div className="flex items-center gap-4">
+             <button 
+               onClick={handleRotate}
+               disabled={isRotating}
+               className="px-8 py-4 bg-red-600/10 border border-red-500/30 text-red-500 hover:bg-red-600 hover:text-white font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all flex items-center gap-3 disabled:opacity-50"
+             >
+               {isRotating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+               Rotate Cohort
+             </button>
+             <button 
+               type="button" 
+               onClick={() => setIsImportOpen(true)}
+               className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-3"
+             >
+                <UploadIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Bulk Enrollment Upload
+             </button>
+          </div>
         </div>
 
         <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 relative z-10 p-8 bg-white/[0.02] rounded-[2rem] border border-white/5">

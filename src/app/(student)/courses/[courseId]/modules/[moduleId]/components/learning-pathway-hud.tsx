@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, ChevronRight, X, LayoutGrid, Radio } from "lucide-react";
 import { ModuleContent } from "@/types/database";
+import { getNextStepUrl } from "@/utils/nav-utils";
 
 interface Module {
   id: string;
@@ -140,9 +141,9 @@ export function LearningPathwayHUD({ courseId, moduleId, allModules, structuredC
 
                             {/* Utility Pips (Activity, Quiz) */}
                             <SubPip 
-                              active={currentSubStep.startsWith("1.") && parseInt(currentSubStep.split(".")[1]) > structuredContent.drop_downs.length}
+                              active={currentSubStep.startsWith("1.") && parseInt(currentSubStep.split(".")[1]) > (structuredContent?.drop_downs?.length || 0)}
                               label="PHASE_END"
-                              href={`/courses/${courseId}/modules/${moduleId}/quiz`}
+                              href={getNextStepUrl(courseId, moduleId, "concept", structuredContent as any, (structuredContent?.drop_downs?.length || 1) - 1)}
                               setIsOpen={setIsOpen}
                               variant="pill"
                             />

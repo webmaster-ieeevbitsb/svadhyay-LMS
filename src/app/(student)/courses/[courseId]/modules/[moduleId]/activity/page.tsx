@@ -5,6 +5,7 @@ import { ChevronRight, Lightbulb } from "lucide-react";
 import { LearningPathwayHUD } from "../components/learning-pathway-hud";
 import { ContentRenderer } from "@/components/ui/content-renderer";
 import { ModuleContent } from "@/types/database";
+import { getNextStepUrl } from "@/utils/nav-utils";
 
 interface ActivityPageProps {
   params: Promise<{ courseId: string; moduleId: string }>;
@@ -56,7 +57,7 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
         </div>
 
         <div className="pt-12 border-t border-white/10 flex justify-end">
-            <Link scroll={true} href={`/courses/${courseId}/modules/${moduleId}/references`} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center gap-3">
+            <Link scroll={true} href={getNextStepUrl(courseId, moduleId, "activity", sc)} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center gap-3">
                <span>Proceed back to References</span>
                <ChevronRight className="w-4 h-4" />
             </Link>

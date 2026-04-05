@@ -57,6 +57,8 @@ export default async function QuizPage({ params }: QuizPageProps) {
         <div className="space-y-6">
            <TacticalQuiz 
              questions={quiz.questions} 
+             courseId={courseId}
+             moduleId={moduleId}
              nextModuleUrl={nextModule ? `/courses/${courseId}/modules/${nextModule.id}` : undefined}
              courseUrl={`/courses/${courseId}`}
              nextModuleOrderIndex={nextModule?.order_index}

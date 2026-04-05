@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Download, ShieldCheck, Asterisk, Award, Loader2 } from "lucide-react";
+import { Download, ShieldCheck, Asterisk, Award, Loader2, Share2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import ShareModal from "./share-modal";
 
 interface CertificateViewerProps {
   courseTitle: string;
@@ -24,6 +24,7 @@ export default function CertificateViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Pixel-Perfect Responsive Scaling Logic
   useEffect(() => {
@@ -113,6 +114,27 @@ export default function CertificateViewer({
     }
   };
 
+  const handleShare = async () => {
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = {
+      title: "Course Completion Certificate",
+      text: `Check out my certificate for completing "${courseTitle}" on Avishkar Learning Portal!`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          setIsShareModalOpen(true);
+        }
+      }
+    } else {
+      setIsShareModalOpen(true);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-12 space-y-12 animate-in fade-in duration-1000 overflow-x-hidden relative">
       <style jsx global>{`
@@ -128,14 +150,25 @@ export default function CertificateViewer({
         <Link href="/dashboard" className="text-zinc-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" /> Return to Dashboard
         </Link>
-        <button 
-          onClick={handleDownload}
-          disabled={isExporting}
-          className="px-8 py-5 bg-[#2563eb] text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-[0_0_50px_rgba(37,99,235,0.3)] disabled:opacity-50"
-        >
-          {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-          {isExporting ? "SECURELY CAPTURING..." : "DOWNLOAD CERTIFICATE (PNG)"}
-        </button>
+        <div className="flex items-center gap-4">
+          <button 
+            type="button"
+            onClick={handleShare}
+            className="px-8 py-5 bg-white/5 border border-white/10 text-zinc-400 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:text-white hover:bg-white/10 transition-all flex items-center gap-3 shadow-inner active:scale-95"
+          >
+            <Share2 className="w-5 h-5" />
+            Share Achievement
+          </button>
+          <button 
+            type="button"
+            onClick={handleDownload}
+            disabled={isExporting}
+            className="px-8 py-5 bg-[#2563eb] text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-[0_0_50px_rgba(37,99,235,0.3)] disabled:opacity-50"
+          >
+            {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+            {isExporting ? "SECURELY CAPTURING..." : "DOWNLOAD CERTIFICATE (PNG)"}
+          </button>
+        </div>
       </div>
 
       {/* True-View Elastic Scaling Container */}
@@ -266,6 +299,12 @@ export default function CertificateViewer({
           </div>
         </div>
       </div>
+      <ShareModal 
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        courseTitle={courseTitle}
+        certificateUrl={typeof window !== "undefined" ? window.location.href : ""}
+      />
     </div>
   );
 }

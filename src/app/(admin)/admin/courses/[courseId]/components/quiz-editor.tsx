@@ -2,13 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { updateQuizQuestion, addQuizQuestion, deleteQuizQuestion, deleteQuiz } from "@/app/actions/builder";
-import { Loader2, Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, XCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, XCircle, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import { TacticalConfirm } from "@/components/ui/tactical-confirm";
 
 export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz: any, questions: any[] }) {
   const [questions, setQuestions] = useState(initialQuestions);
   const [isPending, startTransition] = useTransition();
   const [savingIds, setSavingIds] = useState<string[]>([]);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showTerminateConfirm, setShowTerminateConfirm] = useState(false);
 
   const handleAddQuestion = () => {
     startTransition(async () => {
@@ -40,7 +43,6 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
   };
 
   const handleDeleteQuestion = async (id: string) => {
-    if (!confirm("Are you sure you want to deallocate this assessment node?")) return;
     const toastId = toast.loading("Deallocating Node...");
     
     try {
@@ -57,7 +59,6 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
   };
 
   const handleTerminateAssessment = async () => {
-    if (!confirm("CRITICAL WARNING: This will entirely deallocate the assessment architecture for this course. Proceed?")) return;
     const toastId = toast.loading("Terminating Evaluation Protocol...");
     
     try {
@@ -75,6 +76,26 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+      <TacticalConfirm 
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => deleteConfirmId && handleDeleteQuestion(deleteConfirmId)}
+        title="Confirm Deallocation"
+        description="Are you sure you want to deallocate this assessment node? This action is irreversible and will purge the parameter from the sequence."
+        variant="info"
+        confirmText="Confirm Purge"
+      />
+
+      <TacticalConfirm 
+        isOpen={showTerminateConfirm}
+        onClose={() => setShowTerminateConfirm(false)}
+        onConfirm={handleTerminateAssessment}
+        title="CRITICAL TERMINATION"
+        description="You are about to entirely deallocate the assessment architecture for this course. All evaluative parameters will be purged."
+        variant="danger"
+        confirmText="Execute Terminate"
+      />
+
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-6">
          <div>
             <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white">Assessment <span className="text-blue-500">Editor</span></h2>
@@ -83,11 +104,11 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
          <div className="flex items-center gap-3">
             <button 
               type="button"
-              onClick={handleTerminateAssessment}
+              onClick={() => setShowTerminateConfirm(true)}
               disabled={isPending}
               className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold uppercase text-[9px] tracking-widest rounded-xl transition-all border border-red-500/20 active:scale-95 flex items-center gap-2"
             >
-              <XCircle className="w-4 h-4" />
+              <ShieldAlert className="w-4 h-4" />
               Terminate Assessment
             </button>
             <button 
@@ -106,7 +127,10 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
         {questions.map((q, qidx) => {
           const isSaving = savingIds.includes(q.id);
           return (
-            <div key={q.id} className="bg-[#0a0a0f] border border-white/5 rounded-[2rem] p-8 lg:p-10 space-y-8 group/card hover:border-blue-500/20 transition-all relative overflow-hidden">
+            <div key={q.id} className="bg-[#0a0a0f] border border-white/5 rounded-[2rem] p-8 lg:p-10 space-y-8 group/card hover:border-blue-500/20 transition-all relative overflow-hidden shadow-2xl">
+              {/* Tactical Scanline Layer */}
+              <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] group-hover/card:opacity-[0.05] transition-opacity" />
+              
               <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover/card:opacity-100 transition-opacity" />
               
               <div className="flex items-center justify-between relative z-10">
@@ -133,8 +157,8 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
                     </button>
                     <button 
                       type="button"
-                      onClick={() => handleDeleteQuestion(q.id)}
-                      className="p-4 bg-white/5 border border-white/5 hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-500 rounded-xl text-zinc-600 transition-all"
+                      onClick={() => setDeleteConfirmId(q.id)}
+                      className="p-4 bg-white/5 border border-white/5 hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-500 rounded-xl text-zinc-600 transition-all active:scale-95 shadow-inner"
                       title="Deallocate Node"
                     >
                       <Trash2 className="w-5 h-5" />

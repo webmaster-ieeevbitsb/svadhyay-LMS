@@ -119,6 +119,17 @@ export async function addAdmin(prevState: any, formData: FormData) {
 export async function removeParticipant(email: string) {
   const supabase = await createClient();
 
+  // 1. Verify Admin Status
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { error: "Authorization Protocol Failure" };
+  const { data: adminCheck } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", user.email.toLowerCase())
+    .single();
+
+  if (!adminCheck?.is_admin) return { error: "Security Access Violation" };
+
   const { error } = await supabase
     .from("participants")
     .delete()

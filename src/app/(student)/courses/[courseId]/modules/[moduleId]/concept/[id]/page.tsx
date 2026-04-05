@@ -4,7 +4,9 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { LearningPathwayHUD } from "../../components/learning-pathway-hud";
 import { ContentRenderer } from "@/components/ui/content-renderer";
+import { EngagementTracker } from "@/components/progress/engagement-tracker";
 import { ModuleContent } from "@/types/database";
+import { getNextStepUrl } from "@/utils/nav-utils";
 
 interface ConceptPageProps {
   params: Promise<{ courseId: string; moduleId: string; id: string }>;
@@ -30,12 +32,11 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
   if (!concept) return notFound();
 
   // Navigation logic
-  const nextStep = index < sc.drop_downs.length - 1 
-    ? `/courses/${courseId}/modules/${moduleId}/concept/${index + 2}` 
-    : `/courses/${courseId}/modules/${moduleId}/activity`;
+  const nextStep = getNextStepUrl(courseId, moduleId, "concept", sc, index);
 
   return (
     <div className="flex flex-col bg-[#050508] relative min-h-screen">
+      <EngagementTracker courseId={courseId} moduleId={moduleId} />
       <LearningPathwayHUD courseId={courseId} moduleId={moduleId} allModules={allModules || []} structuredContent={sc} />
       
       <main className="flex-1 max-w-4xl mx-auto w-full p-6 md:p-12 pt-32 space-y-12 pb-64 relative z-10">

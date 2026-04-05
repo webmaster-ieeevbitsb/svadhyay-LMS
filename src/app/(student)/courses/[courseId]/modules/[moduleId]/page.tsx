@@ -5,6 +5,8 @@ import { ChevronRight, Play, Clock, Target, BookOpen } from "lucide-react";
 import { LearningPathwayHUD } from "./components/learning-pathway-hud";
 import { ContentRenderer } from "@/components/ui/content-renderer";
 import { ModuleContent } from "@/types/database";
+import { getNextStepUrl } from "@/utils/nav-utils";
+import { EngagementTracker } from "@/components/progress/engagement-tracker";
 
 interface ModulePageProps {
   params: Promise<{ courseId: string; moduleId: string }>;
@@ -29,6 +31,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
 
   return (
     <div className="flex flex-col bg-[#050508] relative min-h-screen">
+      <EngagementTracker courseId={courseId} moduleId={moduleId} />
       <LearningPathwayHUD courseId={courseId} moduleId={moduleId} allModules={allModules || []} />
       
       {/* 📡 Grid Background Overlay */}
@@ -119,10 +122,10 @@ export default async function ModulePage({ params }: ModulePageProps) {
            
            <Link 
               scroll={true}
-              href={`/courses/${courseId}/modules/${moduleId}/concept/1`}
+              href={getNextStepUrl(courseId, moduleId, "intro", sc)}
               className="px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(37,99,235,0.2)] hover:scale-105 active:scale-95 group flex items-center gap-4"
            >
-              <span>Initialize Sub-module 1.1</span>
+              <span>Initialize Module Content</span>
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
            </Link>
         </div>
