@@ -9,7 +9,7 @@ export default async function CertificateLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getSingleSession().catch(() => ({ data: { user: null } }));
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <div className="min-h-screen bg-[#050508] text-zinc-400 font-sans flex flex-col pt-20 mt-0 relative overflow-x-hidden">
