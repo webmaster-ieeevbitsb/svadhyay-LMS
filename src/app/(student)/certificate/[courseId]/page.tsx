@@ -1,29 +1,85 @@
 import { createClient } from "@/utils/supabase/server";
+import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import CertificateViewer from "./components/certificate-viewer";
 
+export async function generateMetadata({ 
+  params,
+  searchParams
+}: { 
+  params: Promise<{ courseId: string }>;
+  searchParams: Promise<{ e?: string }>;
+}): Promise<Metadata> {
+  const { courseId } = await params;
+  const { e: targetEmail } = await searchParams;
+  const supabase = await createClient();
+
+  // If no email provided, we can't show specific social meta
+  if (!targetEmail) {
+    const { data: course } = await supabase.from("courses").select("title").eq("id", courseId).single();
+    return { title: `Certificate - ${course?.title || "Verification"}` };
+  }
+
+  const { data: participant } = await supabase
+    .from("participants")
+    .select("name")
+    .eq("email", targetEmail.toLowerCase())
+    .single();
+
+  const { data: course } = await supabase
+    .from("courses")
+    .select("title")
+    .eq("id", courseId)
+    .single();
+
+  return {
+    title: `${participant?.name || "Student"}'s Certificate of Achievement`,
+    description: `Official certification for completing "${course?.title}" on Avishkar Learning Portal.`,
+    openGraph: {
+      title: `${participant?.name || "Student"}'s Achievement`,
+      description: `Successfully completed "${course?.title}"`,
+      images: [
+        {
+          url: `/certificate/${courseId}/opengraph-image?e=${encodeURIComponent(targetEmail)}`,
+          width: 1200,
+          height: 630,
+          alt: "Certificate of Achievement",
+        },
+      ],
+    },
+  };
+}
+
 export default async function CertificatePage({
-  params
+  params,
+  searchParams
 }: {
-  params: Promise<{ courseId: string }>
+  params: Promise<{ courseId: string }>;
+  searchParams: Promise<{ e?: string }>;
 }) {
   const { courseId } = await params;
+  const { e: queryEmail } = await searchParams;
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !user.email) redirect("/login");
+  
+  // PUBLIC ACCESS LOGIC: Use query email if present, otherwise fallback to logged-in user
+  const targetEmail = queryEmail || user?.email;
+
+  if (!targetEmail) redirect("/login");
 
   // Fetch student progress to ensure they actually finished
   const { data: progress } = await supabase
     .from("student_progress")
     .select("is_completed, updated_at")
     .eq("course_id", courseId)
-    .eq("email", user.email.toLowerCase())
+    .eq("email", targetEmail.toLowerCase())
     .single();
 
   if (!progress || !progress.is_completed) {
-    // Cannot view certificate if not fully completed
-    redirect(`/courses/${courseId}`);
+    // If logged in, send to course. If not, send to login.
+    if (user) redirect(`/courses/${courseId}`);
+    redirect("/login");
   }
 
   // Fetch course details for title
@@ -39,8 +95,10 @@ export default async function CertificatePage({
   const { data: participant } = await supabase
     .from("participants")
     .select("name")
-    .eq("email", user.email.toLowerCase())
+    .eq("email", targetEmail.toLowerCase())
     .single();
+
+  const studentName = participant?.name || (user?.user_metadata?.full_name) || "STUDENT";
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     dateStyle: 'long',
@@ -49,7 +107,7 @@ export default async function CertificatePage({
   // Generate a unique Certificate ID based on their row ID
   const certId = courseId.split("-")[0].toUpperCase() + "-" + new Date().getFullYear();
 
-  const rollNumber = participant?.name || user.email.split("@")[0].toUpperCase();
+  const rollNumber = participant?.name || targetEmail.split("@")[0].toUpperCase();
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center" style={{ backgroundColor: "#050508" }}>
@@ -65,9 +123,10 @@ export default async function CertificatePage({
         <CertificateViewer 
             courseTitle={course.title}
             rollNumber={rollNumber}
-            fullName={user.user_metadata?.full_name || "STUDENT NAME"}
+            fullName={studentName}
             date={formattedDate}
             certificateId={certId}
+            userEmail={targetEmail}
         />
       </div>
     </div>

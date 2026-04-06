@@ -11,6 +11,7 @@ interface CertificateViewerProps {
   fullName: string;
   date: string;
   certificateId: string;
+  userEmail: string;
 }
 
 export default function CertificateViewer({
@@ -18,7 +19,8 @@ export default function CertificateViewer({
   rollNumber,
   fullName,
   date,
-  certificateId
+  certificateId,
+  userEmail
 }: CertificateViewerProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,7 +117,10 @@ export default function CertificateViewer({
   };
 
   const handleShare = async () => {
-    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    // Generate public share URL
+    const baseUrl = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
+    const shareUrl = `${baseUrl}?e=${encodeURIComponent(userEmail)}`;
+    
     const shareData = {
       title: "Course Completion Certificate",
       text: `Check out my certificate for completing "${courseTitle}" on Avishkar Learning Portal!`,
@@ -303,7 +308,7 @@ export default function CertificateViewer({
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         courseTitle={courseTitle}
-        certificateUrl={typeof window !== "undefined" ? window.location.href : ""}
+        certificateUrl={typeof window !== "undefined" ? window.location.origin + window.location.pathname + `?e=${encodeURIComponent(userEmail)}` : ""}
       />
     </div>
   );

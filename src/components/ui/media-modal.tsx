@@ -8,14 +8,15 @@ interface MediaModalProps {
   onClose: () => void;
   onSubmit: (url: string) => void;
   type: "image" | "video";
+  initialValue?: string;
 }
 
-export function MediaModal({ isOpen, onClose, onSubmit, type }: MediaModalProps) {
-  const [url, setUrl] = useState("");
+export function MediaModal({ isOpen, onClose, onSubmit, type, initialValue = "" }: MediaModalProps) {
+  const [url, setUrl] = useState(initialValue);
 
   useEffect(() => {
-    if (isOpen) setUrl("");
-  }, [isOpen]);
+    if (isOpen) setUrl(initialValue);
+  }, [isOpen, initialValue]);
 
   if (!isOpen) return null;
 

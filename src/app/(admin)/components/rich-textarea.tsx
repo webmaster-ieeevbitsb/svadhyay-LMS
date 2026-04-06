@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo } from "react";
-import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video, Loader2, Signal, Eye, AlertCircle } from "lucide-react";
+import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video, Loader2, Signal, Eye, AlertCircle, Trash2, Edit2 } from "lucide-react";
 import { uploadSubmoduleMedia } from "@/app/actions/media";
 import { MediaModal } from "@/components/ui/media-modal";
 
@@ -15,6 +15,7 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
   const [showToolbar, setShowToolbar] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [modalConfig, setModalConfig] = useState<{ type: "image" | "video"; isOpen: boolean } | null>(null);
+  const [editingMedia, setEditingMedia] = useState<{ type: "image" | "video"; url: string; fullMatch: string } | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,7 +24,7 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
   const mediaUplinks = useMemo(() => {
     const regex = /!\[(image|video)\]\((.*?)\)/g;
     const matches = [...value.matchAll(regex)];
-    return matches.map(m => ({ type: m[1], url: m[2] }));
+    return matches.map(m => ({ type: m[1] as "image" | "video", url: m[2], fullMatch: m[0] }));
   }, [value]);
 
   const insertMarker = (startMarker: string, endMarker: string = startMarker) => {
@@ -102,10 +103,28 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
   };
 
   const handleModalSubmit = (url: string) => {
-    if (url && modalConfig) {
-      insertMarker(`![${modalConfig.type}](${url})`, "");
+    if (url) {
+      if (editingMedia) {
+        // Replacement mode
+        const newValue = value.replace(editingMedia.fullMatch, `![${editingMedia.type}](${url})`);
+        onChange(newValue);
+      } else if (modalConfig) {
+        // Insertion mode
+        insertMarker(`![${modalConfig.type}](${url})`, "");
+      }
     }
     setModalConfig(null);
+    setEditingMedia(null);
+  };
+
+  const handleDeleteMedia = (fullMatch: string) => {
+    const newValue = value.replace(fullMatch, "");
+    onChange(newValue.trim());
+  };
+
+  const handleEditMedia = (media: { type: "image" | "video"; url: string; fullMatch: string }) => {
+    setEditingMedia(media);
+    setModalConfig({ type: media.type, isOpen: true });
   };
 
   return (
@@ -180,7 +199,26 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
                        </div>
                     )}
                     <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-lg" />
-                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/10 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                    
+                    {/* ACTION OVERLAY */}
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover/item:opacity-100 transition-all flex items-center justify-center gap-3">
+                       <button 
+                         type="button"
+                         onClick={() => handleEditMedia(media)}
+                         className="p-2 bg-blue-500/20 border border-blue-500/50 rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-lg"
+                       >
+                          <Edit2 className="w-3.5 h-3.5" />
+                       </button>
+                       <button 
+                         type="button"
+                         onClick={() => handleDeleteMedia(media.fullMatch)}
+                         className="p-2 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                       >
+                          <Trash2 className="w-3.5 h-3.5" />
+                       </button>
+                    </div>
+
+                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/10 group-hover/item:opacity-0 transition-opacity">
                        {media.type === "image" ? <Image className="w-3 h-3 text-white/50" /> : <Video className="w-3 h-3 text-white/50" />}
                     </div>
                  </div>
@@ -199,8 +237,12 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
 
       <MediaModal 
         isOpen={!!modalConfig}
-        type={modalConfig?.type || "video"}
-        onClose={() => setModalConfig(null)}
+        type={modalConfig?.type || editingMedia?.type || "video"}
+        initialValue={editingMedia?.url || ""}
+        onClose={() => {
+          setModalConfig(null);
+          setEditingMedia(null);
+        }}
         onSubmit={handleModalSubmit}
       />
     </div>
