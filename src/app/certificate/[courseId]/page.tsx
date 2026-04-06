@@ -66,7 +66,7 @@ export default async function CertificatePage({
   // PUBLIC ACCESS LOGIC: Use query email if present, otherwise fallback to logged-in user
   const targetEmail = queryEmail || user?.email;
 
-  if (!targetEmail) redirect("/login");
+  if (!targetEmail) redirect("/");
 
   // Fetch student progress to ensure they actually finished
   const { data: progress } = await supabase
@@ -79,7 +79,7 @@ export default async function CertificatePage({
   if (!progress || !progress.is_completed) {
     // If logged in, send to course. If not, send to login.
     if (user) redirect(`/courses/${courseId}`);
-    redirect("/login");
+    redirect("/");
   }
 
   // Fetch course details for title
