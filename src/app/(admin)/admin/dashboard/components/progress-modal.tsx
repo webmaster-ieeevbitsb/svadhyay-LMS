@@ -2,20 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { fetchStudentProgress } from "@/app/actions/participants";
-import { X, CheckCircle2, Circle, Loader2, Award, BookOpen } from "lucide-react";
+import { X, CheckCircle2, Circle, Loader2, Award, BookOpen, RotateCcw } from "lucide-react";
+import { TacticalConfirm } from "@/components/ui/tactical-confirm";
+import { resetStudentProgress } from "@/app/actions/progress";
 
 export function ProgressModal({ email, isOpen, onClose }: { email: string, isOpen: boolean, onClose: () => void }) {
   const [progressData, setProgressData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
+
+  const loadProgress = async () => {
+    setIsLoading(true);
+    const data = await fetchStudentProgress(email);
+    setProgressData(data || []);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     if (isOpen && email) {
-      const loadProgress = async () => {
-        setIsLoading(true);
-        const data = await fetchStudentProgress(email);
-        setProgressData(data || []);
-        setIsLoading(false);
-      };
       loadProgress();
     }
   }, [isOpen, email]);
@@ -28,6 +34,29 @@ export function ProgressModal({ email, isOpen, onClose }: { email: string, isOpe
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="bg-[#0a0a0f] border border-white/10 rounded-[2.5rem] w-full max-w-2xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+        <TacticalConfirm 
+          isOpen={isConfirmOpen}
+          onClose={() => {
+            setIsConfirmOpen(false);
+            setSelectedCourseId(null);
+          }}
+          onConfirm={async () => {
+             if (!selectedCourseId) return;
+             setIsResetting(true);
+             const result = await resetStudentProgress(email, selectedCourseId);
+             if (result.success) {
+               await loadProgress();
+             }
+             setIsResetting(false);
+             setIsConfirmOpen(false);
+             setSelectedCourseId(null);
+          }}
+          title="Confirm Reset"
+          description={`You are about to initiate a permanent deletion of progress records for ${email} in this course. This payload cannot be recovered.`}
+          confirmText="Execute Reset"
+          variant="danger"
+        />
+
         {/* Background Decorative Blur */}
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
         
@@ -72,9 +101,22 @@ export function ProgressModal({ email, isOpen, onClose }: { email: string, isOpe
                 <div key={idx} className="bg-white/5 border border-white/10 p-8 rounded-[2rem] hover:bg-white/10 transition-colors group">
                   <div className="flex items-center justify-between mb-8">
                      <h3 className="text-xl font-black uppercase text-white group-hover:text-blue-400 transition-colors tracking-tight">{p.courses?.title || "Unknown Course"}</h3>
-                     <span className={p.is_completed ? "text-green-400 font-black italic uppercase text-xs tracking-widest" : "text-blue-500 font-black italic uppercase text-xs tracking-widest"}>
-                       {p.is_completed ? "Completed" : "In Progress"}
-                     </span>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className={p.is_completed ? "text-green-400 font-black italic uppercase text-xs tracking-widest" : "text-blue-500 font-black italic uppercase text-xs tracking-widest"}>
+                          {p.is_completed ? "Completed" : "In Progress"}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setSelectedCourseId(p.course_id);
+                            setIsConfirmOpen(true);
+                          }}
+                          disabled={isResetting}
+                          className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-500/20 transition-all disabled:opacity-50"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          Reset
+                        </button>
+                      </div>
                   </div>
                   
                   <div className="space-y-4">

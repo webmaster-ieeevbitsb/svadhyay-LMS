@@ -149,3 +149,26 @@ export async function trackEngagement(courseId: string, moduleId: string) {
   revalidatePath(`/courses/${courseId}`);
   return { success: true };
 }
+
+/**
+ * Resets (deletes) progress for a student in a specific course.
+ * This is an administrative action.
+ */
+export async function resetStudentProgress(email: string, courseId: string) {
+  const supabase = await createClient();
+  
+  const { error } = await supabase
+    .from("student_progress")
+    .delete()
+    .eq("email", email.toLowerCase())
+    .eq("course_id", courseId);
+
+  if (error) {
+    console.error("[RESET_PROGRESS] Error:", error);
+    return { error: "Failed to reset student progress." };
+  }
+
+  revalidatePath("/admin/dashboard");
+  revalidatePath(`/courses/${courseId}`);
+  return { success: true };
+}

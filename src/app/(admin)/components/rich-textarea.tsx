@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video, Loader2 } from "lucide-react";
+import { useState, useRef, useMemo } from "react";
+import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video, Loader2, Signal, Eye, AlertCircle } from "lucide-react";
 import { uploadSubmoduleMedia } from "@/app/actions/media";
 import { MediaModal } from "@/components/ui/media-modal";
 
@@ -18,6 +18,13 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // REAL-TIME MEDIA SCANNER
+  const mediaUplinks = useMemo(() => {
+    const regex = /!\[(image|video)\]\((.*?)\)/g;
+    const matches = [...value.matchAll(regex)];
+    return matches.map(m => ({ type: m[1], url: m[2] }));
+  }, [value]);
 
   const insertMarker = (startMarker: string, endMarker: string = startMarker) => {
     const textarea = textareaRef.current;
@@ -148,6 +155,38 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
           />
           <ToolbarButton icon={<Video className="w-3.5 h-3.5" />} onClick={handleVideoClick} tooltip="Insert Video Link" />
         </div>
+      )}
+
+      {/* MEDIA PREVIEW GALLERY */}
+      {mediaUplinks.length > 0 && (
+         <div className="flex gap-4 p-4 bg-zinc-950/40 border border-white/5 rounded-xl overflow-x-auto custom-scrollbar group/preview shadow-inner">
+            {mediaUplinks.map((media, idx) => (
+              <div key={idx} className="flex-shrink-0 w-32 group/item relative transition-all hover:w-48">
+                 <div className="aspect-video w-full bg-black rounded-lg border border-white/10 overflow-hidden relative shadow-2xl transition-all group-hover/item:border-blue-500/50">
+                    {media.type === "image" ? (
+                       <img 
+                         src={media.url} 
+                         alt="Preview" 
+                         className="w-full h-full object-cover opacity-80 group-hover/item:opacity-100 transition-opacity"
+                         onError={(e) => {
+                            (e.target as any).src = "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2020&auto=format&fit=crop";
+                            (e.target as any).className = "w-full h-full object-cover grayscale opacity-20";
+                         }}
+                       />
+                    ) : (
+                       <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900">
+                          <Video className="w-6 h-6 text-white/20 mb-2" />
+                          <span className="text-[7px] text-zinc-600 font-bold uppercase tracking-widest px-2 text-center truncate w-full">{media.url}</span>
+                       </div>
+                    )}
+                    <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-lg" />
+                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-md border border-white/10 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                       {media.type === "image" ? <Image className="w-3 h-3 text-white/50" /> : <Video className="w-3 h-3 text-white/50" />}
+                    </div>
+                 </div>
+              </div>
+            ))}
+         </div>
       )}
 
       <textarea
