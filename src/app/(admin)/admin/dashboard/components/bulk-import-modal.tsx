@@ -95,7 +95,7 @@ export function BulkImportModal({ isOpen, onClose, isAdminMode = false }: { isOp
             <button
               onClick={handleImport}
               disabled={!file || isImporting}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+              className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg active:scale-95 md:active:scale-100 flex items-center justify-center gap-2"
             >
               {isImporting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Initiate Import Engine"}
             </button>

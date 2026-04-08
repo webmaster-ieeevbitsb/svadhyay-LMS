@@ -127,7 +127,7 @@ export function ParticipantRegistry({
              <button 
                type="button" 
                onClick={() => setIsImportOpen(true)}
-               className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-3"
+               className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 md:active:scale-100 flex items-center gap-3"
              >
                 <UploadIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Bulk Enrollment Upload
@@ -154,7 +154,7 @@ export function ParticipantRegistry({
           <button 
             type="submit" 
             disabled={isAdding}
-            className="px-10 py-4 bg-white text-black font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all hover:bg-blue-500 hover:text-white disabled:opacity-50 flex items-center justify-center shadow-xl active:scale-95"
+            className="px-10 py-4 bg-white text-black font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all hover:bg-blue-500 hover:text-white disabled:opacity-50 flex items-center justify-center shadow-xl active:scale-95 md:active:scale-100"
           >
             {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : "Enroll Student"}
           </button>

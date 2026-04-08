@@ -52,7 +52,7 @@ export default function MarkCompleteButton({
       <button
         onClick={handleComplete}
         disabled={isLoading}
-        className="group relative px-14 py-6 bg-blue-600/10 border border-blue-500/30 hover:bg-blue-600/20 text-white rounded-[1.5rem] font-black italic uppercase tracking-[0.2em] text-xs transition-all shadow-[0_0_40px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-4 disabled:opacity-50 group-hover:border-blue-500/60"
+        className="group relative px-14 py-6 bg-blue-600/10 border border-blue-500/30 hover:bg-blue-600/20 text-white rounded-[1.5rem] font-black italic uppercase tracking-[0.2em] text-xs transition-all shadow-[0_0_40px_rgba(59,130,246,0.1)] active:scale-95 md:active:scale-100 flex items-center gap-4 disabled:opacity-50 group-hover:border-blue-500/60"
       >
         <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[1.5rem]" />
         

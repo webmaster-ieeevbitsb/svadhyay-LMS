@@ -57,7 +57,7 @@ export default function CohortRotator({ participantCount }: { participantCount: 
           {!showConfirm ? (
             <button 
               onClick={() => setShowConfirm(true)}
-              className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 group/btn"
+              className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 md:active:scale-100 group/btn"
             >
               <RefreshCcw className="w-4 h-4 group-hover/btn:rotate-180 transition-transform duration-500" />
               Reset Student Batch
@@ -74,7 +74,7 @@ export default function CohortRotator({ participantCount }: { participantCount: 
                   <button 
                     disabled={isPending}
                     onClick={handleRotate}
-                    className="flex-1 flex items-center justify-center gap-2 py-4 bg-red-600 hover:bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 active:scale-95 disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 py-4 bg-red-600 hover:bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 active:scale-95 md:active:scale-100 disabled:opacity-50"
                   >
                     {isPending ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     Yes, Reset Students

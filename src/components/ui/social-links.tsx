@@ -53,7 +53,7 @@ export function SocialLinks({ className = "" }: { className?: string }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={link.name}
-          className="group/social relative"
+          className="group/social relative active:scale-90 md:active:scale-100 touch-manipulation transition-transform"
           style={{ "--hover-color": link.hoverColor } as React.CSSProperties}
         >
           {/* Concentric Glowing Rings (Color-coded on Hover) */}

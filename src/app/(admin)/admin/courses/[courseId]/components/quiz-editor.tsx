@@ -106,7 +106,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
               type="button"
               onClick={() => setShowTerminateConfirm(true)}
               disabled={isPending}
-              className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold uppercase text-[9px] tracking-widest rounded-xl transition-all border border-red-500/20 active:scale-95 flex items-center gap-2"
+              className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold uppercase text-[9px] tracking-widest rounded-xl transition-all border border-red-500/20 active:scale-95 md:active:scale-100 flex items-center gap-2"
             >
               <ShieldAlert className="w-4 h-4" />
               Terminate Assessment
@@ -115,7 +115,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
               type="button"
               onClick={handleAddQuestion}
               disabled={isPending}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-95 flex items-center gap-2 group"
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-95 md:active:scale-100 flex items-center gap-2 group"
             >
               {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />}
               Add Question
@@ -158,7 +158,7 @@ export default function QuizEditor({ quiz, questions: initialQuestions }: { quiz
                     <button 
                       type="button"
                       onClick={() => setDeleteConfirmId(q.id)}
-                      className="p-4 bg-white/5 border border-white/5 hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-500 rounded-xl text-zinc-600 transition-all active:scale-95 shadow-inner"
+                      className="p-4 bg-white/5 border border-white/5 hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-500 rounded-xl text-zinc-600 transition-all active:scale-95 md:active:scale-100 shadow-inner"
                       title="Deallocate Node"
                     >
                       <Trash2 className="w-5 h-5" />

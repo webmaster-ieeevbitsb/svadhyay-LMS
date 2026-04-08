@@ -59,9 +59,9 @@ function LoginForm() {
     <div className="relative z-10 w-full flex-1 flex flex-col items-center animate-in fade-in duration-500">
       {isLoading && <Preloader />}
       
-      <div className="flex-1 flex flex-col items-center justify-center w-full py-12">
+      <div className="flex-1 flex flex-col items-center justify-center w-full py-6 md:py-4 mt-8 md:mt-2">
         {/* Top Logos Widget */}
-        <div className="flex items-center gap-4 md:space-x-8 bg-[#0d0d12]/80 md:backdrop-blur-md border border-white/5 px-6 md:px-12 py-4 md:py-5 rounded-[2rem] md:rounded-[2.5rem] mb-8 md:mb-12 md:shadow-2xl relative group animate-in fade-in zoom-in-95 duration-700">
+        <div className="flex items-center gap-4 md:space-x-8 bg-[#0d0d12]/80 md:backdrop-blur-md border border-white/5 px-6 md:px-10 py-3 md:py-4 rounded-[2rem] md:rounded-[2.5rem] mb-6 md:mb-8 md:shadow-2xl relative group animate-in fade-in zoom-in-95 duration-700">
           <div className="absolute inset-0 bg-blue-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center shrink-0">
             <Image 
@@ -81,8 +81,8 @@ function LoginForm() {
         </div>
 
         {/* Main Branding */}
-        <div className="text-center space-y-4 mb-10 w-full px-4 animate-in fade-in duration-700 delay-150 fill-mode-backwards">
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tighter uppercase drop-shadow-md flex flex-col md:flex-row items-center justify-center gap-2">
+        <div className="text-center space-y-3 mb-6 w-full px-4 animate-in fade-in duration-700 delay-150 fill-mode-backwards">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase drop-shadow-md flex flex-col items-center justify-center gap-1 md:gap-2">
             <span className="text-white">IEEE - VBIT SB</span>
             <span className="text-blue-500">Learning Portal</span>
           </h1>
@@ -96,11 +96,11 @@ function LoginForm() {
         </div>
 
         {/* Login Card */}
-        <div className="w-[calc(100%-3rem)] sm:w-full max-w-md bg-[#0d0d12]/90 md:backdrop-blur-sm border border-white/5 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 text-center md:shadow-2xl min-h-[300px] flex flex-col justify-center mx-auto relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
+        <div className="w-[calc(100%-3rem)] sm:w-full max-w-md bg-[#0d0d12]/90 md:backdrop-blur-sm border border-white/5 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-10 text-center md:shadow-2xl min-h-[250px] flex flex-col justify-center mx-auto relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
           <div className="relative z-10">
-            <Lock className="w-10 h-10 text-blue-500/40 mx-auto mb-4" />
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Student Access</h2>
-            <p className="text-zinc-500 text-xs md:text-sm mb-10 font-medium tracking-wide">
+            <Lock className="w-8 h-8 text-blue-500/40 mx-auto mb-3" />
+            <h2 className="text-2xl font-bold text-white mb-2">Student Access</h2>
+            <p className="text-zinc-500 text-xs mb-8 font-medium tracking-wide">
               Exclusive Course Access for Freshman Engineering
             </p>
 
@@ -113,7 +113,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={handleGoogleLogin}
-                  className="w-[85%] max-w-[280px] mx-auto flex items-center justify-center space-x-3 bg-white/[0.03] border border-white/10 hover:border-white/20 active:bg-white/[0.08] active:scale-[0.98] transition-all font-bold text-white py-3.5 px-6 rounded-xl md:rounded-2xl group/btn md:shadow-xl relative overflow-hidden text-sm sm:text-base touch-manipulation"
+                  className="w-[85%] max-w-[280px] mx-auto flex items-center justify-center space-x-3 bg-white/[0.03] border border-white/10 hover:border-white/20 active:bg-white/[0.08] active:scale-95 md:active:scale-100 transition-all font-bold text-white py-3.5 px-6 rounded-xl md:rounded-2xl group/btn md:shadow-xl relative overflow-hidden text-sm sm:text-base touch-manipulation"
                 >
                   <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-blue-500/0 via-white/10 to-blue-500/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000" />
                   <GoogleIcon />
@@ -134,9 +134,9 @@ function LoginForm() {
       </div>
 
       {/* Footer Element — Tactical HUD Pod */}
-      <div className="mt-auto mb-10 px-6 w-full max-w-6xl relative z-10 animate-in fade-in duration-700 delay-500 fill-mode-backwards">
-        <div className="relative group overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border border-white/[0.05] bg-[#0d0d12]/80 md:backdrop-blur-sm p-6 md:p-12 md:shadow-2xl ring-1 ring-white/5">
-          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-12 relative z-10">
+      <div className="mt-auto mb-6 md:mb-8 px-4 md:px-6 w-full max-w-5xl relative z-10 animate-in fade-in duration-700 delay-500 fill-mode-backwards">
+        <div className="relative group rounded-[2rem] md:rounded-[2.5rem] border border-white/[0.05] bg-[#0d0d12]/80 md:backdrop-blur-sm p-6 md:p-8 md:shadow-2xl ring-1 ring-white/5">
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 md:gap-8 relative z-10">
             {/* Left Section: Institutional Branding & Mission */}
             <div className="flex flex-col items-center md:items-start space-y-5 flex-1 max-w-xs sm:max-w-md md:max-w-xl">
               <div className="flex items-center gap-3">

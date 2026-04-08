@@ -80,7 +80,7 @@ export default function ShareModal({ isOpen, onClose, courseTitle, certificateUr
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl transition-all group ${link.color} active:scale-95`}
+                className={`flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl transition-all group ${link.color} active:scale-95 md:active:scale-100`}
               >
                  <div className="w-10 h-10 rounded-xl bg-black/40 flex items-center justify-center border border-white/5 group-hover:border-current transition-colors">
                     {link.icon}
@@ -91,7 +91,7 @@ export default function ShareModal({ isOpen, onClose, courseTitle, certificateUr
             
             <button 
               onClick={handleCopyLink}
-              className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl transition-all group hover:bg-blue-600/10 hover:border-blue-500/30 active:scale-95 text-left"
+              className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl transition-all group hover:bg-blue-600/10 hover:border-blue-500/30 active:scale-95 md:active:scale-100 text-left"
             >
                <div className="w-10 h-10 rounded-xl bg-black/40 flex items-center justify-center border border-white/5 group-hover:border-blue-500/30 transition-colors">
                   <Copy className="w-5 h-5 text-blue-500" />

@@ -58,7 +58,7 @@ export function TacticalConfirm({
           <button 
             type="button"
             onClick={onClose}
-            className="px-8 py-5 bg-white/5 border border-white/10 text-zinc-500 font-black uppercase text-[10px] tracking-widest rounded-2xl hover:text-white hover:bg-white/10 transition-all active:scale-95"
+            className="px-8 py-5 bg-white/5 border border-white/10 text-zinc-500 font-black uppercase text-[10px] tracking-widest rounded-2xl hover:text-white hover:bg-white/10 transition-all active:scale-95 md:active:scale-100"
           >
             Abort Protocol
           </button>
@@ -68,7 +68,7 @@ export function TacticalConfirm({
               onConfirm();
               onClose();
             }}
-            className={`px-8 py-5 ${isDanger ? 'bg-red-600 hover:bg-red-500 shadow-[0_0_40px_rgba(239,68,68,0.3)]' : 'bg-blue-600 hover:bg-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)]'} text-white font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3`}
+            className={`px-8 py-5 ${isDanger ? 'bg-red-600 hover:bg-red-500 shadow-[0_0_40px_rgba(239,68,68,0.3)]' : 'bg-blue-600 hover:bg-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)]'} text-white font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all active:scale-95 md:active:scale-100 flex items-center justify-center gap-3`}
           >
             <CheckCircle2 className="w-4 h-4" />
             {confirmText}

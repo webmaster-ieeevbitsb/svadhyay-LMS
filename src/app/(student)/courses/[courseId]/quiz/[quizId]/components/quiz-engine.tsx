@@ -100,14 +100,14 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
             {result.isPassed ? (
                <Link 
                  href="/dashboard"
-                 className="flex items-center justify-center gap-3 w-full py-6 bg-blue-600 hover:bg-blue-500 text-white text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95"
+                 className="flex items-center justify-center gap-3 w-full py-6 bg-blue-600 hover:bg-blue-500 text-white text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all md:shadow-xl md:shadow-blue-600/20 active:scale-95 md:active:scale-100 touch-manipulation"
                >
                  Go to Dashboard <ArrowRight className="w-4 h-4" />
                </Link>
             ) : (
                <button 
                  onClick={() => setResult(null)}
-                 className="flex items-center justify-center gap-3 w-full py-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all active:scale-95 group"
+                 className="flex items-center justify-center gap-3 w-full py-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all active:scale-95 md:active:scale-100 touch-manipulation group"
                >
                  <RefreshCcw className="w-4 h-4 group-hover:rotate-180 transition-transform" /> Retake Assessment
                </button>
@@ -115,7 +115,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
             
             <Link 
               href={`/courses/${courseId}`}
-              className="flex items-center justify-center gap-2 w-fit mx-auto text-[11px] font-black text-zinc-500 hover:text-white uppercase tracking-[0.2em] transition-all hover:-translate-x-1"
+              className="flex items-center justify-center gap-2 w-fit mx-auto text-[11px] font-black text-zinc-500 hover:text-white uppercase tracking-[0.2em] transition-all hover:-translate-x-1 touch-manipulation"
             >
               <ArrowLeft className="w-4 h-4" /> Back to course view
             </Link>
@@ -134,7 +134,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
           </div>
           <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden relative">
              <div 
-               className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-700 shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+               className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-700 md:shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
                style={{ width: `${progress}%` }} 
              />
           </div>
@@ -153,7 +153,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
                  <button 
                    key={oidx}
                    onClick={() => handleSelectOption(currentQuestion.id, option)}
-                   className={`p-8 text-left rounded-[2rem] border transition-all duration-300 relative group active:scale-95 overflow-hidden ${isSelected ? 'bg-blue-600 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)]' : 'bg-[#0d0d12] border-white/5 hover:border-blue-500/30'}`}
+                   className={`p-8 text-left rounded-[2rem] border transition-all duration-300 relative group active:scale-95 md:active:scale-100 touch-manipulation overflow-hidden ${isSelected ? 'bg-blue-600 border-blue-500 md:shadow-[0_0_30px_rgba(59,130,246,0.2)]' : 'bg-[#0d0d12] border-white/5 hover:border-blue-500/30'}`}
                  >
                     {isSelected && (
                        <div className="absolute top-0 right-0 p-4 animate-in fade-in zoom-in duration-300">
@@ -177,7 +177,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
           <button 
             disabled={currentIdx === 0}
             onClick={handlePrevious}
-            className="flex items-center gap-3 px-8 py-5 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 text-zinc-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-20 disabled:pointer-events-none active:scale-95"
+            className="flex items-center gap-3 px-8 py-5 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 text-zinc-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-20 disabled:pointer-events-none active:scale-95 md:active:scale-100 touch-manipulation"
           >
             <ChevronLeft className="w-4 h-4" /> Previous Question
           </button>
@@ -186,7 +186,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
             <button 
               disabled={isPending}
               onClick={handleSubmit}
-              className="flex items-center gap-3 px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-3 px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all md:shadow-[0_0_40px_rgba(59,130,246,0.3)] active:scale-95 md:active:scale-100 disabled:opacity-50 touch-manipulation"
             >
               {isPending ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Trophy className="w-4 h-4" />}
               Submit Exam
@@ -194,7 +194,7 @@ export default function QuizEngine({ courseId, quizId, quiz, questions, initialR
           ) : (
             <button 
               onClick={handleNext}
-              className="flex items-center gap-3 px-10 py-5 bg-[#0a0a0f] border border-blue-500/40 text-blue-500 hover:bg-blue-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(59,130,246,0.1)] active:scale-95"
+              className="flex items-center gap-3 px-10 py-5 bg-[#0a0a0f] border border-blue-500/40 text-blue-500 hover:bg-blue-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all md:shadow-[0_0_20px_rgba(59,130,246,0.1)] active:scale-95 md:active:scale-100 touch-manipulation"
             >
               Next Question <ChevronRight className="w-4 h-4" />
             </button>

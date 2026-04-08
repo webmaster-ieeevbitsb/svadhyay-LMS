@@ -51,7 +51,7 @@ export default async function AdminHeader() {
           await supabase.auth.signOut();
           redirect("/");
         }}>
-           <button type="submit" className="px-4 md:px-8 py-2 md:py-3 bg-white text-black hover:bg-zinc-200 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest shadow-xl active:scale-95">
+           <button type="submit" className="px-4 md:px-8 py-2 md:py-3 bg-white text-black hover:bg-zinc-200 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest shadow-xl active:scale-95 md:active:scale-100">
              Log Out
            </button>
         </form>

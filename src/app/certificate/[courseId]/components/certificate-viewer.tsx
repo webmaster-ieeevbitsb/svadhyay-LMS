@@ -151,12 +151,19 @@ export default function CertificateViewer({
         }
       `}</style>
 
-      <div className="flex items-center justify-end no-print px-2 relative z-50">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-between no-print w-full max-w-[1050px] relative z-50 gap-4 mb-4">
+        <Link 
+          href="/dashboard"
+          className="flex-1 md:flex-none justify-center px-8 py-5 bg-white/5 border border-white/10 text-zinc-400 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:text-white hover:bg-white/10 transition-all flex items-center gap-3 shadow-inner active:scale-95 md:active:scale-100 touch-manipulation"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Return to Portal
+        </Link>
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 flex-1 md:flex-none">
           <button 
             type="button"
             onClick={handleShare}
-            className="px-8 py-5 bg-white/5 border border-white/10 text-zinc-400 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:text-white hover:bg-white/10 transition-all flex items-center gap-3 shadow-inner active:scale-95"
+            className="flex-1 md:flex-none justify-center px-8 py-5 bg-white/5 border border-white/10 text-zinc-400 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:text-white hover:bg-white/10 transition-all flex items-center gap-3 shadow-inner active:scale-95 md:active:scale-100 touch-manipulation"
           >
             <Share2 className="w-5 h-5" />
             Share Achievement
@@ -165,10 +172,10 @@ export default function CertificateViewer({
             type="button"
             onClick={handleDownload}
             disabled={isExporting}
-            className="px-8 py-5 bg-[#2563eb] text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-[0_0_50px_rgba(37,99,235,0.3)] disabled:opacity-50"
+            className="flex-1 md:flex-none justify-center px-8 py-5 bg-[#2563eb] text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl md:hover:scale-105 active:scale-95 md:active:scale-100 transition-all flex items-center gap-3 md:shadow-[0_0_50px_rgba(37,99,235,0.3)] disabled:opacity-50 touch-manipulation"
           >
             {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-            {isExporting ? "SECURELY CAPTURING..." : "DOWNLOAD CERTIFICATE (PNG)"}
+            {isExporting ? "SECURELY CAPTURING..." : "DOWNLOAD (PNG)"}
           </button>
         </div>
       </div>

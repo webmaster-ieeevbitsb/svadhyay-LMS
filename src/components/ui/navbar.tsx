@@ -9,7 +9,7 @@ export default async function Navbar() {
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <nav className="fixed top-0 inset-x-0 h-20 bg-[#050508]/80 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4 md:px-6 lg:px-12">
+    <nav className="fixed top-0 inset-x-0 h-20 bg-[#050508]/80 md:backdrop-blur-xl backdrop-blur-sm border-b border-white/10 z-50 flex items-center justify-between px-4 md:px-6 lg:px-12">
       {/* Branding Section */}
       <div className="flex items-center space-x-6 h-full">
         {/* Logos & Branding (No Links) */}
@@ -61,13 +61,13 @@ export default async function Navbar() {
               await supabase.auth.signOut();
               redirect("/");
             }}>
-              <button type="submit" className="px-4 md:px-8 py-2 md:py-3 bg-zinc-900 border border-white/5 text-white hover:bg-red-600 hover:border-red-500/50 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl active:scale-95 hover:shadow-red-500/10">
+              <button type="submit" className="px-4 md:px-8 py-2 md:py-3 bg-zinc-900 border border-white/5 text-white hover:bg-red-600 hover:border-red-500/50 transition-all rounded-xl text-[11px] font-black uppercase tracking-widest md:shadow-2xl active:scale-95 md:active:scale-100 hover:shadow-red-500/10 touch-manipulation">
                 Sign Out
               </button>
             </form>
           </div>
         ) : (
-          <Link href="/" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-full transition-all">
+          <Link href="/" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-full transition-all md:shadow-lg md:hover:shadow-blue-500/30 active:scale-95 md:active:scale-100 touch-manipulation">
             Login
           </Link>
         )}

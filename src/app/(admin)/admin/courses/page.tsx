@@ -19,7 +19,7 @@ export default async function AdminCoursesPage() {
         </div>
         <Link 
           href="/admin/courses/create"
-          className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] active:scale-95 flex items-center justify-center gap-3 group shrink-0"
+          className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] active:scale-95 md:active:scale-100 flex items-center justify-center gap-3 group shrink-0"
         >
           <span className="text-xl leading-none group-hover:-rotate-90 transition-transform duration-300">+</span> Build New Course
         </Link>

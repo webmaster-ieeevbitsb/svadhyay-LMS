@@ -132,7 +132,7 @@ export function AdminRegistry({
         <button 
           type="button" 
           onClick={() => setIsImportOpen(true)}
-          className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 flex items-center gap-3"
+          className="group px-8 py-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.1)] active:scale-95 md:active:scale-100 flex items-center gap-3"
         >
            <Upload className="w-4 h-4 group-hover:scale-110 transition-transform" />
            Bulk Admin Upload
@@ -159,7 +159,7 @@ export function AdminRegistry({
         <button 
           type="submit" 
           disabled={isAdding}
-          className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all flex items-center justify-center active:scale-95 disabled:opacity-50 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+          className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all flex items-center justify-center active:scale-95 md:active:scale-100 disabled:opacity-50 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
         >
           {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : "Authorize Admin"}
         </button>
@@ -211,7 +211,7 @@ export function AdminRegistry({
                   <button 
                     onClick={() => setConfirmingEmail(p.email)}
                     disabled={processingEmail === p.email}
-                    className="flex items-center gap-2 px-4 py-3 bg-red-500/5 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-3 bg-red-500/5 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest active:scale-95 md:active:scale-100 disabled:opacity-50"
                   >
                     {processingEmail === p.email ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

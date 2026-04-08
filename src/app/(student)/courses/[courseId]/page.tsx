@@ -169,7 +169,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
               <div className="pt-1">
                 <Link
                   href={`/courses/${courseId}/modules/${nextTargetModule.id}`}
-                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-500/35 active:scale-95"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all md:shadow-lg md:shadow-blue-600/25 md:hover:shadow-blue-500/35 active:scale-95 md:active:scale-100 touch-manipulation"
                 >
                   <PlayCircle className="w-4 h-4" />
                   {isCourseCompleted ? "Continue Learning" : hasStarted ? "Resume Course" : "Start Course"}
@@ -268,7 +268,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
               <Link 
                 key={m.id} 
                 href={`/courses/${courseId}/modules/${m.id}`}
-                className={`group flex items-center justify-between p-8 ${isCompleted ? 'bg-green-600/5 hover:bg-green-600/10 border-green-500/20 hover:border-green-500/40' : 'bg-[#0a0a0f] border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03]'} transition-all duration-300 rounded-2xl shadow-xl relative overflow-hidden`}
+                className={`group flex items-center justify-between p-8 ${isCompleted ? 'bg-green-600/5 hover:bg-green-600/10 border-green-500/20 hover:border-green-500/40' : 'bg-[#0a0a0f] border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03]'} transition-all duration-300 rounded-2xl md:shadow-xl active:scale-95 md:active:scale-100 relative overflow-hidden`}
               >
                 <div className="flex items-center gap-4 md:gap-8">
                   <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-2xl ${isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-zinc-900 border-white/5 text-zinc-500 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]'}  transition-all font-black italic text-lg md:text-xl pb-1`}>
@@ -305,7 +305,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
 
           {finalQuiz && (
              <div 
-               className={`group flex flex-col xl:flex-row xl:items-center justify-between p-6 md:p-10 gap-6 ${isCourseCompleted ? 'bg-green-600/10 border border-green-500/40' : 'bg-blue-600/5 border border-blue-500/30'} transition-all duration-500 rounded-[2.5rem] shadow-2xl relative overflow-hidden`}
+               className={`group flex flex-col xl:flex-row xl:items-center justify-between p-6 md:p-10 gap-6 ${isCourseCompleted ? 'bg-green-600/10 border border-green-500/40' : 'bg-blue-600/5 border border-blue-500/30'} transition-all duration-500 rounded-[2.5rem] md:shadow-2xl relative overflow-hidden`}
              >
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:scale-110 group-hover:opacity-10 transition-all duration-700">
                     <FileQuestion className={`w-48 h-48 ${isCourseCompleted ? 'text-green-500' : 'text-blue-500'}`} />
@@ -340,14 +340,14 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                    {isCourseCompleted && (
                       <Link 
                         href={`/certificate/${courseId}`}
-                        className="w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-105 transition-all text-green-400 border border-green-400 bg-green-950 flex justify-center items-center gap-2"
+                        className="w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest md:shadow-[0_0_20px_rgba(34,197,94,0.3)] md:hover:scale-105 active:scale-95 md:active:scale-100 transition-all text-green-400 border border-green-400 bg-green-950 flex justify-center items-center gap-2 touch-manipulation"
                       >
                          <Award className="w-4 h-4" /> Download Certificate
                       </Link>
                    )}
                    <Link 
                      href={`/courses/${courseId}/quiz/${finalQuiz.id}`}
-                     className={`w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex justify-center items-center ${isCourseCompleted ? 'bg-green-400 text-green-950' : 'bg-white text-black'}`}
+                     className={`w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest md:shadow-xl md:hover:scale-105 active:scale-95 md:active:scale-100 transition-all flex justify-center items-center touch-manipulation ${isCourseCompleted ? 'bg-green-400 text-green-950' : 'bg-white text-black'}`}
                    >
                       {isCourseCompleted ? "View Result" : "Start Exam"}
                    </Link>

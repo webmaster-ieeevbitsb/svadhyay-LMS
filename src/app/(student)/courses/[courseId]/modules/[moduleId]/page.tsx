@@ -123,7 +123,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
            <Link 
               scroll={true}
               href={getNextStepUrl(courseId, moduleId, "intro", sc)}
-              className="px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(37,99,235,0.2)] hover:scale-105 active:scale-95 group flex items-center gap-4"
+              className="px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(37,99,235,0.2)] hover:scale-105 active:scale-95 md:active:scale-100 group flex items-center gap-4"
            >
               <span>Initialize Module Content</span>
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

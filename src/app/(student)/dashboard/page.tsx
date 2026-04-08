@@ -73,7 +73,7 @@ export default async function DashboardPage() {
           {isAdmin && (
             <Link 
               href="/admin/courses" 
-              className="group relative px-10 py-5 bg-blue-600/10 border border-blue-500/30 rounded-3xl flex items-center justify-between w-full md:w-auto gap-4 hover:bg-blue-600/20 transition-all shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:shadow-blue-500/30 active:scale-95"
+              className="group relative px-10 py-5 bg-blue-600/10 border border-blue-500/30 rounded-3xl flex items-center justify-between w-full md:w-auto gap-4 hover:bg-blue-600/20 transition-all md:shadow-[0_0_30px_rgba(59,130,246,0.15)] md:hover:shadow-blue-500/30 active:scale-95 md:active:scale-100 touch-manipulation"
             >
               <div className="text-left">
                 <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none mb-1.5">Admin Portal</p>
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
               <Link 
                 key={course.id} 
                 href={`/courses/${course.id}`}
-                className="w-full bg-[#0d0d12]/60 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/5 shadow-2xl hover:border-blue-500/40 hover:shadow-blue-500/20 transition-all duration-500 flex flex-col group relative"
+                className="w-full bg-[#0d0d12]/60 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/5 md:shadow-2xl hover:border-blue-500/40 md:hover:shadow-blue-500/20 transition-all duration-500 flex flex-col group relative"
               >
                 {course.thumbnail_url && (
                   <div className="h-48 overflow-hidden border-b border-white/5 relative">
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-transparent to-transparent opacity-60" />
                     {p?.is_completed && (
-                      <div className="absolute top-4 right-4 bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
+                      <div className="absolute top-4 right-4 bg-green-500 md:shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
                          CERTIFIED
                       </div>
                     )}
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
                   <div className="h-48 bg-zinc-900/50 border-b border-white/5 flex items-center justify-center relative overflow-hidden">
                     <BookOpen className="w-12 h-12 text-zinc-800 group-hover:text-blue-500/20 transition-colors" />
                     {p?.is_completed && (
-                      <div className="absolute top-4 right-4 bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
+                      <div className="absolute top-4 right-4 bg-green-500 md:shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
                          CERTIFIED
                       </div>
                     )}
@@ -167,7 +167,7 @@ export default async function DashboardPage() {
                         </div>
                         <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[0.5px]">
                           <div 
-                            className="h-full bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]"
+                            className="h-full bg-blue-500 rounded-full md:shadow-[0_0_10px_#3b82f6]"
                             style={{ width: `${progressPercent}%` }}
                           />
                         </div>
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
                         <span className="w-1 h-1 rounded-full bg-current animate-pulse" />
                         {statusText}
                       </div>
-                      <div className={`w-10 h-10 ${statusBg} border ${statusBorder} flex items-center justify-center ${statusColor} rounded-full transition-all group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-500 shadow-lg group-hover:shadow-blue-500/40`}>
+                      <div className={`w-10 h-10 ${statusBg} border ${statusBorder} flex items-center justify-center ${statusColor} rounded-full transition-all group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-500 md:shadow-lg md:group-hover:shadow-blue-500/40`}>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>

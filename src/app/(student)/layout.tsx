@@ -57,7 +57,7 @@ export default async function StudentLayout({
         {/* ── Geometric Curves & Arcs ────────────────────────────────── */}
         
         {/* Radar Arc — Top Left */}
-        <div className="absolute -top-20 -left-20 w-80 h-80 opacity-[0.03]">
+        <div className="absolute -top-20 -left-20 w-80 h-80 opacity-[0.03] hidden md:block">
           <svg viewBox="0 0 200 200" className="w-full h-full animate-[spin_20s_linear_infinite]">
             <circle cx="100" cy="100" r="80" stroke="white" strokeWidth="0.5" fill="none" strokeDasharray="100 300" />
             <circle cx="100" cy="100" r="60" stroke="white" strokeWidth="0.5" fill="none" strokeDasharray="50 200" />
@@ -66,7 +66,7 @@ export default async function StudentLayout({
         </div>
 
         {/* Radar Arc — Bottom Right */}
-        <div className="absolute -bottom-20 -right-20 w-96 h-96 opacity-[0.03]">
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 opacity-[0.03] hidden md:block">
           <svg viewBox="0 0 200 200" className="w-full h-full animate-[spin_30s_linear_infinite_reverse]">
             <circle cx="100" cy="100" r="90" stroke="white" strokeWidth="0.5" fill="none" strokeDasharray="150 400" />
             <circle cx="100" cy="100" r="70" stroke="white" strokeWidth="1" fill="none" strokeDasharray="20 100" />
@@ -76,13 +76,13 @@ export default async function StudentLayout({
         {/* 🔲 Premium Glow Accents ────────────────────────────────── */}
         
         {/* Top Right Glow */}
-        <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] bg-blue-600/[0.04] blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+        <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] bg-blue-600/[0.04] blur-[100px] rounded-full pointer-events-none md:mix-blend-screen" />
 
         {/* Bottom Left Glow */}
-        <div className="absolute bottom-[10%] left-[10%] w-[300px] h-[300px] bg-indigo-600/[0.03] blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+        <div className="absolute bottom-[10%] left-[10%] w-[300px] h-[300px] bg-indigo-600/[0.03] blur-[100px] rounded-full pointer-events-none md:mix-blend-screen" />
         
         {/* Subtle Accent Glow */}
-        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/[0.02] blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
+        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/[0.02] blur-[120px] rounded-full pointer-events-none hidden md:block mix-blend-screen" />
 
         {/* ── Data Sine Waves — Very subtle flow ─────────────────────────────────── */}
         <div className="absolute bottom-0 left-0 right-0 h-10 opacity-[0.015] overflow-hidden">
@@ -110,16 +110,16 @@ export default async function StudentLayout({
       <div className="mt-auto flex flex-col items-center text-center space-y-8 pb-12">
         <SocialLinks />
         
-        <div className="space-y-6 max-w-4xl px-6">
-          <div className="text-[15px] font-black text-zinc-200 uppercase tracking-[0.3em]">
+        <div className="space-y-6 max-w-4xl px-6 group cursor-default">
+          <div className="text-[15px] font-black text-zinc-200 uppercase tracking-[0.3em] transition-colors duration-500 group-hover:text-blue-400">
             Designed and Developed by Web Designers | IEEE - VBIT SB
           </div>
           
-          <div className="text-[11px] text-zinc-500 font-black uppercase tracking-widest">
+          <div className="text-[11px] text-zinc-500 font-black uppercase tracking-widest transition-colors duration-300 group-hover:text-zinc-400">
             © Copyright 2026 IEEE – All rights reserved.
           </div>
           
-          <p className="text-[11px] text-zinc-500 leading-relaxed font-bold uppercase tracking-wider max-w-2xl mx-auto">
+          <p className="text-[11px] text-zinc-500 leading-relaxed font-bold uppercase tracking-wider max-w-2xl mx-auto transition-colors duration-300 group-hover:text-zinc-400">
             A non profit Organisation, IEEE is the world's largest technical professional organization 
             dedicated to advancing technology for the benefit of humanity.
           </p>
