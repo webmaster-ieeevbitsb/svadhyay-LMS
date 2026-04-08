@@ -5,6 +5,8 @@ import { addParticipant, removeParticipant, rotateStudentCohort } from "@/app/ac
 import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, CheckCircle2, RefreshCw } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
+import { TacticalConfirm } from "@/components/ui/tactical-confirm";
+import { toast } from "sonner";
 
 interface Participant {
   email: string;
@@ -30,6 +32,11 @@ export function ParticipantRegistry({
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState("");
   const [isRotating, setIsRotating] = useState(false);
+  const [confirmState, setConfirmState] = useState<{
+    isOpen: boolean;
+    type: "remove" | "rotate" | null;
+    targetEmail?: string;
+  }>({ isOpen: false, type: null });
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,26 +64,35 @@ export function ParticipantRegistry({
   };
 
 
-  const handleRemove = async (email: string) => {
-    if (!confirm("Are you sure? This will permanently delete this student record and all their progress.")) return;
+  const handleRemove = (email: string) => {
+    setConfirmState({ isOpen: true, type: "remove", targetEmail: email });
+  };
+
+  const executeRemove = async () => {
+    if (!confirmState.targetEmail) return;
+    const email = confirmState.targetEmail;
     
     const res = await removeParticipant(email);
     if (res.error) {
       setErrorLine(`Failed to remove ${email}: ${res.error}`);
     } else {
       setFullParticipants(prev => prev.filter(p => p.email.toLowerCase() !== email.toLowerCase()));
+      toast.success(`Student record deleted successfully.`);
     }
   };
 
-  const handleRotate = async () => {
-    if (!confirm("CRITICAL: This will purge ALL registered students and their progress. This action cannot be undone. Proceed?")) return;
+  const handleRotate = () => {
+    setConfirmState({ isOpen: true, type: "rotate" });
+  };
+
+  const executeRotate = async () => {
     setIsRotating(true);
     const res = await rotateStudentCohort();
     if (res.error) {
       setErrorLine(res.error);
     } else {
       setFullParticipants(prev => prev.filter(p => p.is_admin));
-      alert(`Purge Complete: ${res.count} student records deallocated.`);
+      toast.success(`Purge Complete: ${res.count} student records deallocated.`);
     }
     setIsRotating(false);
   };
@@ -215,6 +231,19 @@ export function ParticipantRegistry({
 
       <BulkImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
       <ProgressModal email={selectedStudent} isOpen={isProgressOpen} onClose={() => setIsProgressOpen(false)} />
+      <TacticalConfirm
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState({ isOpen: false, type: null })}
+        onConfirm={confirmState.type === "remove" ? executeRemove : executeRotate}
+        title={confirmState.type === "remove" ? "Delete Record" : "Purge Cohort"}
+        description={
+          confirmState.type === "remove"
+            ? "Are you sure you want to permanently delete this student record and all their progress?"
+            : "CRITICAL: This will purge ALL registered students and their progress. This action cannot be undone. Proceed?"
+        }
+        variant="danger"
+        confirmText={confirmState.type === "remove" ? "Delete Student" : "Execute Purge"}
+      />
     </>
   );
 }

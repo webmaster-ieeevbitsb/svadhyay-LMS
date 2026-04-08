@@ -180,21 +180,17 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
 }
 
 export async function toggleAdminStatus(email: string, currentStatus: boolean) {
-  console.log("🛠️ SERVER_ACTION: toggleAdminStatus called for", email);
   const supabase = await createClient();
 
-  // Call the diagnostic RPC
-  console.log("📡 RPC_CALL: Attempting public.revoke_admin_access...");
   const { data, error } = await supabase.rpc("revoke_admin_access", { 
     target_email: email.toLowerCase() 
   });
 
   if (error) {
-    console.error("❌ RPC_ERROR:", error.message, error.details, error.hint);
+    console.error("Revoke Admin Error:", error);
     return { error: error.message };
   }
 
-  console.log("✅ RPC_SUCCESS: Result Data =", data);
   revalidatePath("/admin/dashboard");
   return { success: true };
 }

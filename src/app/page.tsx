@@ -143,7 +143,7 @@ function LoginForm() {
                   onClick={handleGoogleLogin}
                   className="w-[85%] max-w-[280px] mx-auto flex items-center justify-center space-x-3 bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all font-bold text-white py-3.5 px-6 rounded-xl md:rounded-2xl group/btn shadow-2xl relative overflow-hidden text-sm sm:text-base"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-white/10 to-blue-500/0 translate-x-[-100%] group-hover/btn:animate-[shimmer_1.5s_infinite] transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-white/10 to-blue-500/0 translate-x-[-100%] transition-transform" />
                   <GoogleIcon />
                   <span className="tracking-tight whitespace-nowrap">Sign in with Google</span>
                   <ArrowRight className="w-3.5 h-3.5 text-zinc-500 group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
@@ -175,7 +175,7 @@ function LoginForm() {
         transition={{ delay: 0.8, duration: 1 }}
         className="mt-auto mb-10 px-6 w-full max-w-6xl relative z-10"
       >
-        <div className="relative group overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border border-white/[0.05] bg-[#0d0d12]/60 backdrop-blur-3xl p-6 md:p-12 shadow-2xl transform-gpu ring-1 ring-white/5">
+        <div className="relative group overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border border-white/[0.05] bg-[#0d0d12]/80 backdrop-blur-sm md:backdrop-blur-md p-6 md:p-12 shadow-2xl transform-gpu ring-1 ring-white/5">
           {/* Decorative HUD Corner Brackets */}
           <div className="absolute top-0 left-0 w-10 h-10 border-t border-l border-blue-500/20 rounded-tl-[2rem]" />
           <div className="absolute bottom-0 right-0 w-10 h-10 border-b border-r border-blue-500/20 rounded-br-[2rem]" />
@@ -227,7 +227,7 @@ export default function LoginPage() {
         {/* Dot Matrix */}
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,transparent_0%,black_85%)]">
            <div className="absolute inset-0 opacity-[0.45] bg-[radial-gradient(circle_1px_at_center,#fff_0.5px,transparent_1.5px)] bg-[size:24px_24px]" />
-           <div className="absolute inset-0 opacity-[0.40] bg-[radial-gradient(circle_2px_at_center,#3b82f6_1.5px,transparent_3px)] bg-[size:96px_96px] animate-[pulse_4s_infinite]" />
+           <div className="absolute inset-0 opacity-[0.40] bg-[radial-gradient(circle_2px_at_center,#3b82f6_1.5px,transparent_3px)] bg-[size:96px_96px]" />
         </div>
 
         {/* HUD Brackets */}
@@ -237,10 +237,10 @@ export default function LoginPage() {
 
       {/* Subtle Background Glows */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[10%] left-[10%] w-[40%] h-[40%] bg-blue-600/5 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[10%] right-[10%] w-[40%] h-[40%] bg-red-600/[0.02] blur-[120px] rounded-full" />
-        <div className="absolute top-[40%] right-[5%] w-[30%] h-[30%] bg-yellow-600/[0.01] blur-[100px] rounded-full" />
-        <div className="absolute bottom-[40%] left-[5%] w-[30%] h-[30%] bg-green-600/[0.01] blur-[100px] rounded-full" />
+        <div className="absolute top-[10%] left-[10%] w-[40%] h-[40%] bg-blue-600/5 blur-[80px] md:blur-[120px] rounded-full" />
+        <div className="absolute bottom-[10%] right-[10%] w-[40%] h-[40%] bg-red-600/[0.02] blur-[80px] md:blur-[120px] rounded-full" />
+        <div className="hidden md:block absolute top-[40%] right-[5%] w-[30%] h-[30%] bg-yellow-600/[0.01] blur-[100px] rounded-full" />
+        <div className="hidden md:block absolute bottom-[40%] left-[5%] w-[30%] h-[30%] bg-green-600/[0.01] blur-[100px] rounded-full" />
       </div>
 
       <Suspense fallback={<Loader2 className="animate-spin text-white w-8 h-8 relative z-10" />}>
