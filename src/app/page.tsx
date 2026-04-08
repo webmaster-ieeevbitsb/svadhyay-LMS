@@ -9,7 +9,6 @@ import { getURL } from "@/utils/supabase/get-url";
 import Image from "next/image";
 import { Preloader } from "@/components/ui/preloader";
 import { SocialLinks } from "@/components/ui/social-links";
-import { motion, AnimatePresence } from "framer-motion";
 
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0">
@@ -57,22 +56,12 @@ function LoginForm() {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative z-10 w-full flex-1 flex flex-col items-center"
-    >
+    <div className="relative z-10 w-full flex-1 flex flex-col items-center animate-in fade-in duration-500">
       {isLoading && <Preloader />}
       
       <div className="flex-1 flex flex-col items-center justify-center w-full py-12">
         {/* Top Logos Widget */}
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="flex items-center gap-4 md:space-x-8 bg-[#0d0d12]/80 backdrop-blur-md border border-white/5 px-6 md:px-12 py-4 md:py-5 rounded-[2rem] md:rounded-[2.5rem] mb-8 md:mb-12 shadow-2xl relative group"
-        >
+        <div className="flex items-center gap-4 md:space-x-8 bg-[#0d0d12]/80 md:backdrop-blur-md border border-white/5 px-6 md:px-12 py-4 md:py-5 rounded-[2rem] md:rounded-[2.5rem] mb-8 md:mb-12 md:shadow-2xl relative group animate-in fade-in zoom-in-95 duration-700">
           <div className="absolute inset-0 bg-blue-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center shrink-0">
             <Image 
@@ -89,16 +78,11 @@ function LoginForm() {
               sizes="(max-width: 768px) 64px, 120px"
             />
           </div>
-        </motion.div>
+        </div>
 
         {/* Main Branding */}
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-center space-y-4 mb-10 w-full px-4"
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tighter uppercase drop-shadow-lg flex flex-col md:flex-row items-center justify-center gap-2">
+        <div className="text-center space-y-4 mb-10 w-full px-4 animate-in fade-in duration-700 delay-150 fill-mode-backwards">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tighter uppercase drop-shadow-md flex flex-col md:flex-row items-center justify-center gap-2">
             <span className="text-white">IEEE - VBIT SB</span>
             <span className="text-blue-500">Learning Portal</span>
           </h1>
@@ -109,21 +93,10 @@ function LoginForm() {
              </p>
              <div className="h-px w-8 bg-blue-500/30" />
           </div>
-        </motion.div>
+        </div>
 
         {/* Login Card */}
-          <motion.div 
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="w-[calc(100%-3rem)] sm:w-full max-w-md bg-[#0d0d12]/90 backdrop-blur-sm border border-white/5 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 text-center shadow-2xl min-h-[300px] flex flex-col justify-center mx-auto relative overflow-hidden group"
-          >
-          {/* Internal Tactical HUD Corner Brackets */}
-          <div className="absolute top-6 left-6 w-8 h-8 border-t border-l border-white/10 rounded-tl-lg" />
-          <div className="absolute top-6 right-6 w-8 h-8 border-t border-r border-white/10 rounded-tr-lg" />
-          <div className="absolute bottom-6 left-6 w-8 h-8 border-b border-l border-white/10 rounded-bl-lg" />
-          <div className="absolute bottom-6 right-6 w-8 h-8 border-b border-r border-white/10 rounded-br-lg" />
-
+        <div className="w-[calc(100%-3rem)] sm:w-full max-w-md bg-[#0d0d12]/90 md:backdrop-blur-sm border border-white/5 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 text-center md:shadow-2xl min-h-[300px] flex flex-col justify-center mx-auto relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
           <div className="relative z-10">
             <Lock className="w-10 h-10 text-blue-500/40 mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Student Access</h2>
@@ -137,54 +110,37 @@ function LoginForm() {
                     <div className="w-10 h-10 rounded-full border-[2px] border-blue-500/10 border-t-blue-500 border-r-blue-500 animate-[spin_0.8s_linear_infinite] shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
                  </div>
               ) : (
-                <motion.button
-                  whileHover={{ scale: 1.01, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
-                  whileTap={{ scale: 0.99 }}
+                <button
+                  type="button"
                   onClick={handleGoogleLogin}
-                  className="w-[85%] max-w-[280px] mx-auto flex items-center justify-center space-x-3 bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all font-bold text-white py-3.5 px-6 rounded-xl md:rounded-2xl group/btn shadow-2xl relative overflow-hidden text-sm sm:text-base"
+                  className="w-[85%] max-w-[280px] mx-auto flex items-center justify-center space-x-3 bg-white/[0.03] border border-white/10 hover:border-white/20 active:bg-white/[0.08] active:scale-[0.98] transition-all font-bold text-white py-3.5 px-6 rounded-xl md:rounded-2xl group/btn md:shadow-xl relative overflow-hidden text-sm sm:text-base touch-manipulation"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-white/10 to-blue-500/0 translate-x-[-100%] transition-transform" />
+                  <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-blue-500/0 via-white/10 to-blue-500/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000" />
                   <GoogleIcon />
                   <span className="tracking-tight whitespace-nowrap">Sign in with Google</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-zinc-500 group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
-                </motion.button>
+                  <ArrowRight className="w-3.5 h-3.5 text-zinc-500 md:group-hover/btn:text-white md:group-hover/btn:translate-x-1 transition-all" />
+                </button>
               )}
             </div>
 
-            <AnimatePresence>
-              {errorMsg && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                  animate={{ opacity: 1, height: "auto", marginTop: 24 }}
-                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                  className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 text-[11px] font-bold uppercase tracking-wider rounded-xl flex items-center gap-3 text-left"
-                >
-                  <ShieldAlert className="w-5 h-5 shrink-0" />
-                  <span>{getErrorMessage(errorMsg)}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {errorMsg && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 text-[11px] font-bold uppercase tracking-wider rounded-xl flex items-center gap-3 text-left mt-6 animate-in fade-in zoom-in-95 duration-300">
+                <ShieldAlert className="w-5 h-5 shrink-0" />
+                <span>{getErrorMessage(errorMsg)}</span>
+              </div>
+            )}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Footer Element — Tactical HUD Pod */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 1 }}
-        className="mt-auto mb-10 px-6 w-full max-w-6xl relative z-10"
-      >
-        <div className="relative group overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border border-white/[0.05] bg-[#0d0d12]/80 backdrop-blur-sm md:backdrop-blur-md p-6 md:p-12 shadow-2xl transform-gpu ring-1 ring-white/5">
-          {/* Decorative HUD Corner Brackets */}
-          <div className="absolute top-0 left-0 w-10 h-10 border-t border-l border-blue-500/20 rounded-tl-[2rem]" />
-          <div className="absolute bottom-0 right-0 w-10 h-10 border-b border-r border-blue-500/20 rounded-br-[2rem]" />
-          
+      <div className="mt-auto mb-10 px-6 w-full max-w-6xl relative z-10 animate-in fade-in duration-700 delay-500 fill-mode-backwards">
+        <div className="relative group overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border border-white/[0.05] bg-[#0d0d12]/80 md:backdrop-blur-sm p-6 md:p-12 md:shadow-2xl ring-1 ring-white/5">
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-12 relative z-10">
             {/* Left Section: Institutional Branding & Mission */}
             <div className="flex flex-col items-center md:items-start space-y-5 flex-1 max-w-xs sm:max-w-md md:max-w-xl">
               <div className="flex items-center gap-3">
-                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_#3b82f6]" />
+                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full md:animate-pulse shadow-[0_0_8px_#3b82f6]" />
                  <h3 className="text-[14px] font-black text-white uppercase tracking-[0.4em]">
                    IEEE - VBIT SB
                  </h3>
@@ -204,15 +160,15 @@ function LoginForm() {
               
                 <div className="flex items-center gap-2">
                   <div className="h-px w-8 bg-zinc-800" />
-                  <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">
+                  <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] text-center md:text-right">
                     © Copyright 2026 IEEE – All rights reserved.
                   </span>
                 </div>
             </div>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
 
@@ -230,9 +186,7 @@ export default function LoginPage() {
            <div className="absolute inset-0 opacity-[0.40] bg-[radial-gradient(circle_2px_at_center,#3b82f6_1.5px,transparent_3px)] bg-[size:96px_96px]" />
         </div>
 
-        {/* HUD Brackets */}
-        <div className="fixed top-12 left-12 w-24 h-24 border-t-2 border-l-2 border-white/5 rounded-tl-3xl pointer-events-none" />
-        <div className="fixed bottom-12 right-12 w-24 h-24 border-b-2 border-r-2 border-white/5 rounded-br-3xl pointer-events-none" />
+        {/* Deleted HUD Brackets based on styling change */}
       </div>
 
       {/* Subtle Background Glows */}

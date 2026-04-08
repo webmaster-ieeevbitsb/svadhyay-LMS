@@ -191,14 +191,36 @@ export default function ModuleEditorForm({
               />
 
               <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-4">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2">Master Video URL (YouTube Embed format)</label>
-                  <input 
-                    value={data.video_url}
-                    onChange={(e) => setData({ ...data, video_url: e.target.value })}
-                    className="w-full bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
-                    placeholder="https://www.youtube.com/embed/..."
-                  />
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center justify-between">
+                    <span>Master Video URL (YouTube Embed format)</span>
+                    {data.video_url && <span className="text-blue-400">Scanner Active</span>}
+                  </label>
+                  <div className="flex gap-4 items-start">
+                    <input 
+                      value={data.video_url}
+                      onChange={(e) => setData({ ...data, video_url: e.target.value })}
+                      className="flex-1 bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded shadow-inner"
+                      placeholder="https://www.youtube.com/embed/..."
+                    />
+                    {data.video_url && (
+                      <div className="w-32 h-[42px] rounded border border-white/10 overflow-hidden relative flex-shrink-0 bg-black/40 animate-in fade-in zoom-in duration-300">
+                        {data.video_url.includes('youtube.com') || data.video_url.includes('youtu.be') ? (
+                          <img 
+                            src={`https://img.youtube.com/vi/${data.video_url.split(/embed\/|v=|v\/|youtu.be\//)[1]?.split(/[?&]/)[0]}/mqdefault.jpg`} 
+                            alt="preview" 
+                            className="w-full h-full object-cover opacity-75 hover:opacity-100 transition-opacity"
+                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-[8px] font-black tracking-widest uppercase text-blue-500/50">Video Link</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 pointer-events-none border border-white/5" />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

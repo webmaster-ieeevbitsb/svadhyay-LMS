@@ -52,12 +52,6 @@ export default async function StudentLayout({
            
            {/* Primary Blue Tactical Nodes — clearly visible */}
            <div className="absolute inset-0 opacity-[0.60] bg-[radial-gradient(circle_2px_at_center,#3b82f6_1.5px,transparent_3px)] bg-[size:96px_96px] animate-[pulse_4s_infinite]" />
-           
-           {/* Global HUD Corner Brackets — fixed to viewport */}
-           <div className="fixed top-24 left-6 w-12 h-12 border-t-2 border-l-2 border-white/20 rounded-tl-xl pointer-events-none" />
-           <div className="fixed top-24 right-6 w-12 h-12 border-t-2 border-r-2 border-white/20 rounded-tr-xl pointer-events-none" />
-           <div className="fixed bottom-6 left-6 w-12 h-12 border-b-2 border-l-2 border-white/20 rounded-bl-xl pointer-events-none" />
-           <div className="fixed bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 border-white/20 rounded-br-xl pointer-events-none" />
         </div>
 
         {/* ── Geometric Curves & Arcs ────────────────────────────────── */}
@@ -79,25 +73,16 @@ export default async function StudentLayout({
           </svg>
         </div>
 
-        {/* 🔲 Complex Tactical Brackets ────────────────────────────────── */}
+        {/* 🔲 Premium Glow Accents ────────────────────────────────── */}
         
-        {/* Top Right Bracket */}
-        <div className="absolute top-12 right-12 w-16 h-16 opacity-20">
-          <div className="absolute top-0 right-0 w-full h-px bg-white/40" />
-          <div className="absolute top-0 right-0 w-px h-full bg-white/40" />
-          <div className="absolute top-2 right-2 w-8 h-px bg-white/20" />
-          <div className="absolute top-2 right-2 w-px h-8 bg-white/20" />
-          <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-blue-500/40" />
-        </div>
+        {/* Top Right Glow */}
+        <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] bg-blue-600/[0.04] blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
 
-        {/* Bottom Left Bracket */}
-        <div className="absolute bottom-12 left-12 w-16 h-16 opacity-20">
-          <div className="absolute bottom-0 left-0 w-full h-px bg-white/40" />
-          <div className="absolute bottom-0 left-0 w-px h-full bg-white/40" />
-          <div className="absolute bottom-2 left-2 w-8 h-px bg-white/20" />
-          <div className="absolute bottom-2 left-2 w-px h-8 bg-white/20" />
-          <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-blue-500/40" />
-        </div>
+        {/* Bottom Left Glow */}
+        <div className="absolute bottom-[10%] left-[10%] w-[300px] h-[300px] bg-indigo-600/[0.03] blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+        
+        {/* Subtle Accent Glow */}
+        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/[0.02] blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
 
         {/* ── Data Sine Waves — Very subtle flow ─────────────────────────────────── */}
         <div className="absolute bottom-0 left-0 right-0 h-10 opacity-[0.015] overflow-hidden">

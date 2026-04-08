@@ -46,23 +46,19 @@ export default async function DashboardPage() {
   return (
     <div className="relative min-h-screen">
       
-      {/* 💠 Dashboard Strategic Abstracts — Unmistakable tactical presence */}
+      {/* 💠 Dashboard Strategic Abstracts */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50 z-0">
         
-        {/* Large Strategic HUD Brackets */}
-        <div className="absolute top-1/4 right-[5%] w-64 h-64 border-t-2 border-r-2 border-blue-500/10 rounded-tr-[4rem]" />
-        <div className="absolute bottom-1/4 left-[5%] w-64 h-64 border-b-2 border-l-2 border-blue-500/10 rounded-bl-[4rem]" />
+        {/* Distinct Geometric Flow Lines */}
+        <div className="absolute top-0 right-[-10%] w-1/2 h-[800px] bg-gradient-to-bl from-blue-600/[0.03] to-transparent transform rotate-12" />
+        <div className="absolute bottom-0 left-[-10%] w-1/2 h-[800px] bg-gradient-to-tr from-indigo-600/[0.02] to-transparent transform -rotate-12" />
         
-        {/* Rotating Tactical Scanners */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/[0.02] rounded-full animate-[spin_60s_linear_infinite]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[780px] h-[780px] border-t-2 border-b-2 border-blue-500/5 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
+        {/* Rotating Tactical Scanners (Softened) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/[0.015] rounded-full animate-[spin_60s_linear_infinite]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[780px] h-[780px] border-t border-b border-blue-500/[0.03] rounded-full animate-[spin_40s_linear_infinite_reverse]" />
         
         {/* High-Density Data Matrix */}
-        <div className="absolute inset-0 opacity-[0.1] bg-[radial-gradient(#3b82f6_0.5px,transparent_0.5px)] bg-[size:32px_32px]" />
-        
-        {/* focal HUD Brackets */}
-        <div className="absolute top-[20%] left-[10%] w-12 h-12 border-l-2 border-t-2 border-white/10" />
-        <div className="absolute bottom-[20%] right-[10%] w-12 h-12 border-r-2 border-b-2 border-white/10" />
+        <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(#3b82f6_0.5px,transparent_0.5px)] bg-[size:32px_32px]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto p-6 lg:p-12 space-y-12 animate-in fade-in duration-500">
