@@ -12,7 +12,7 @@ export default async function CertificateLayout({
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen bg-[#050508] text-zinc-400 font-sans flex flex-col pt-20 mt-0 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#050508] text-zinc-400 font-sans flex flex-col relative overflow-x-hidden">
       <ScrollToTop />
       
       {/* ── Global Tactical HUD Background ────────────────────────────────── */}
@@ -30,9 +30,7 @@ export default async function CertificateLayout({
         </div>
       </div>
 
-      <Navbar />
-
-      <main className="flex-1 w-full relative z-10 mb-24">
+      <main className="flex-1 w-full relative z-10 pt-10 pb-20">
         {children}
       </main>
 

@@ -151,10 +151,7 @@ export default function CertificateViewer({
         }
       `}</style>
 
-      <div className="flex items-center justify-between no-print px-2 relative z-50">
-        <Link href="/dashboard" className="text-zinc-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" /> Return to Dashboard
-        </Link>
+      <div className="flex items-center justify-end no-print px-2 relative z-50">
         <div className="flex items-center gap-4">
           <button 
             type="button"
