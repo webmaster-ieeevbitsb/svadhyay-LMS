@@ -53,7 +53,27 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
            <div className="space-y-4">
               <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl relative group shadow-blue-500/10">
                  <iframe 
-                   src={concept.video_url}
+                   src={(() => {
+                     try {
+                       const url = new URL(concept.video_url);
+                       if (concept.video_start_time) {
+                         const val = concept.video_start_time.toString().trim();
+                         let secs = 0;
+                         if (val.includes(':')) {
+                           const parts = val.split(':');
+                           secs = parseInt(parts[0] || '0') * 60 + parseInt(parts[1] || '0');
+                         } else {
+                           secs = Math.round(parseFloat(val) * 60);
+                         }
+                         if (!isNaN(secs) && secs >= 0) {
+                           url.searchParams.set("start", secs.toString());
+                         }
+                       }
+                       return url.toString();
+                     } catch (e) {
+                       return concept.video_url;
+                     }
+                   })()}
                    className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
                    allowFullScreen
                  />

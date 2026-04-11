@@ -112,7 +112,7 @@ export default function ModuleEditorForm({
     });
   };
 
-  const updateDropdown = (index: number, field: keyof Omit<ModuleContent["drop_downs"][0], "custom_sections">, value: string) => {
+  const updateDropdown = (index: number, field: keyof Omit<ModuleContent["drop_downs"][0], "custom_sections">, value: any) => {
     const newDDs = [...sc.drop_downs];
     (newDDs[index] as any)[field] = value;
     updateSC({ drop_downs: newDDs });
@@ -277,13 +277,25 @@ export default function ModuleEditorForm({
                     </div>
 
                     <div className="md:col-span-2 space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block">Sub-module Video URL (Optional)</label>
-                       <input 
-                         value={dd.video_url || ""}
-                         onChange={(e) => updateDropdown(idx, "video_url", e.target.value)}
-                         className="w-full bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
-                         placeholder="https://www.youtube.com/embed/..."
-                       />
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block">Sub-module Video URL & Start Time (Optional)</label>
+                       <div className="flex gap-4 items-center">
+                         <input 
+                           value={dd.video_url || ""}
+                           onChange={(e) => updateDropdown(idx, "video_url", e.target.value)}
+                           className="flex-1 bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
+                           placeholder="https://www.youtube.com/embed/..."
+                         />
+                         <div className="flex-shrink-0 flex items-center space-x-2">
+                           <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Start at (Mins):</span>
+                           <input
+                             type="text"
+                             value={dd.video_start_time ?? ""}
+                             onChange={(e) => updateDropdown(idx, "video_start_time", e.target.value)}
+                             className="w-28 bg-black/50 border border-white/10 px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
+                             placeholder="1:44"
+                           />
+                         </div>
+                       </div>
                     </div>
 
 

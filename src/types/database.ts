@@ -25,6 +25,7 @@ export type ModuleContent = {
     common_mistake: string;
     try_it: string;
     video_url?: string | null;
+    video_start_time?: string;
     custom_sections?: Array<{
       heading: string;
       content: string;
