@@ -35,10 +35,6 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
       
       <main className="flex-1 max-w-4xl mx-auto w-full p-6 md:p-12 pt-32 space-y-12 pb-64 relative z-10">
         <div className="space-y-4">
-          <div className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
-            Sub-module 1.{sc.drop_downs.length + 1}
-          </div>
           <div className="flex items-center gap-4">
             <Lightbulb className="w-10 h-10 text-yellow-400 group-hover:scale-110 transition-transform" />
             <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">{activity.title}</h1>
