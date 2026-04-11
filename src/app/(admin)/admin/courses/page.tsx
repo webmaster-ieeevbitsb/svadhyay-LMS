@@ -10,7 +10,7 @@ export default async function AdminCoursesPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase text-white">
             Manage Curriculum
           </h1>
           <p className="text-zinc-500 mt-2 text-sm md:text-base">
@@ -19,7 +19,7 @@ export default async function AdminCoursesPage() {
         </div>
         <Link 
           href="/admin/courses/create"
-          className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] active:scale-95 md:active:scale-100 flex items-center justify-center gap-3 group shrink-0"
+          className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] active:scale-95 md:active:scale-100 flex items-center justify-center gap-3 group shrink-0"
         >
           <span className="text-xl leading-none group-hover:-rotate-90 transition-transform duration-300">+</span> Build New Course
         </Link>
@@ -43,8 +43,16 @@ export default async function AdminCoursesPage() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent z-10" />
             
+            <div className="absolute top-4 right-4 z-30">
+               {course.is_published ? (
+                 <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-green-500 text-white rounded-full">LIVE</span>
+               ) : (
+                 <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-zinc-800 border border-white/10 text-white rounded-full">DRAFT</span>
+               )}
+            </div>
+
             <div className="relative z-20">
-              <h2 className="text-2xl font-black italic tracking-tight text-white uppercase truncate">
+              <h2 className="text-2xl font-black tracking-tight text-white uppercase truncate">
                 {course.title}
               </h2>
               <p className="text-zinc-400 text-sm line-clamp-2 mt-2">

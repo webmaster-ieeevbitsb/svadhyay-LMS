@@ -169,7 +169,7 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
             </div>
             
             <div className="space-y-2">
-               <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white font-mono">
+               <h2 className="text-4xl font-black uppercase tracking-tighter text-white font-mono">
                   Assessment <span className={result.isPassed ? 'text-green-500' : 'text-red-500'}>{result.isPassed ? 'Passed' : 'Failed'}</span>
                </h2>
                <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.4em]">Final Grading Protocol Complete</p>
@@ -179,11 +179,11 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
          <div className="grid grid-cols-2 gap-4">
             <div className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl text-center space-y-1">
                <div className="text-[10px] text-zinc-600 font-black uppercase tracking-widest leading-none">Accuracy Rate</div>
-               <div className="text-4xl font-black italic tracking-tighter text-white leading-none pt-2">{result.score}%</div>
+               <div className="text-4xl font-black tracking-tighter text-white leading-none pt-2">{result.score}%</div>
             </div>
             <div className="bg-white/[0.02] border border-white/5 p-8 rounded-3xl text-center space-y-1">
                <div className="text-[10px] text-zinc-600 font-black uppercase tracking-widest leading-none">Correct Answers</div>
-               <div className="text-4xl font-black italic tracking-tighter text-blue-500 leading-none pt-2">{result.correctCount}/{result.totalCount}</div>
+               <div className="text-4xl font-black tracking-tighter text-blue-500 leading-none pt-2">{result.correctCount}/{result.totalCount}</div>
             </div>
          </div>
 
@@ -191,14 +191,14 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
             {result.isPassed ? (
                <Link 
                  href="/dashboard"
-                 className="flex items-center justify-center gap-3 w-full py-6 bg-blue-600 hover:bg-blue-500 text-white text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all md:shadow-xl md:shadow-blue-600/20 active:scale-95 md:active:scale-100 touch-manipulation"
+                 className="flex items-center justify-center gap-3 w-full py-6 bg-blue-600 hover:bg-blue-500 text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all md:shadow-xl md:shadow-blue-600/20 active:scale-95 md:active:scale-100 touch-manipulation"
                >
                  Go to Dashboard <ArrowRight className="w-4 h-4" />
                </Link>
             ) : (
                <button 
                  onClick={() => setResult(null)}
-                 className="flex items-center justify-center gap-3 w-full py-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all active:scale-95 md:active:scale-100 touch-manipulation group"
+                 className="flex items-center justify-center gap-3 w-full py-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95 md:active:scale-100 touch-manipulation group"
                >
                  <RefreshCcw className="w-4 h-4 group-hover:rotate-180 transition-transform" /> Retake Assessment
                </button>
@@ -219,17 +219,17 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
     return (
       <div className="max-w-xl mx-auto py-16 lg:py-24 text-center space-y-12 animate-in fade-in zoom-in-95 duration-1000">
          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-white leading-none">Assessment Prep</h1>
+            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-white leading-none">Assessment Prep</h1>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.4em]">Review instructions before initiation</p>
          </div>
 
          <div className="grid grid-cols-1 gap-4 text-left max-w-md mx-auto">
             <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
-               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black italic shrink-0">01</div>
+               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black shrink-0">01</div>
                <p className="text-zinc-400 text-xs font-medium leading-relaxed">The exam will <span className="text-white">lock into full-screen mode</span> to maintain a dedicated testing environment.</p>
             </div>
             <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
-               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black italic shrink-0">02</div>
+               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black shrink-0">02</div>
                <p className="text-zinc-400 text-xs font-medium leading-relaxed">Switching tabs or minimizing the window will <span className="text-white">automatically pause</span> your session.</p>
             </div>
          </div>
@@ -237,7 +237,7 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
          <div className="space-y-6 pt-4">
             <button 
                onClick={enterSecureMode}
-               className="w-full py-6 bg-white text-black text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] hover:bg-zinc-200 active:scale-95 flex items-center justify-center gap-3 group"
+               className="w-full py-6 bg-white text-black text-sm font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] hover:bg-zinc-200 active:scale-95 flex items-center justify-center gap-3 group"
             >
                Begin Examination <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -263,8 +263,8 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
                </div>
                <div className="space-y-4">
                   <div className="space-y-2">
-                     <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">Session Interrupted</h2>
-                     <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] italic">
+                     <h2 className="text-3xl font-black uppercase tracking-tighter text-white leading-none">Session Interrupted</h2>
+                     <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em]">
                        {violationType === "TAB_SWITCH" ? "Active Tab Focus Lost" : violationType === "WINDOW_BLUR" ? "Browser Visibility Interrupted" : "Immersive Mode Exited"}
                      </p>
                   </div>
@@ -275,7 +275,7 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
                <div className="space-y-6">
                   <button 
                      onClick={enterSecureMode}
-                     className="w-full py-5 bg-white text-black text-xs font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-xl hover:bg-zinc-200 active:scale-95"
+                     className="w-full py-5 bg-white text-black text-xs font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl hover:bg-zinc-200 active:scale-95"
                   >
                      Resume Assessment
                   </button>
@@ -307,7 +307,7 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
 
        {/* Evaluative Interface */}
        <div className="space-y-12 py-8 animate-in slide-in-from-right-4 duration-500">
-          <h3 className="text-3xl font-bold tracking-tight text-white leading-snug max-w-3xl italic">
+          <h3 className="text-3xl font-bold tracking-tight text-white leading-snug max-w-3xl">
             "{currentQuestion.question_text}"
           </h3>
 
@@ -325,7 +325,7 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
                           <CheckCircle2 className="w-5 h-5 text-blue-200" />
                        </div>
                     )}
-                    <span className={`text-[10px] font-black italic uppercase tracking-widest block mb-2 ${isSelected ? 'text-blue-200/60' : 'text-zinc-600 group-hover:text-blue-500'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest block mb-2 ${isSelected ? 'text-blue-200/60' : 'text-zinc-600 group-hover:text-blue-500'}`}>
                       Option {String.fromCharCode(65 + oidx)}
                     </span>
                     <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}>

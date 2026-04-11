@@ -10,6 +10,7 @@ interface ModuleData {
   title: string;
   content_text: string;
   video_url: string;
+  image_url: string;
   structured_content: ModuleContent | null;
 }
 
@@ -161,7 +162,7 @@ export default function ModuleEditorForm({
       <div className="p-8 space-y-12 pb-32">
         {/* Core Settings */}
         <section className="space-y-4">
-           <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2">Core Identity & Video</h3>
+           <h3 className="text-sm font-bold uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2">Core Identity & Media</h3>
            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -190,7 +191,8 @@ export default function ModuleEditorForm({
                 placeholder="This module builds the foundation..."
               />
 
-              <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-4">
+              <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-8">
+                {/* Master Video */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center justify-between">
                     <span>Master Video URL (YouTube Embed format)</span>
@@ -221,25 +223,54 @@ export default function ModuleEditorForm({
                       </div>
                     )}
                   </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2">Video Title</label>
-                    <input 
-                      value={sc.video_title || ""}
-                      onChange={(e) => updateSC({ video_title: e.target.value })}
-                      className="w-full bg-black/50 border border-white/10 p-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm rounded"
-                      placeholder="AI, Machine Learning..."
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2 text-[8px]">Video Title</label>
+                      <input 
+                        value={sc.video_title || ""}
+                        onChange={(e) => updateSC({ video_title: e.target.value })}
+                        className="w-full bg-black/20 border border-white/5 p-2 text-white focus:outline-none focus:border-blue-500 transition-colors text-xs rounded"
+                        placeholder="Video Title"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2 text-[8px]">Video Description</label>
+                      <input 
+                        value={sc.video_description || ""}
+                        onChange={(e) => updateSC({ video_description: e.target.value })}
+                        className="w-full bg-black/20 border border-white/5 p-2 text-white focus:outline-none focus:border-blue-500 transition-colors text-xs rounded"
+                        placeholder="Video Meta Description"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-2">Video Description</label>
+                </div>
+
+                <div className="h-px bg-white/5 w-full" />
+
+                {/* Master Image */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center justify-between">
+                    <span>Master Image URL (Direct Link)</span>
+                    {data.image_url && <span className="text-blue-400">Optics Active</span>}
+                  </label>
+                  <div className="flex gap-4 items-start">
                     <input 
-                      value={sc.video_description || ""}
-                      onChange={(e) => updateSC({ video_description: e.target.value })}
-                      className="w-full bg-black/50 border border-white/10 p-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm rounded"
-                      placeholder="Use this as the opening video..."
+                      value={data.image_url}
+                      onChange={(e) => setData({ ...data, image_url: e.target.value })}
+                      className="flex-1 bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded shadow-inner"
+                      placeholder="https://images.unsplash.com/..."
                     />
+                    {data.image_url && (
+                      <div className="w-32 h-[42px] rounded border border-white/10 overflow-hidden relative flex-shrink-0 bg-black/40 animate-in fade-in zoom-in duration-300">
+                        <img 
+                          src={data.image_url} 
+                          alt="preview" 
+                          className="w-full h-full object-cover opacity-75 hover:opacity-100 transition-opacity"
+                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                        <div className="absolute inset-0 pointer-events-none border border-white/5" />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

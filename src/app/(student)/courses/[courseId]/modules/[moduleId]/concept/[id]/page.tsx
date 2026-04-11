@@ -45,7 +45,7 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
             <span className="w-2 h-2 rounded-full bg-blue-500" />
             Sub-module 1.{index + 1}
           </div>
-          <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">{concept.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white uppercase">{concept.title}</h1>
         </div>
 
         {/* 🎬 CONCEPT_VIDEO_DEPLOYMENT (Optional) */}

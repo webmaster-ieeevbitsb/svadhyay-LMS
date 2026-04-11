@@ -52,7 +52,7 @@ export default async function FinalQuizPage({
           </div>
           
           <div className="relative z-10">
-             <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white">
+             <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">
                {quiz.title}
              </h1>
           </div>

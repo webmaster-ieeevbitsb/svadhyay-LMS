@@ -5,9 +5,10 @@ export type Course = {
   thumbnail_url: string | null;
   metadata: {
     overview?: string;
-    goals_list?: string; // string representing bullet points, could be newlines
+    goals_list?: string;
     duration_text?: string;
   } | null;
+  is_published: boolean;
   created_at: string;
 };
 

@@ -7,6 +7,7 @@ import CreateQuizForm from "./components/create-quiz-form";
 
 import CourseHeaderEditor from "./components/course-header-editor";
 import QuizEditor from "./components/quiz-editor";
+import DeploymentControl from "./components/deployment-control";
 
 export default async function CourseBuilderStudio({ 
   params 
@@ -57,14 +58,18 @@ export default async function CourseBuilderStudio({
     <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
       
       {/* Header and Metdata */}
-      <div className="flex flex-col space-y-2 mb-4">
-        <Link href="/admin/courses" className="text-zinc-500 hover:text-white transition-colors flex items-center space-x-2 text-sm uppercase tracking-widest font-bold">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Library</span>
-        </Link>
-        <h1 className="text-4xl font-black italic tracking-tighter uppercase text-white drop-shadow-lg">
-          Manage <span className="text-blue-500">Curriculum</span>
-        </h1>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
+        <div className="space-y-2">
+          <Link href="/admin/courses" className="text-zinc-500 hover:text-white transition-colors flex items-center space-x-2 text-sm uppercase tracking-widest font-bold">
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Library</span>
+          </Link>
+          <h1 className="text-4xl font-black tracking-tighter uppercase text-white drop-shadow-lg leading-none">
+            Manage <span className="text-blue-500">Curriculum</span>
+          </h1>
+        </div>
+
+        <DeploymentControl courseId={course.id} isPublished={course.is_published} />
       </div>
 
       <CourseHeaderEditor 

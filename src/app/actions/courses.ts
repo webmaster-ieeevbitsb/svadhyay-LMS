@@ -76,7 +76,8 @@ export async function createCourse(formData: FormData) {
         title, 
         description, 
         thumbnail_url,
-        metadata 
+        metadata,
+        is_published: false
       }])
       .select()
       .single();
@@ -156,6 +157,7 @@ export async function updateCourse(courseId: string, formData: FormData) {
   }
 }
 
+
 export async function deleteCourse(courseId: string) {
   const auth = await verifyAdmin();
   if (auth.error !== null) return { error: auth.error };
@@ -172,4 +174,33 @@ export async function deleteCourse(courseId: string) {
 
   revalidatePath("/admin/courses");
   return { success: true };
+}
+
+/**
+ * Toggles the public deployment status of a course.
+ */
+export async function togglePublishStatus(courseId: string, currentStatus: boolean) {
+  try {
+    const auth = await verifyAdmin();
+    if (auth.error !== null) return { error: auth.error };
+    const { supabase } = auth;
+
+    const { error } = await supabase
+      .from("courses")
+      .update({ is_published: !currentStatus })
+      .eq("id", courseId);
+
+    if (error) {
+      return { error: `Failed to update deployment state: ${error.message}` };
+    }
+
+    revalidatePath("/admin/courses");
+    revalidatePath(`/admin/courses/${courseId}`);
+    revalidatePath("/dashboard");
+    revalidatePath(`/courses/${courseId}`);
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Internal failure toggling deployment status." };
+  }
 }

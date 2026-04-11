@@ -43,6 +43,7 @@ export default async function ModuleEditorPage({
             title: module.title,
             content_text: module.content_text || "",
             video_url: module.video_url || "",
+            image_url: module.image_url || "",
             structured_content: module.structured_content || null
           }} 
         />

@@ -55,6 +55,7 @@ interface UpdateData {
   title: string;
   content_text: string;
   video_url: string;
+  image_url?: string;
   structured_content?: any;
 }
 
@@ -71,7 +72,8 @@ export async function updateModuleContent(courseId: string, moduleId: string, da
     .update({
       title: data.title,
       content_text: data.content_text,
-      video_url: data.video_url,
+      video_url: data.video_url || null,
+      image_url: data.image_url || null,
       structured_content: data.structured_content || null
     })
     .eq("id", moduleId)

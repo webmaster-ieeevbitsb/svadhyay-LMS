@@ -256,7 +256,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                ))}
                <div className="w-12 h-[1px] bg-gradient-to-r from-blue-500/40 to-transparent" />
             </div>
-            <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white shadow-none leading-none">
+            <h2 className="text-3xl font-black tracking-tighter uppercase text-white shadow-none leading-none">
               Course <span className="text-blue-500">Curriculum</span>
             </h2>
           </div>
@@ -277,7 +277,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                 className={`group flex items-center justify-between p-8 ${isCompleted ? 'bg-green-600/5 hover:bg-green-600/10 border-green-500/20 hover:border-green-500/40' : 'bg-[#0a0a0f] border-white/5 hover:border-blue-500/30 hover:bg-blue-600/[0.03]'} transition-all duration-300 rounded-2xl md:shadow-xl active:scale-95 md:active:scale-100 relative overflow-hidden`}
               >
                 <div className="flex items-center gap-4 md:gap-8">
-                  <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-2xl ${isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-zinc-900 border-white/5 text-zinc-500 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]'}  transition-all font-black italic text-lg md:text-xl pb-1`}>
+                  <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-2xl ${isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-zinc-900 border-white/5 text-zinc-500 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]'}  transition-all font-black text-lg md:text-xl pb-1`}>
                     {isCompleted ? <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" /> : (idx + 1 < 10 ? `0${idx + 1}` : idx + 1)}
                   </div>
                   <div>
@@ -291,7 +291,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                        Interactive Content
                     </div>
                     {m.structured_content?.duration_minutes && (
-                      <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest italic font-mono">
+                      <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest font-mono">
                         {m.structured_content.duration_minutes} Mins
                       </div>
                     )}
@@ -323,7 +323,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                    </div>
                    <div>
                       <div className={`text-[10px] font-black uppercase tracking-[0.4em] mb-1 ${isCourseCompleted ? 'text-green-400' : 'text-blue-400'}`}>Final Assessment</div>
-                      <h3 className="text-2xl md:text-3xl font-black italic tracking-tighter text-white uppercase leading-none shadow-none">
+                      <h3 className="text-2xl md:text-3xl font-black tracking-tighter text-white uppercase leading-none shadow-none">
                         {isCourseCompleted ? "Assessment Certified" : "Certification Exam"}
                       </h3>
                       <p className="text-zinc-500 text-xs mt-3 font-bold uppercase tracking-widest flex items-center gap-2">

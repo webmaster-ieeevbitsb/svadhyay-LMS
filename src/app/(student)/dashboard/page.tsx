@@ -34,10 +34,15 @@ export default async function DashboardPage() {
   ]);
 
   const participant = participantResult.data;
-  const courses = coursesResult.data;
+  const allCourses = coursesResult.data || [];
   const progress = progressResult.data;
 
   const isAdmin = !!participant?.is_admin;
+
+  // Filter courses: Admins see everything, students only see published
+  const courses = isAdmin 
+    ? allCourses 
+    : allCourses.filter(c => (c as any).is_published);
 
   return (
     <div className="relative min-h-screen">
@@ -60,7 +65,7 @@ export default async function DashboardPage() {
       <div className="relative z-10 max-w-7xl mx-auto p-6 lg:p-12 space-y-12 animate-in fade-in duration-500">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2 relative">
-            <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase text-white">
               YOUR <span className="text-blue-500">CURRICULUM</span>
             </h1>
             <p className="text-zinc-500 text-sm font-medium">Select a module to begin your learning journey.</p>
@@ -85,6 +90,8 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses?.map((course: Course) => {
             const p = progress?.find(item => item.course_id === course.id);
+            const isPublished = (course as any).is_published;
+
             let statusText = "START COURSE";
             let statusColor = "text-blue-500";
             let statusBg = "bg-blue-600/10";
@@ -119,22 +126,38 @@ export default async function DashboardPage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-transparent to-transparent opacity-60" />
-                    {p?.is_completed && (
-                      <div className="absolute top-4 right-4 bg-green-500 md:shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
-                         CERTIFIED
-                      </div>
-                    )}
+                    
+                    <div className="absolute top-4 right-4 flex gap-2">
+                       {!isPublished && (
+                         <div className="bg-zinc-800 border border-white/10 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
+                            DRAFT
+                         </div>
+                       )}
+                       {p?.is_completed && (
+                         <div className="bg-green-500 md:shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
+                            CERTIFIED
+                         </div>
+                       )}
+                    </div>
                   </div>
                 )}
                 
                 {!course.thumbnail_url && (
                   <div className="h-48 bg-zinc-900/50 border-b border-white/5 flex items-center justify-center relative overflow-hidden">
                     <BookOpen className="w-12 h-12 text-zinc-800 group-hover:text-blue-500/20 transition-colors" />
-                    {p?.is_completed && (
-                      <div className="absolute top-4 right-4 bg-green-500 md:shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
-                         CERTIFIED
-                      </div>
-                    )}
+                    
+                    <div className="absolute top-4 right-4 flex gap-2">
+                       {!isPublished && (
+                         <div className="bg-zinc-800 border border-white/10 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
+                            DRAFT
+                         </div>
+                       )}
+                       {p?.is_completed && (
+                         <div className="bg-green-500 md:shadow-[0_0_15px_rgba(34,197,94,0.4)] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full z-20">
+                            CERTIFIED
+                         </div>
+                       )}
+                    </div>
                   </div>
                 )}
                 
@@ -147,7 +170,7 @@ export default async function DashboardPage() {
                   <h3 className="text-2xl font-black text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight leading-none mb-4">
                     {course.title}
                   </h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed line-clamp-3 flex-1 font-medium italic">
+                  <p className="text-zinc-500 text-sm leading-relaxed line-clamp-3 flex-1 font-medium">
                     {course.description || "No description provided."}
                   </p>
                   
