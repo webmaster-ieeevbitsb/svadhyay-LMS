@@ -61,7 +61,10 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
 
   const finalQuiz = quizzes && quizzes.length > 0 && quizzes[0].quiz_questions?.length > 0 ? quizzes[0] : null;
   const isCourseCompleted = progress?.is_completed || false;
-  const completedModuleIds = progress?.completed_modules || [];
+  const completedModuleIds = isCourseCompleted 
+    // If the course is marked done, treat ALL modules as completed
+    ? (modules?.map(m => m.id) || [])
+    : (progress?.completed_modules || []);
   const hasStarted = !!progress; // Any engagement record means they've started
 
   // Find the first module that isn't completed yet, prioritizing the last viewed one if they just started

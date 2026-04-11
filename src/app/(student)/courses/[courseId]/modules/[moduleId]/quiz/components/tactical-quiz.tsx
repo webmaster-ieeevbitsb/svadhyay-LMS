@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, Award, ChevronRight, Loader2, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle2, XCircle, Award, ChevronRight, Loader2, Sparkles, AlertCircle } from "lucide-react";
 import { syncMastery } from "@/app/actions/progress";
 import { cn } from "@/utils/cn";
 
@@ -30,20 +29,20 @@ export function TacticalQuiz({
   nextModuleOrderIndex 
 }: TacticalQuizProps) {
   const [currentAnswers, setCurrentAnswers] = useState<(boolean | null)[]>(new Array(questions.length).fill(null));
-  const [feedback, setFeedback] = useState<( "correct" | "incorrect" | null)[]>(new Array(questions.length).fill(null));
+  const [feedback, setFeedback] = useState<("correct" | "incorrect" | null)[]>(new Array(questions.length).fill(null));
   const [isMastered, setIsMastered] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncDone, setSyncDone] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [shakeIndex, setShakeIndex] = useState<number | null>(null);
 
   const handleAnswer = (index: number, answer: boolean) => {
     const isCorrect = questions[index].correct_answer === answer;
     
-    // Update answers state
     const newAnswers = [...currentAnswers];
     newAnswers[index] = answer;
     setCurrentAnswers(newAnswers);
 
-    // Provide tactical feedback
     const newFeedback = [...feedback];
     newFeedback[index] = isCorrect ? "correct" : "incorrect";
     setFeedback(newFeedback);
@@ -59,13 +58,19 @@ export function TacticalQuiz({
     if (allCorrect && questions.length > 0 && !isMastered) {
       setIsMastered(true);
       
-      // Trigger server-side synchronization
       const triggerSync = async () => {
         setIsSyncing(true);
+        setSyncError(null);
         try {
-          await syncMastery(courseId, moduleId);
+          const result = await syncMastery(courseId, moduleId);
+          if (result.error) {
+            setSyncError(result.error);
+          } else {
+            setSyncDone(true);
+          }
         } catch (err) {
           console.error("Mastery synchronization failed:", err);
+          setSyncError("Network error: synchronization could not be established.");
         } finally {
           setIsSyncing(false);
         }
@@ -74,6 +79,7 @@ export function TacticalQuiz({
       triggerSync();
     } else if (!allCorrect) {
       setIsMastered(false);
+      setSyncError(null);
     }
   }, [feedback, questions.length, isMastered, courseId, moduleId]);
 
@@ -161,27 +167,59 @@ export function TacticalQuiz({
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-end gap-4"
             >
-              <div className="flex items-center gap-3 text-emerald-400 font-black italic uppercase text-[11px] tracking-widest animate-pulse">
-                {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Award className="w-5 h-5" />}
-                {isSyncing ? "Saving progress..." : "Mastery Achieved"}
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-end gap-1">
+                   <div className={cn(
+                     "flex items-center gap-3 font-black italic uppercase text-[11px] tracking-widest transition-colors",
+                     syncError ? "text-red-500" : "text-emerald-400"
+                   )}>
+                     {syncError ? (
+                       <AlertCircle className="w-5 h-5 animate-pulse" />
+                     ) : isSyncing ? (
+                       <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
+                     ) : (
+                       <Award className="w-5 h-5" />
+                     )}
+                     <span>
+                       {syncError ? syncError : isSyncing ? "Saving progress..." : "Mastery Achieved"}
+                     </span>
+                   </div>
+                   {syncError && (
+                     <button 
+                       onClick={() => {
+                         setIsMastered(false);
+                         setTimeout(() => {
+                           const allCorrect = feedback.every(f => f === "correct");
+                           if (allCorrect) setIsMastered(true);
+                         }, 100);
+                       }}
+                       className="text-[9px] font-black uppercase text-zinc-500 hover:text-white transition-colors tracking-tighter"
+                     >
+                       Retry Sync Protocol
+                     </button>
+                   )}
+                </div>
+
+                {nextModuleUrl ? (
+                  <button
+                    disabled={isSyncing || !!syncError}
+                    onClick={() => { window.location.href = nextModuleUrl; }}
+                    className={`px-12 py-5 font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(16,185,129,0.2)] flex items-center gap-4 border border-white/10 ${isSyncing || !!syncError ? 'bg-zinc-800 text-zinc-500 opacity-50 cursor-not-allowed' : 'bg-blue-600 hover:bg-emerald-500 text-white hover:scale-105 active:scale-95'}`}
+                  >
+                     <span>Proceed to Module {nextModuleOrderIndex}</span>
+                     <ChevronRight className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <button
+                    disabled={isSyncing || !!syncError}
+                    onClick={() => { window.location.href = courseUrl || "/"; }}
+                    className={`px-12 py-5 font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all flex items-center gap-4 ${isSyncing || !!syncError ? 'bg-zinc-900 text-zinc-600 opacity-50 cursor-not-allowed' : 'bg-zinc-800 hover:bg-zinc-700 text-white'}`}
+                  >
+                     <span>Continue to Course Overview</span>
+                     <ChevronRight className="w-5 h-5" />
+                  </button>
+                )}
               </div>
-              {nextModuleUrl ? (
-                <Link 
-                  href={nextModuleUrl}
-                  className="px-12 py-5 bg-blue-600 hover:bg-emerald-500 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(16,185,129,0.2)] hover:scale-105 active:scale-95 md:active:scale-100 group flex items-center gap-4 border border-white/10"
-                >
-                   <span>Proceed to Module {nextModuleOrderIndex}</span>
-                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              ) : (
-                <Link 
-                  href={courseUrl || "#"}
-                  className="px-12 py-5 bg-zinc-800 hover:bg-zinc-700 text-white font-black uppercase italic tracking-[0.3em] rounded-2xl transition-all group flex items-center gap-4"
-                >
-                   <span>Continue to Course Overview</span>
-                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
             </motion.div>
           ) : (
             <motion.div 

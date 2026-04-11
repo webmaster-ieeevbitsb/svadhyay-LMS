@@ -15,6 +15,7 @@ export async function syncMastery(courseId: string, moduleId: string) {
   if (!user?.email) return { error: "Authentication required for progress synchronization." };
 
   const email = user.email.toLowerCase();
+  console.log(`[SYNC_MASTERY] Starting sync for ${email} in course ${courseId}, module ${moduleId}`);
 
   // 2. Fetch existing progress for this course
   const { data: progress, error: fetchError } = await supabase
@@ -22,71 +23,85 @@ export async function syncMastery(courseId: string, moduleId: string) {
     .select("*")
     .eq("email", email)
     .eq("course_id", courseId)
-    .single();
+    .maybeSingle();
 
-  if (fetchError && fetchError.code !== "PGRST116") { // PGRST116 is 'no rows found'
-    console.error("[SYNC_MASTERY] Fetch Error:", fetchError);
-    return { error: "Failed to retrieve existing progress." };
+  if (fetchError) {
+    console.error(`[SYNC_MASTERY] Error fetching progress for ${email}:`, fetchError);
+    return { error: "Failed to retrieve existing progress record." };
+  }
+
+  // Get current modules, safely handling null
+  const currentCompleted = (progress?.completed_modules || []).map(id => id.toLowerCase());
+  const normalizedModuleId = moduleId.toLowerCase();
+
+  // 3. Check if already mastered
+  if (currentCompleted.includes(normalizedModuleId)) {
+    console.log(`[SYNC_MASTERY] Module ${moduleId} already in completed_modules for ${email}.`);
+    return { success: true, message: "Module already recorded as completed." };
+  }
+
+  // Add the new module ID
+  const updatedModules = Array.from(new Set([...currentCompleted, normalizedModuleId]));
+  
+  // 4. Determine if course is now fully completed
+  const { data: allModules, error: modulesError } = await supabase
+    .from("modules")
+    .select("id")
+    .eq("course_id", courseId);
+  
+  if (modulesError) {
+    console.error(`[SYNC_MASTERY] Error fetching all modules for course ${courseId}:`, modulesError);
+    return { error: "Verification failed. Could not fetch course structure." };
+  }
+
+  const allModuleIds = (allModules || []).map(m => m.id.toLowerCase());
+  const isCompleted = allModuleIds.length > 0 && allModuleIds.every(id => updatedModules.includes(id));
+  
+  if (isCompleted) {
+    console.log(`[SYNC_MASTERY] Course ${courseId} is now FULLY COMPLETED for ${email}!`);
   }
 
   if (progress) {
-    // 3. Update existing record if module not already in completed_modules
-    if (progress.completed_modules.includes(moduleId)) {
-      return { success: true, message: "Module already mastered." };
-    }
-
-    const updatedModules = [...progress.completed_modules, moduleId];
-    
-    // Check if this was the last module in the course to mark course as completed
-    const { data: allModules } = await supabase
-      .from("modules")
-      .select("id")
-      .eq("course_id", courseId);
-    
-    const allModuleIds = allModules?.map(m => m.id) || [];
-    const isCompleted = allModuleIds.every(id => updatedModules.includes(id));
-
+    // Update existing record
     const { error: updateError } = await supabase
       .from("student_progress")
       .update({ 
         completed_modules: updatedModules,
         is_completed: isCompleted,
-        completed_at: isCompleted ? new Date().toISOString() : progress.completed_at
+        completed_at: isCompleted ? new Date().toISOString() : progress.completed_at,
+        updated_at: new Date().toISOString()
       })
       .eq("id", progress.id);
 
     if (updateError) {
-      console.error("[SYNC_MASTERY] Update Error:", updateError);
-      return { error: "Failed to persist mastery." };
+      console.error(`[SYNC_MASTERY] Error updating progress for ${email}:`, updateError);
+      return { error: "Failed to persist mastery to the database." };
     }
   } else {
-    // 4. Create new progress record
-    const { data: allModules } = await supabase
-      .from("modules")
-      .select("id")
-      .eq("course_id", courseId);
-    
-    const allModuleIds = allModules?.map(m => m.id) || [];
-    const isCompleted = allModuleIds.length === 1 && allModuleIds[0] === moduleId;
-
+    // Create new record
     const { error: insertError } = await supabase
       .from("student_progress")
       .insert([{
         email,
         course_id: courseId,
-        completed_modules: [moduleId],
+        completed_modules: updatedModules,
         is_completed: isCompleted,
         completed_at: isCompleted ? new Date().toISOString() : null
       }]);
 
     if (insertError) {
-      console.error("[SYNC_MASTERY] Insert Error:", insertError);
+      console.error(`[SYNC_MASTERY] Error inserting progress for ${email}:`, insertError);
       return { error: "Failed to initialize progress record." };
     }
   }
 
-  revalidatePath(`/courses/${courseId}`);
-  revalidatePath("/dashboard");
+  console.log(`[SYNC_MASTERY] Successfully updated progress for ${email}. Completed modules count: ${updatedModules.length}`);
+
+  // Invalidate caches
+  revalidatePath(`/courses/${courseId}`, "page");
+  revalidatePath(`/courses/${courseId}`, "layout");
+  revalidatePath("/dashboard", "page");
+
   return { success: true };
 }
 

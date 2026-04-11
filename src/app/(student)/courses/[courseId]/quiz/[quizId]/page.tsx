@@ -52,17 +52,9 @@ export default async function FinalQuizPage({
          </div>
          
          <div className="relative z-10">
-            <div className="text-[10px] text-blue-400 font-bold uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
-               <ShieldCheck className="w-4 h-4" />
-               <span>Final Assessment</span>
-            </div>
             <h1 className="text-4xl font-black italic uppercase tracking-tighter text-white">
               {quiz.title}
             </h1>
-         </div>
-         <div className="text-right relative z-10">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Authorization Criteria</p>
-            <p className="text-3xl font-black text-blue-500 italic uppercase leading-none shadow-none">{quiz.passing_score_percentage}% Pass Rate</p>
          </div>
        </div>
 
