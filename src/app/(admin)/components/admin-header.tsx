@@ -30,15 +30,6 @@ export default async function AdminHeader() {
            </div>
         </div>
 
-        <div className="w-px h-8 bg-white/10 mx-2" />
-        
-        {/* Admin Title with Blue Badge (No Star) */}
-        <div className="hidden md:flex items-center gap-3">
-          <div className="w-1.5 h-6 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
-          <span className="text-zinc-300 font-black uppercase tracking-[0.2em] text-sm italic">
-            AVISHKAR LMS ADMIN
-          </span>
-        </div>
       </div>
 
       {/* User / Logout */}
