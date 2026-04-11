@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Save, Plus, Trash2, ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { updateModuleContent } from "@/app/actions/builder";
 import { uploadSubmoduleMedia } from "@/app/actions/media";
+import { optimizeImage, isOptimized } from "@/utils/image-optimizer";
 import { ModuleContent } from "@/types/database";
 import { RichTextarea } from "@/app/(admin)/components/rich-textarea";
 
@@ -65,26 +66,37 @@ export default function ModuleEditorForm({
     setIsSaving(false);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: "master" | number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
     setUploadError("");
 
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      // 🟢 Optimization Step: Shrink image Before it leaves the browser
+      const optimizedFile = await optimizeImage(file);
+      
+      const formData = new FormData();
+      formData.append("file", optimizedFile);
 
-    const res = await uploadSubmoduleMedia(formData);
+      const res = await uploadSubmoduleMedia(formData);
 
-    if (res.error) {
-      setUploadError(res.error);
-    } else if (res.publicUrl) {
-      setData(prev => ({ ...prev, image_url: res.publicUrl! }));
-      setUploadError("");
+      if (res.error) {
+        setUploadError(res.error);
+      } else if (res.publicUrl) {
+        if (target === "master") {
+          setData(prev => ({ ...prev, image_url: res.publicUrl! }));
+        } else {
+          updateDropdown(target, "image_url", res.publicUrl!);
+        }
+        setUploadError("");
+      }
+    } catch (err) {
+      setUploadError("Image optimization failed. Please retry.");
+    } finally {
+      setIsUploading(false);
     }
-
-    setIsUploading(false);
   };
 
   const updateSC = (update: Partial<ModuleContent>) => {
@@ -292,15 +304,21 @@ export default function ModuleEditorForm({
                                 type="file" 
                                 className="hidden" 
                                 accept="image/*"
-                                onChange={handleImageUpload}
+                                onChange={(e) => handleImageUpload(e, "master")}
                                 disabled={isUploading}
                              />
                              <div className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 border border-blue-600/20 rounded text-[10px] font-bold uppercase tracking-widest text-blue-400 group-hover:bg-blue-600/20 transition-all">
                                 {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                                <span>{isUploading ? "Uploading..." : "Upload Asset"}</span>
+                                <span>{isUploading ? "Uploading & Optimizing..." : "Upload Asset"}</span>
                              </div>
                           </label>
                           {uploadError && <span className="text-[9px] text-red-500 font-bold uppercase tracking-widest animate-pulse">{uploadError}</span>}
+                          
+                          {data.image_url && (
+                             <div className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${isOptimized(data.image_url) ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 animate-pulse'}`}>
+                                {isOptimized(data.image_url) ? '✓ Optimized' : '⚠ Large Asset Identified'}
+                             </div>
+                          )}
                        </div>
                     </div>
 
@@ -351,27 +369,66 @@ export default function ModuleEditorForm({
                        <RichTextarea label="Try It" value={dd.try_it} onChange={(val: string) => updateDropdown(idx, "try_it", val)} />
                     </div>
 
-                    <div className="md:col-span-2 space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block">Sub-module Video URL & Start Time (Optional)</label>
-                       <div className="flex gap-4 items-center">
-                         <input 
-                           value={dd.video_url || ""}
-                           onChange={(e) => updateDropdown(idx, "video_url", e.target.value)}
-                           className="flex-1 bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
-                           placeholder="https://www.youtube.com/embed/..."
-                         />
-                         <div className="flex-shrink-0 flex items-center space-x-2">
-                           <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Start at (Mins):</span>
-                           <input
-                             type="text"
-                             value={dd.video_start_time ?? ""}
-                             onChange={(e) => updateDropdown(idx, "video_start_time", e.target.value)}
-                             className="w-28 bg-black/50 border border-white/10 px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
-                             placeholder="1:44"
-                           />
-                         </div>
-                       </div>
-                    </div>
+                     <div className="md:col-span-2 space-y-3">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block">Sub-module Image & Video Architecture</label>
+                        
+                        {/* Sub-module Image Upload */}
+                        <div className="flex gap-4 items-center">
+                          <div className="flex-1 space-y-2">
+                            <input 
+                               value={dd.image_url || ""}
+                               onChange={(e) => updateDropdown(idx, "image_url", e.target.value)}
+                               className="w-full bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
+                               placeholder="Sub-module Image URL..."
+                            />
+                            <div className="flex items-center gap-4">
+                               <label className="cursor-pointer group">
+                                  <input 
+                                     type="file" 
+                                     className="hidden" 
+                                     accept="image/*"
+                                     onChange={(e) => handleImageUpload(e, idx)}
+                                     disabled={isUploading}
+                                  />
+                                  <div className="flex items-center gap-2 px-4 py-1.5 bg-blue-600/10 border border-blue-600/20 rounded text-[9px] font-bold uppercase tracking-widest text-blue-400 group-hover:bg-blue-600/20 transition-all">
+                                     {isUploading ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Upload className="w-2.5 h-2.5" />}
+                                     <span>{isUploading ? "Processing..." : "Upload Asset"}</span>
+                                  </div>
+                               </label>
+                               {dd.image_url && (
+                                  <div className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${isOptimized(dd.image_url) ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}>
+                                     {isOptimized(dd.image_url) ? '✓ Optimized' : '⚠ Unoptimized'}
+                                  </div>
+                               )}
+                            </div>
+                          </div>
+                          {dd.image_url && (
+                             <div className="w-24 h-24 rounded border border-white/10 overflow-hidden bg-black/40">
+                                <img src={dd.image_url} alt="sub-module preview" className="w-full h-full object-cover" />
+                             </div>
+                          )}
+                        </div>
+
+                        {/* Video Controls */}
+                        <div className="flex gap-4 items-center pt-2">
+                          <input 
+                            value={dd.video_url || ""}
+                            onChange={(e) => updateDropdown(idx, "video_url", e.target.value)}
+                            className="flex-1 bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
+                            placeholder="Sub-module Video URL (YouTube Embed)..."
+                          />
+                          <div className="flex-shrink-0 flex items-center space-x-2">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Start at (Mins):</span>
+                            <input
+                              type="text"
+                              value={dd.video_start_time ?? ""}
+                              onChange={(e) => updateDropdown(idx, "video_start_time", e.target.value)}
+                              className="w-28 bg-black/50 border border-white/10 px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded"
+                              placeholder="1:44"
+                            />
+                          </div>
+                        </div>
+                     </div>
 
 
                     {/* Custom Sections */}

@@ -1,6 +1,7 @@
 import { fetchParticipants } from "@/app/actions/participants";
 import { DashboardTabs } from "./components/dashboard-tabs";
 import CohortRotator from "./components/cohort-rotator";
+import AssetOptimizer from "./components/asset-optimizer";
 
 export const dynamic = "force-dynamic";
 
@@ -47,8 +48,9 @@ export default async function AdminDashboardPage() {
           <div className="lg:col-span-8">
              <DashboardTabs participants={participants} />
           </div>
-          <div className="lg:col-span-4 sticky top-6">
+          <div className="lg:col-span-4 sticky top-6 space-y-8">
              <CohortRotator participantCount={totalStudents} />
+             <AssetOptimizer />
           </div>
        </div>
 
