@@ -5,19 +5,16 @@ import { revalidatePath } from "next/cache";
 
 /**
  * Syncs module mastery to the student_progress table.
- * If no progress record exists for this student/course, it creates one.
+ * Manages course-level completion based on child module status.
  */
 export async function syncMastery(courseId: string, moduleId: string) {
   const supabase = await createClient();
 
-  // 1. Get current user
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return { error: "Authentication required for progress synchronization." };
 
   const email = user.email.toLowerCase();
-  console.log(`[SYNC_MASTERY] Starting sync for ${email} in course ${courseId}, module ${moduleId}`);
 
-  // 2. Fetch existing progress for this course
   const { data: progress, error: fetchError } = await supabase
     .from("student_progress")
     .select("*")
@@ -26,78 +23,72 @@ export async function syncMastery(courseId: string, moduleId: string) {
     .maybeSingle();
 
   if (fetchError) {
-    console.error(`[SYNC_MASTERY] Error fetching progress for ${email}:`, fetchError);
     return { error: "Failed to retrieve existing progress record." };
   }
 
-  // Get current modules, safely handling null
-  const currentCompleted = (progress?.completed_modules || []).map(id => id.toLowerCase());
+  const currentCompleted = (progress?.completed_modules || []).map((id: string) => id.toLowerCase());
   const normalizedModuleId = moduleId.toLowerCase();
 
-  // 3. Check if already mastered
   if (currentCompleted.includes(normalizedModuleId)) {
-    console.log(`[SYNC_MASTERY] Module ${moduleId} already in completed_modules for ${email}.`);
-    return { success: true, message: "Module already recorded as completed." };
+    return { success: true };
   }
 
-  // Add the new module ID
   const updatedModules = Array.from(new Set([...currentCompleted, normalizedModuleId]));
   
-  // 4. Determine if course is now fully completed
   const { data: allModules, error: modulesError } = await supabase
     .from("modules")
     .select("id")
     .eq("course_id", courseId);
   
   if (modulesError) {
-    console.error(`[SYNC_MASTERY] Error fetching all modules for course ${courseId}:`, modulesError);
     return { error: "Verification failed. Could not fetch course structure." };
   }
 
   const allModuleIds = (allModules || []).map(m => m.id.toLowerCase());
-  const isCompleted = allModuleIds.length > 0 && allModuleIds.every(id => updatedModules.includes(id));
+  const allModulesDone = allModuleIds.length > 0 && allModuleIds.every(id => updatedModules.includes(id));
   
-  if (isCompleted) {
-    console.log(`[SYNC_MASTERY] Course ${courseId} is now FULLY COMPLETED for ${email}!`);
-  }
+  // 4a. Check if the course has any final assessments (quizzes)
+  const { count: quizCount } = await supabase
+    .from("quizzes")
+    .select("*", { count: "exact", head: true })
+    .eq("course_id", courseId);
 
+  // A course is only auto-completed by modules IF it has no final assessment.
+  // Otherwise, completion must be triggered explicitly by passing the quiz.
+  const isNewlyCompleted = allModulesDone && (quizCount === 0);
+  const finalIsCompleted = (progress?.is_completed) || isNewlyCompleted;
+  
   if (progress) {
-    // Update existing record
     const { error: updateError } = await supabase
       .from("student_progress")
       .update({ 
         completed_modules: updatedModules,
-        is_completed: isCompleted,
-        completed_at: isCompleted ? new Date().toISOString() : progress.completed_at,
+        is_completed: finalIsCompleted,
+        completed_at: finalIsCompleted ? (progress.completed_at || new Date().toISOString()) : null,
         updated_at: new Date().toISOString()
       })
       .eq("id", progress.id);
 
     if (updateError) {
-      console.error(`[SYNC_MASTERY] Error updating progress for ${email}:`, updateError);
       return { error: "Failed to persist mastery to the database." };
     }
   } else {
-    // Create new record
     const { error: insertError } = await supabase
       .from("student_progress")
       .insert([{
         email,
         course_id: courseId,
         completed_modules: updatedModules,
-        is_completed: isCompleted,
-        completed_at: isCompleted ? new Date().toISOString() : null
+        is_completed: finalIsCompleted,
+        completed_at: finalIsCompleted ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString()
       }]);
 
     if (insertError) {
-      console.error(`[SYNC_MASTERY] Error inserting progress for ${email}:`, insertError);
       return { error: "Failed to initialize progress record." };
     }
   }
 
-  console.log(`[SYNC_MASTERY] Successfully updated progress for ${email}. Completed modules count: ${updatedModules.length}`);
-
-  // Invalidate caches
   revalidatePath(`/courses/${courseId}`, "page");
   revalidatePath(`/courses/${courseId}`, "layout");
   revalidatePath("/dashboard", "page");
@@ -124,8 +115,7 @@ export async function getModuleMastery(courseId: string, moduleId: string) {
 }
 
 /**
- * Tracks that a student has engaged with a specific module.
- * Creates or updates the progress record immediately.
+ * Tracks student engagement with a specific module.
  */
 export async function trackEngagement(courseId: string, moduleId: string) {
   const supabase = await createClient();
@@ -166,24 +156,81 @@ export async function trackEngagement(courseId: string, moduleId: string) {
 }
 
 /**
- * Resets (deletes) progress for a student in a specific course.
- * This is an administrative action.
+ * Revokes child assessment completion while maintaining module progress.
  */
-export async function resetStudentProgress(email: string, courseId: string) {
+export async function clearAssessmentCompletion(progressId: string, courseId: string) {
   const supabase = await createClient();
   
-  const { error } = await supabase
-    .from("student_progress")
-    .delete()
-    .eq("email", email.toLowerCase())
-    .eq("course_id", courseId);
+  // 1. Verify Authentication & Admin Status
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { error: "Unauthorized" };
 
-  if (error) {
-    console.error("[RESET_PROGRESS] Error:", error);
-    return { error: "Failed to reset student progress." };
+  const { data: participant } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", user.email.toLowerCase())
+    .maybeSingle();
+
+  if (!participant?.is_admin) {
+    return { error: "Forbidden: Admin access required" };
   }
 
-  revalidatePath("/admin/dashboard");
-  revalidatePath(`/courses/${courseId}`);
+  const { error } = await supabase
+    .from("student_progress")
+    .update({ 
+      is_completed: false,
+      completed_at: null 
+    })
+    .eq("id", progressId);
+
+  if (error) {
+    return { error: `Database error: ${error.message}` };
+  }
+
+  revalidatePath("/admin/dashboard", "page");
+  revalidatePath(`/courses/${courseId}`, "page");
+  revalidatePath(`/courses/${courseId}`, "layout");
+  
   return { success: true };
+}
+
+/**
+ * Resets student progress for a specific course.
+ */
+export async function resetStudentProgress(idOrEmail: string, courseId: string) {
+  const supabase = await createClient();
+
+  // 1. Verify Authentication & Admin Status
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { error: "Unauthorized" };
+
+  const { data: participant } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", user.email.toLowerCase())
+    .maybeSingle();
+
+  if (!participant?.is_admin) {
+    return { error: "Forbidden: Admin access required" };
+  }
+  
+  let query = supabase.from("student_progress").delete({ count: "exact" });
+  
+  if (idOrEmail.includes("-") && idOrEmail.length > 20) {
+    query = query.eq("id", idOrEmail);
+  } else {
+    query = query.eq("email", idOrEmail.trim().toLowerCase()).eq("course_id", courseId);
+  }
+
+  const { error, count } = await query;
+
+  if (error) {
+    return { error: `Database error: ${error.message}` };
+  }
+
+  revalidatePath("/admin/dashboard", "page");
+  revalidatePath(`/courses/${courseId}`, "page");
+  revalidatePath(`/courses/${courseId}`, "layout");
+  
+  return { success: true, count };
 }

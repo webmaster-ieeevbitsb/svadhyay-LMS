@@ -109,7 +109,6 @@ export default function CertificateViewer({
       link.href = imgData;
       link.click();
     } catch (error) {
-      console.error("Export failed:", error);
       alert("High-Resolution Export failed. Please try again.");
     } finally {
       setIsExporting(false);

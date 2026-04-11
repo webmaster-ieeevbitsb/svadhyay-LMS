@@ -58,8 +58,7 @@ export default function CourseHeaderEditor({
         router.refresh();
       }
     } catch (err: any) {
-      console.error("Save Error:", err);
-      alert("Failed to communicate with server. Check repository logs.");
+      alert("Failed to update course. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +72,7 @@ export default function CourseHeaderEditor({
       await deleteCourse(courseId);
       router.push("/admin/courses");
     } catch (err) {
-      alert("Terminal Error: Deletion sequence interrupted.");
+      alert("Deletion failed. Please try again.");
       setIsDeleting(false);
       setShowDeleteModal(false);
     }

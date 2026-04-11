@@ -37,7 +37,6 @@ function LoginForm() {
     });
 
     if (error) {
-      console.error("Login failed:", error);
       setIsLoading(false);
     }
   };

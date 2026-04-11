@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { submitQuizAttempt } from "@/app/actions/quiz";
 import { 
   CheckCircle2, 
@@ -11,10 +11,13 @@ import {
   AlertCircle,
   RefreshCcw,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { cn } from "@/utils/cn";
 
 interface QuizEngineProps {
   courseId: string;
@@ -28,6 +31,14 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<any>(initialResult || null);
+  
+  // Proctoring States
+  const [isSecureModeStarted, setIsSecureModeStarted] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [violationType, setViolationType] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(5);
+  const router = useRouter();
 
   const currentQuestion = questions[currentIdx];
   const totalQuestions = questions.length;
@@ -49,6 +60,87 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
       setCurrentIdx(currentIdx - 1);
     }
   };
+
+  const enterSecureMode = async () => {
+    try {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      }
+      setIsSecureModeStarted(true);
+      setIsFullscreen(true);
+      setShowWarning(false);
+      setCountdown(5);
+    } catch (err) {
+      toast.error("Fullscreen is required to start the assessment.");
+    }
+  };
+
+  useEffect(() => {
+    if (showWarning && !result) {
+       document.body.style.overflow = "hidden";
+    } else {
+       document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showWarning, result]);
+
+  useEffect(() => {
+    if (!showWarning || !!result) {
+      if (countdown !== 5) setCountdown(5);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showWarning, result]);
+
+  useEffect(() => {
+    if (showWarning && countdown === 0 && !result) {
+      router.push(`/courses/${courseId}`);
+    }
+  }, [countdown, showWarning, result, courseId, router]);
+
+  useEffect(() => {
+    if (!isSecureModeStarted || !!result) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setShowWarning(true);
+        setViolationType("TAB_SWITCH");
+      }
+    };
+
+    const handleBlur = () => {
+      setShowWarning(true);
+      setViolationType("WINDOW_BLUR");
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+        setShowWarning(true);
+        setViolationType("FULLSCREEN_EXIT");
+      } else {
+        setIsFullscreen(true);
+      }
+    };
+
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [isSecureModeStarted, result]);
 
   const handleSubmit = () => {
      if (Object.keys(answers).length < totalQuestions) {
@@ -123,15 +215,89 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
     );
   }
 
+  if (!isSecureModeStarted && !result) {
+    return (
+      <div className="max-w-xl mx-auto py-16 lg:py-24 text-center space-y-12 animate-in fade-in zoom-in-95 duration-1000">
+         <div className="space-y-4">
+            <h1 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-white leading-none">Assessment Prep</h1>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.4em]">Review instructions before initiation</p>
+         </div>
+
+         <div className="grid grid-cols-1 gap-4 text-left max-w-md mx-auto">
+            <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
+               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black italic shrink-0">01</div>
+               <p className="text-zinc-400 text-xs font-medium leading-relaxed">The exam will <span className="text-white">lock into full-screen mode</span> to maintain a dedicated testing environment.</p>
+            </div>
+            <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
+               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black italic shrink-0">02</div>
+               <p className="text-zinc-400 text-xs font-medium leading-relaxed">Switching tabs or minimizing the window will <span className="text-white">automatically pause</span> your session.</p>
+            </div>
+         </div>
+
+         <div className="space-y-6 pt-4">
+            <button 
+               onClick={enterSecureMode}
+               className="w-full py-6 bg-white text-black text-sm font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] hover:bg-zinc-200 active:scale-95 flex items-center justify-center gap-3 group"
+            >
+               Begin Examination <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <Link 
+               href={`/courses/${courseId}`}
+               className="block text-[10px] font-black text-zinc-600 hover:text-white uppercase tracking-[0.3em] transition-all"
+            >
+               Cancel & Return
+            </Link>
+         </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="relative">
+       {/* Warning Overlay */}
+       {showWarning && !result && (
+         <div className="fixed inset-0 z-[200] bg-[#050507] flex items-center justify-center p-6 animate-in fade-in duration-500">
+            <div className="max-w-md w-full bg-[#0d0d12] border border-white/10 p-10 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+               <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 animate-pulse shadow-[0_0_30px_rgba(239,68,68,0.1)]">
+                  <AlertCircle className="w-10 h-10" />
+               </div>
+               <div className="space-y-4">
+                  <div className="space-y-2">
+                     <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">Session Interrupted</h2>
+                     <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] italic">
+                       {violationType === "TAB_SWITCH" ? "Active Tab Focus Lost" : violationType === "WINDOW_BLUR" ? "Browser Visibility Interrupted" : "Immersive Mode Exited"}
+                     </p>
+                  </div>
+                  <p className="text-zinc-200 text-sm font-medium leading-relaxed max-w-[280px] mx-auto">
+                     Your assessment session has been paused to ensure environment integrity. Please return to the exam window to continue.
+                  </p>
+               </div>
+               <div className="space-y-6">
+                  <button 
+                     onClick={enterSecureMode}
+                     className="w-full py-5 bg-white text-black text-xs font-black italic uppercase tracking-widest rounded-2xl transition-all shadow-xl hover:bg-zinc-200 active:scale-95"
+                  >
+                     Resume Assessment
+                  </button>
+                  <div className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 flex items-center justify-center gap-2">
+                     <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                     Redirecting to curriculum in <span className="text-red-500 font-mono text-xs">{countdown}s</span>
+                  </div>
+               </div>
+            </div>
+         </div>
+       )}
+
+    <div className={cn("max-w-4xl mx-auto space-y-12 transition-all duration-500", showWarning ? "blur-md pointer-events-none scale-95" : "")}>
        {/* Diagnostic HUD */}
-       <div className="flex items-center justify-between border-b border-white/5 pb-8">
-          <div className="space-y-1">
-             <h2 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em]">Question {currentIdx + 1} of {totalQuestions}</h2>
-             <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white">Assessment In Progress</h1>
+       <div className="space-y-6">
+          <div className="flex items-center justify-between">
+             <div className="space-y-1">
+                <h2 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em]">Question {currentIdx + 1} of {totalQuestions}</h2>
+                <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white leading-none">Assessment In Progress</h1>
+             </div>
           </div>
-          <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden relative">
+          <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden relative">
              <div 
                className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-700 md:shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
                style={{ width: `${progress}%` }} 
@@ -199,6 +365,7 @@ export default function QuizEngine({ courseId, quizId, questions, initialResult 
             </button>
           )}
        </div>
+    </div>
     </div>
   );
 }

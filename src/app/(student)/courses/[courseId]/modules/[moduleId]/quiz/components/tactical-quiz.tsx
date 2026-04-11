@@ -69,7 +69,6 @@ export function TacticalQuiz({
             setSyncDone(true);
           }
         } catch (err) {
-          console.error("Mastery synchronization failed:", err);
           setSyncError("Network error: synchronization could not be established.");
         } finally {
           setIsSyncing(false);

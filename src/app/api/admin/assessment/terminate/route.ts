@@ -13,11 +13,21 @@ export async function DELETE(
     return NextResponse.json({ error: "Missing coarse architectural identifier" }, { status: 400 });
   }
 
-  console.log(`☢️ API_TERMINATE_ASSESSMENT: Course ${courseId}`);
-
-  // 1. Verify Authentication
+  // 1. Verify Authentication & Admin Status
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user || !user.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: participant } = await supabase
+    .from("participants")
+    .select("is_admin")
+    .eq("email", user.email.toLowerCase())
+    .maybeSingle();
+
+  if (!participant?.is_admin) {
+    return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+  }
 
   // 2. Identify Target Quiz(zes)
   const { data: quizzes } = await supabase

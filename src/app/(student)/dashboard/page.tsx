@@ -33,10 +33,6 @@ export default async function DashboardPage() {
       .eq("email", user.email.toLowerCase()),
   ]);
 
-  // Server-side Debugging
-  if (coursesResult.error) console.error("❌ COURSE_FETCH_ERROR:", coursesResult.error.message);
-  if (participantResult.error) console.error("❌ PARTICIPANT_FETCH_ERROR:", participantResult.error.message);
-
   const participant = participantResult.data;
   const courses = coursesResult.data;
   const progress = progressResult.data;

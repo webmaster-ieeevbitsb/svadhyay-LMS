@@ -74,7 +74,7 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("Tactical Warning: File exceeds 10MB. Please compress and retry.");
+      alert("File exceeds 10MB limit. Please compress and retry.");
       return;
     }
 
@@ -90,8 +90,7 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
         insertMarker(`![image](${result.publicUrl})`, "");
       }
     } catch (err) {
-      console.error("Upload Error:", err);
-      alert("Fatal transmission failure. Check repository logs.");
+      alert("Internal upload failure. Please try again.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

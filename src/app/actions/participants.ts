@@ -3,6 +3,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
+/**
+ * Fetches all participants and maps their completion status.
+ */
 export async function fetchParticipants() {
   const supabase = await createClient();
   const { data: participants, error } = await supabase
@@ -11,11 +14,9 @@ export async function fetchParticipants() {
     .order("created_at", { ascending: false });
 
   if (error || !participants) {
-    console.error("Error fetching participants:", error);
     return [];
   }
 
-  // Fetch completion metrics to tag onto the participant registry
   const { data: progress } = await supabase
     .from("student_progress")
     .select("email")
@@ -29,28 +30,25 @@ export async function fetchParticipants() {
   }));
 }
 
+/**
+ * Manually adds a student participant to the registry.
+ */
 export async function addParticipant(prevState: any, formData: FormData) {
   const supabase = await createClient();
 
   const email = formData.get("email") as string;
-  const name = formData.get("name") as string; // Optional depending on schema
+  const name = formData.get("name") as string;
 
   if (!email || !email.includes("@")) {
     return { error: "A valid email is required." };
   }
 
-  // Attempt to insert. Depending on exact DB schema, 'name' might fail if the column doesn't exist.
-  // We'll pass it in case they added it, but if it fails we might need to fallback to just email.
   const payload: any = { 
     email: email.toLowerCase(),
     is_admin: false 
   };
   
   if (name) {
-    // We assume the schema has been altered to include name, or we just try
-    // wait, if we send a column that doesn't exist, Supabase will hard crash the insert.
-    // Given we don't know if 'name' exists, and standard was just email & is_admin, 
-    // let's just insert 'name' and if it fails return error hinting at DB mutation.
     payload.name = name;
   }
 
@@ -59,8 +57,7 @@ export async function addParticipant(prevState: any, formData: FormData) {
     .insert([payload]);
 
   if (error) {
-    console.error("Participant Add Error:", error);
-    // graceful fallback if column doesn't exist
+    // Dynamic fallback for potential schema variations
     if (error.code === 'PGRST204' || error.message.includes("column")) {
       const fallbackPayload = { email: email.toLowerCase(), is_admin: false };
       const { error: fallbackError } = await supabase.from("participants").insert([fallbackPayload]);
@@ -76,6 +73,9 @@ export async function addParticipant(prevState: any, formData: FormData) {
   return { success: true };
 }
 
+/**
+ * Allocates administrative privileges to a specific email.
+ */
 export async function addAdmin(prevState: any, formData: FormData) {
   const supabase = await createClient();
 
@@ -100,7 +100,6 @@ export async function addAdmin(prevState: any, formData: FormData) {
     .upsert([payload], { onConflict: "email" });
 
   if (error) {
-    console.error("Admin Add Error:", error);
     if (error.code === 'PGRST204' || error.message.includes("column")) {
       const fallbackPayload = { email: email.toLowerCase(), is_admin: true };
       const { error: fallbackError } = await supabase.from("participants").upsert([fallbackPayload], { onConflict: "email" });
@@ -116,17 +115,20 @@ export async function addAdmin(prevState: any, formData: FormData) {
   return { success: true };
 }
 
+/**
+ * Permanently removes a participant from the secure registry.
+ */
 export async function removeParticipant(email: string) {
   const supabase = await createClient();
 
-  // 1. Verify Admin Status
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return { error: "Authorization Protocol Failure" };
+
   const { data: adminCheck } = await supabase
     .from("participants")
     .select("is_admin")
     .eq("email", user.email.toLowerCase())
-    .single();
+    .maybeSingle();
 
   if (!adminCheck?.is_admin) return { error: "Security Access Violation" };
 
@@ -136,7 +138,6 @@ export async function removeParticipant(email: string) {
     .eq("email", email.toLowerCase());
 
   if (error) {
-    console.error("Participant Remove Error:", error);
     return { error: "Failed to delete participant record." };
   }
 
@@ -144,10 +145,12 @@ export async function removeParticipant(email: string) {
   return { success: true };
 }
 
+/**
+ * Processes bulk participant imports with duplicate detection.
+ */
 export async function bulkAddParticipants(participants: { email: string; name?: string }[], isAdminMode: boolean = false) {
   const supabase = await createClient();
   
-  // 1. Fetch emails of existing admins to protect them during normal imports
   const { data: existingAdmins } = await supabase
     .from("participants")
     .select("email")
@@ -160,8 +163,6 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
     return {
       email,
       name: p.name || "",
-      // If they are imported via Admin Mode, they are an admin.
-      // Otherwise, see if they were already an admin (to preserve status).
       is_admin: isAdminMode ? true : adminEmails.has(email)
     };
   });
@@ -171,7 +172,6 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
     .upsert(payload, { onConflict: "email" });
 
   if (error) {
-    console.error("Bulk Import Error:", error);
     return { error: "Failed to import participants. Check CSV format." };
   }
 
@@ -179,6 +179,9 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
   return { success: true };
 }
 
+/**
+ * Refactors administrative access status for a participant.
+ */
 export async function toggleAdminStatus(email: string) {
   const supabase = await createClient();
 
@@ -187,7 +190,6 @@ export async function toggleAdminStatus(email: string) {
   });
 
   if (error) {
-    console.error("Revoke Admin Error:", error);
     return { error: error.message };
   }
 
@@ -195,21 +197,21 @@ export async function toggleAdminStatus(email: string) {
   return { success: true };
 }
 
+/**
+ * Diagnostic tool to fetch granular progress metrics for a student.
+ */
 export async function fetchStudentProgress(email: string) {
   const supabase = await createClient();
   
-  // 1. Fetch progress
   const { data: progress, error: progressError } = await supabase
     .from("student_progress")
     .select("*, courses(id, title)")
     .eq("email", email.toLowerCase());
 
   if (progressError) {
-    console.error("Fetch Progress Error:", progressError);
     return [];
   }
 
-  // 2. Fetch all modules for these courses to map IDs to titles
   const courseIds = progress.map(p => p.course_id);
   const { data: modules, error: modulesError } = await supabase
     .from("modules")
@@ -217,11 +219,9 @@ export async function fetchStudentProgress(email: string) {
     .in("course_id", courseIds);
 
   if (modulesError) {
-    console.error("Fetch Modules Error:", modulesError);
-    return progress; // Fallback to raw IDs
+    return progress;
   }
 
-  // 3. Map titles into progress object
   return progress.map(p => ({
     ...p,
     completed_module_titles: p.completed_modules.map((mId: string) => 
@@ -230,18 +230,18 @@ export async function fetchStudentProgress(email: string) {
   }));
 }
 
-
+/**
+ * Purges the entire student cohort while preserving administrative accounts.
+ */
 export async function rotateStudentCohort() {
   const supabase = await createClient();
 
-  // Purge all participants where is_admin is false
   const { error, count } = await supabase
     .from("participants")
     .delete({ count: 'exact' })
     .eq("is_admin", false);
 
   if (error) {
-    console.error("Cohort Rotation Error:", error);
     return { error: "Failed to purge student cohort. Check DB permissions or RLS policies." };
   }
 

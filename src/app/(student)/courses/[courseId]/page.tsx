@@ -9,7 +9,8 @@ import {
   Layers, 
   Clock,
   ChevronRight,
-  Award
+  Award,
+  Lock
 } from "lucide-react";
 import { Course, Module, Quiz } from "@/types/database";
 import Image from "next/image";
@@ -71,6 +72,8 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
   const nextTargetModule = modules?.find(m => !completedModuleIds.includes(m.id)) 
     || (modules?.find(m => m.id === progress?.last_viewed_module_id))
     || (modules?.[0]);
+
+  const isAssessmentLocked = !isCourseCompleted && (completedModuleIds.length < (modules?.length || 0));
 
 
   const metadata = course.metadata || {};
@@ -348,12 +351,19 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                          <Award className="w-4 h-4" /> Download Certificate
                       </Link>
                    )}
-                   <Link 
-                     href={`/courses/${courseId}/quiz/${finalQuiz.id}`}
-                     className={`w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest md:shadow-xl md:hover:scale-105 active:scale-95 md:active:scale-100 transition-all flex justify-center items-center touch-manipulation ${isCourseCompleted ? 'bg-green-400 text-green-950' : 'bg-white text-black'}`}
-                   >
-                      {isCourseCompleted ? "View Result" : "Start Exam"}
-                   </Link>
+                   
+                   {isAssessmentLocked ? (
+                     <div className="w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest bg-zinc-900/50 border border-white/5 text-zinc-600 flex justify-center items-center gap-2 cursor-not-allowed">
+                        <Lock className="w-4 h-4" /> Modules Incomplete
+                     </div>
+                   ) : (
+                     <Link 
+                       href={`/courses/${courseId}/quiz/${finalQuiz.id}`}
+                       className={`w-full text-center md:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest md:shadow-xl md:hover:scale-105 active:scale-95 md:active:scale-100 transition-all flex justify-center items-center touch-manipulation ${isCourseCompleted ? 'bg-green-400 text-green-950' : 'bg-white text-black font-semibold'}`}
+                     >
+                        {isCourseCompleted ? "View Result" : "Start Exam"}
+                     </Link>
+                   )}
                 </div>
              </div>
           )}

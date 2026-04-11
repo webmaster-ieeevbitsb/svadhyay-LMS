@@ -46,16 +46,16 @@ export default async function FinalQuizPage({
          <span>Return to Course Architecture</span>
        </Link>
 
-       <div className="glass bg-blue-500/5 border-blue-500/20 p-8 rounded-[2.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[0_0_50px_rgba(59,130,246,0.05)] relative overflow-hidden">
-         <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
-            <ShieldCheck className="w-64 h-64 text-blue-500" />
-         </div>
-         
-         <div className="relative z-10">
-            <h1 className="text-4xl font-black italic uppercase tracking-tighter text-white">
-              {quiz.title}
-            </h1>
-         </div>
+       <div className="relative">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none">
+             <ShieldCheck className="w-48 h-48 text-white" />
+          </div>
+          
+          <div className="relative z-10">
+             <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white">
+               {quiz.title}
+             </h1>
+          </div>
        </div>
 
        <div className="relative">

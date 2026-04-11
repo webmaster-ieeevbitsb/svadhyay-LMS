@@ -3,16 +3,17 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
+/**
+ * Allocates a new module to a specified course.
+ */
 export async function addModuleToCourse(courseId: string, prevState: any, formData: FormData) {
   const supabase = await createClient();
-
   const title = formData.get("title") as string;
   
   if (!title) {
     return { error: "Module title is required" };
   }
 
-  // Determine next order_index
   const { data: existingModules, error: fetchError } = await supabase
     .from("modules")
     .select("order_index")
@@ -36,8 +37,7 @@ export async function addModuleToCourse(courseId: string, prevState: any, formDa
     ]);
 
   if (error) {
-    console.error("Module creation error:", error);
-    return { error: `Failed to allocate module architecture: ${error.message} (Hint: Check DB RLS policies)` };
+    return { error: `Failed to initialize module: ${error.message}` };
   }
 
   revalidatePath(`/admin/courses/${courseId}`);
@@ -51,6 +51,9 @@ interface UpdateData {
   structured_content?: any;
 }
 
+/**
+ * Synchronizes refined content state to a course module.
+ */
 export async function updateModuleContent(courseId: string, moduleId: string, data: UpdateData) {
   const supabase = await createClient();
 
@@ -60,36 +63,35 @@ export async function updateModuleContent(courseId: string, moduleId: string, da
       title: data.title,
       content_text: data.content_text,
       video_url: data.video_url,
-      // Pass the structure if provided
       structured_content: data.structured_content || null
     })
     .eq("id", moduleId)
     .eq("course_id", courseId);
 
   if (error) {
-    console.error("Content Commit Error:", error);
-    return { error: "Invalid Permission or Failed Content Sync" };
+    return { error: "Failed to persist module state changes." };
   }
 
   revalidatePath(`/admin/courses/${courseId}/modules/${moduleId}`);
   return { success: true };
 }
 
+/**
+ * Initializes the final assessment architecture for a course.
+ */
 export async function createQuiz(courseId: string) {
   const supabase = await createClient();
 
-  // Basic check: Does a quiz already exist?
   const { data: existingQuizzes } = await supabase
     .from("quizzes")
     .select("id")
     .eq("course_id", courseId)
-    .limit(1);
+    .maybeSingle();
 
-  if (existingQuizzes && existingQuizzes.length > 0) {
-    return { error: "A quiz already exists for this course." };
+  if (existingQuizzes) {
+    return { error: "An assessment already exists for this course." };
   }
 
-  // Create the quiz header
   const { data: quiz, error: quizError } = await supabase
     .from("quizzes")
     .insert([
@@ -103,11 +105,10 @@ export async function createQuiz(courseId: string) {
     .single();
 
   if (quizError) {
-    console.error("Quiz creation error:", quizError);
-    return { error: "Failed to initialize quiz architecture" };
+    return { error: "Failed to initialize assessment framework." };
   }
 
-  // Add 3 sample questions automatically
+  // Inject initial diagnostic questions
   const sampleQuestions = [
     {
       quiz_id: quiz.id,
@@ -132,17 +133,15 @@ export async function createQuiz(courseId: string) {
     }
   ];
 
-  const { error: questionsError } = await supabase
-    .from("quiz_questions")
-    .insert(sampleQuestions);
-
-  if (questionsError) {
-    console.error("Quiz questions error:", questionsError);
-  }
+  await supabase.from("quiz_questions").insert(sampleQuestions);
+  
   revalidatePath(`/admin/courses/${courseId}`);
   return { success: true };
 }
 
+/**
+ * Updates a specific assessment question.
+ */
 export async function updateQuizQuestion(questionId: string, data: any) {
   const supabase = await createClient();
   const updateData = { ...data };
@@ -155,20 +154,18 @@ export async function updateQuizQuestion(questionId: string, data: any) {
     .eq("id", questionId);
 
   if (error) {
-    console.error("Quiz question update error:", error);
     return { error: `Update failed: ${error.message}` };
   }
 
-  // Use revalidatePath to ensure server-side data is fresh
-  // We can't easily get the courseId here, but we can revalidate the parent or specific path if we had it.
-  // For now, returning success and letting client handle local state.
   return { success: true };
 }
 
+/**
+ * Allocates a new question node to an existing assessment.
+ */
 export async function addQuizQuestion(quizId: string) {
   const supabase = await createClient();
 
-  // Find max order_index
   const { data: lastQuestion } = await supabase
     .from("quiz_questions")
     .select("order_index")
@@ -191,89 +188,84 @@ export async function addQuizQuestion(quizId: string) {
     .single();
 
   if (error) {
-    console.error("Add question error:", error);
-    return { error: `Failed to add question: ${error.message}` };
+    return { error: `Failed to append question: ${error.message}` };
   }
 
   return { success: true, data };
 }
 
+/**
+ * Permanently deallocates an assessment question node.
+ */
 export async function deleteQuizQuestion(questionId: string) {
-
   const supabase = await createClient();
 
-  // 1. Verify Admin Status Manually (Bypass RLS dependency for logic check)
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Authorization Protocol Failure" };
+  if (!user?.email) return { error: "Auth Failure" };
 
   const { data: adminCheck } = await supabase
     .from("participants")
     .select("is_admin")
     .eq("email", user.email.toLowerCase())
-    .single();
+    .maybeSingle();
 
   if (!adminCheck?.is_admin) {
-    console.warn(`🛑 Permission Denied: ${user.email} is not a verified admin.`);
-    return { error: "Security Access Violation: Admin Clearance Required" };
+    return { error: "Security Access Violation: Admin clearance required." };
   }
 
-  // 2. Attempt Delete with detailed feedback
   const { error, count } = await supabase
     .from("quiz_questions")
     .delete({ count: 'exact' })
     .eq("id", questionId);
 
   if (error) {
-    console.error("❌ DELETE_QUESTION_ERROR:", error);
-    return { error: `Database Rejection: ${error.message}` };
+    return { error: `Database rejection: ${error.message}` };
   }
 
   if (count === 0) {
-    console.warn("⚠️ DELETE_NOP: No rows affected. This points to an RLS policy block.");
-    return { error: "RLS Access Restriction: The database rejected the delete command despite admin status." };
+    return { error: "Deletion failed: record not found or access restricted." };
   }
 
   return { success: true };
 }
 
+/**
+ * Terminates an entire assessment architecture for a course.
+ */
 export async function deleteQuiz(courseId: string) {
-
   const supabase = await createClient();
 
-  // 1. Verify Admin Status
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Authorization Protocol Failure" };
+  if (!user?.email) return { error: "Auth Failure" };
   const { data: adminCheck } = await supabase
     .from("participants")
     .select("is_admin")
     .eq("email", user.email.toLowerCase())
-    .single();
+    .maybeSingle();
 
   if (!adminCheck?.is_admin) return { error: "Security Access Violation" };
 
-  // 2. Get the quiz ID safely
   const { data: quiz, error: fetchError } = await supabase
     .from("quizzes")
     .select("id")
     .eq("course_id", courseId)
     .maybeSingle();
 
-  if (fetchError) return { error: `Database Lookup Failure: ${fetchError.message}` };
+  if (fetchError) return { error: "Database lookup failure." };
 
   if (quiz) {
     await supabase.from("quiz_questions").delete().eq("quiz_id", quiz.id);
   }
 
-  // 3. Delete the quiz header with count verification
   const { error: deleteError, count } = await supabase
     .from("quizzes")
     .delete({ count: 'exact' })
     .eq("course_id", courseId);
 
-  if (deleteError) return { error: `Termination Protocol Rejected: ${deleteError.message}` };
+  if (deleteError) return { error: "Termination protocol rejected." };
   
   if (count === 0) {
-    return { error: "RLS Access Restriction: Database rejected the assessment termination." };
+    return { error: "Database rejected termination: Record not found." };
   }
 
   revalidatePath(`/admin/courses/${courseId}`);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { markModuleComplete } from "@/app/actions/courses";
+import { syncMastery } from "@/app/actions/progress";
 import { CheckCircle, Loader2, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -28,14 +28,11 @@ export default function MarkCompleteButton({
       : `/courses/${courseId}`;
 
     // Start the server action in the background
-    markModuleComplete(courseId, moduleId).then((res) => {
-      if (!res.success) {
-        console.error("Background sync failed:", res.error);
-      }
+    syncMastery(courseId, moduleId).then(() => {
       // Refresh to ensure server-side state is updated
       router.refresh();
-    }).catch(err => {
-      console.error("Critical background error:", err);
+    }).catch(() => {
+      // Background failure handled silently in production
     });
 
     // Navigate immediately (Optimistic UI)

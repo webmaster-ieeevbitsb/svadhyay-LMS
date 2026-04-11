@@ -4,14 +4,16 @@ import { useState, useEffect } from "react";
 import { fetchStudentProgress } from "@/app/actions/participants";
 import { X, CheckCircle2, Loader2, Award, BookOpen, RotateCcw } from "lucide-react";
 import { TacticalConfirm } from "@/components/ui/tactical-confirm";
-import { resetStudentProgress } from "@/app/actions/progress";
+import { resetStudentProgress, clearAssessmentCompletion } from "@/app/actions/progress";
 
 export function ProgressModal({ email, isOpen, onClose }: { email: string, isOpen: boolean, onClose: () => void }) {
   const [progressData, setProgressData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [selectedProgressId, setSelectedProgressId] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [actionType, setActionType] = useState<"reset" | "clear" | null>(null);
 
   const loadProgress = async () => {
     setIsLoading(true);
@@ -39,21 +41,37 @@ export function ProgressModal({ email, isOpen, onClose }: { email: string, isOpe
           onClose={() => {
             setIsConfirmOpen(false);
             setSelectedCourseId(null);
+            setSelectedProgressId(null);
+            setActionType(null);
           }}
           onConfirm={async () => {
-             if (!selectedCourseId) return;
+             if (!selectedProgressId && !selectedCourseId) return;
              setIsResetting(true);
-             const result = await resetStudentProgress(email, selectedCourseId);
+             
+             let result;
+             if (actionType === "clear" && selectedProgressId) {
+                result = await clearAssessmentCompletion(selectedProgressId, selectedCourseId!);
+             } else {
+                // If we have an ID, use it, otherwise fallback to email + courseId
+                const identifier = selectedProgressId || email;
+                result = await resetStudentProgress(identifier, selectedCourseId!);
+             }
+
              if (result.success) {
                await loadProgress();
              }
+             
              setIsResetting(false);
              setIsConfirmOpen(false);
              setSelectedCourseId(null);
+             setSelectedProgressId(null);
+             setActionType(null);
           }}
-          title="Confirm Reset"
-          description={`You are about to initiate a permanent deletion of progress records for ${email} in this course. This payload cannot be recovered.`}
-          confirmText="Execute Reset"
+          title={actionType === "clear" ? "Revoke Certification" : "Confirm Reset"}
+          description={actionType === "clear" 
+            ? `You are about to revoke the certification status for ${email}. Their module progress will remain intact, but they will need to retake the final assessment.`
+            : `You are about to initiate a permanent deletion of all progress records for ${email} in this course. This payload cannot be recovered.`}
+          confirmText={actionType === "clear" ? "Revoke status" : "Execute Reset"}
           variant="danger"
         />
 
@@ -105,17 +123,37 @@ export function ProgressModal({ email, isOpen, onClose }: { email: string, isOpe
                         <span className={p.is_completed ? "text-green-400 font-black italic uppercase text-xs tracking-widest" : "text-blue-500 font-black italic uppercase text-xs tracking-widest"}>
                           {p.is_completed ? "Completed" : "In Progress"}
                         </span>
-                        <button
-                          onClick={() => {
-                            setSelectedCourseId(p.course_id);
-                            setIsConfirmOpen(true);
-                          }}
-                          disabled={isResetting}
-                          className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-500/20 transition-all disabled:opacity-50"
-                        >
-                          <RotateCcw className="w-3 h-3" />
-                          Reset
-                        </button>
+                        
+                        <div className="flex items-center gap-2">
+                          {p.is_completed && (
+                            <button
+                              onClick={() => {
+                                setSelectedProgressId(p.id);
+                                setSelectedCourseId(p.course_id);
+                                setActionType("clear");
+                                setIsConfirmOpen(true);
+                              }}
+                              disabled={isResetting}
+                              className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-[10px] font-black text-yellow-500 uppercase tracking-widest hover:bg-yellow-500/20 transition-all disabled:opacity-50"
+                            >
+                              <Award className="w-3 h-3" />
+                              Clear Assessment
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setSelectedProgressId(p.id);
+                              setSelectedCourseId(p.course_id);
+                              setActionType("reset");
+                              setIsConfirmOpen(true);
+                            }}
+                            disabled={isResetting}
+                            className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-500/20 transition-all disabled:opacity-50"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            Reset All
+                          </button>
+                        </div>
                       </div>
                   </div>
                   
