@@ -1,11 +1,11 @@
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/auth-utils";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
 export async function DELETE(
   request: Request
 ) {
-  const supabase = await createClient();
   const { searchParams } = new URL(request.url);
   const courseId = searchParams.get("courseId");
 
@@ -14,20 +14,12 @@ export async function DELETE(
   }
 
   // 1. Verify Authentication & Admin Status
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !user.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await verifyAdmin();
+  if (auth.error !== null) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status || 403 });
   }
+  const { supabase } = auth;
 
-  const { data: participant } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!participant?.is_admin) {
-    return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
-  }
 
   // 2. Identify Target Quiz(zes)
   const { data: quizzes } = await supabase

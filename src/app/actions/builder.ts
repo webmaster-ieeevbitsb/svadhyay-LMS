@@ -1,13 +1,16 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/auth-utils";
 import { revalidatePath } from "next/cache";
 
 /**
  * Allocates a new module to a specified course.
  */
 export async function addModuleToCourse(courseId: string, prevState: any, formData: FormData) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
   const title = formData.get("title") as string;
   
   if (!title) {
@@ -21,8 +24,12 @@ export async function addModuleToCourse(courseId: string, prevState: any, formDa
     .order("order_index", { ascending: false })
     .limit(1);
 
+  if (fetchError) {
+    return { error: "Failed to resolve module sequencing. Please retry." };
+  }
+
   let nextIndex = 1;
-  if (!fetchError && existingModules?.length > 0) {
+  if (existingModules?.length > 0) {
     nextIndex = existingModules[0].order_index + 1;
   }
 
@@ -55,7 +62,9 @@ interface UpdateData {
  * Synchronizes refined content state to a course module.
  */
 export async function updateModuleContent(courseId: string, moduleId: string, data: UpdateData) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { error } = await supabase
     .from("modules")
@@ -80,7 +89,9 @@ export async function updateModuleContent(courseId: string, moduleId: string, da
  * Initializes the final assessment architecture for a course.
  */
 export async function createQuiz(courseId: string) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { data: existingQuizzes } = await supabase
     .from("quizzes")
@@ -143,7 +154,9 @@ export async function createQuiz(courseId: string) {
  * Updates a specific assessment question.
  */
 export async function updateQuizQuestion(questionId: string, data: any) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
   const updateData = { ...data };
   delete updateData.quiz_id;
   delete updateData.id;
@@ -164,16 +177,23 @@ export async function updateQuizQuestion(questionId: string, data: any) {
  * Allocates a new question node to an existing assessment.
  */
 export async function addQuizQuestion(quizId: string) {
-  const supabase = await createClient();
-
-  const { data: lastQuestion } = await supabase
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
+  
+  const { data: lastQuestion, error: fetchError } = await supabase
     .from("quiz_questions")
     .select("order_index")
     .eq("quiz_id", quizId)
     .order("order_index", { ascending: false })
     .limit(1);
   
+  if (fetchError) {
+    return { error: "Failed to resolve assessment sequencing." };
+  }
+  
   const nextIndex = (lastQuestion?.[0]?.order_index ?? -1) + 1;
+
 
   const { data, error } = await supabase
     .from("quiz_questions")
@@ -198,20 +218,10 @@ export async function addQuizQuestion(quizId: string) {
  * Permanently deallocates an assessment question node.
  */
 export async function deleteQuizQuestion(questionId: string) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Auth Failure" };
-
-  const { data: adminCheck } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!adminCheck?.is_admin) {
-    return { error: "Security Access Violation: Admin clearance required." };
-  }
 
   const { error, count } = await supabase
     .from("quiz_questions")
@@ -233,17 +243,10 @@ export async function deleteQuizQuestion(questionId: string) {
  * Terminates an entire assessment architecture for a course.
  */
 export async function deleteQuiz(courseId: string) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Auth Failure" };
-  const { data: adminCheck } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!adminCheck?.is_admin) return { error: "Security Access Violation" };
 
   const { data: quiz, error: fetchError } = await supabase
     .from("quizzes")
@@ -251,7 +254,7 @@ export async function deleteQuiz(courseId: string) {
     .eq("course_id", courseId)
     .maybeSingle();
 
-  if (fetchError) return { error: "Database lookup failure." };
+  if (fetchError) return { error: "Assessment lookup failed. Data integrity uncertain." };
 
   if (quiz) {
     await supabase.from("quiz_questions").delete().eq("quiz_id", quiz.id);

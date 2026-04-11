@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/auth-utils";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -21,7 +22,9 @@ export async function uploadSubmoduleMedia(formData: FormData) {
       return { error: "Unauthorized format. Only image assets are allowed." };
     }
 
-    const supabase = await createClient();
+    const auth = await verifyAdmin();
+    if (auth.error !== null) return { error: auth.error };
+    const { supabase } = auth;
     
     const fileExt = file.name.split('.').pop();
     const fileName = `submodule-${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;

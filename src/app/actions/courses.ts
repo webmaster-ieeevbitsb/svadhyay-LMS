@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/auth-utils";
 import { revalidatePath } from "next/cache";
 
 async function uploadImageToSupabase(file: File, bucket: string) {
@@ -41,21 +42,9 @@ async function uploadImageToSupabase(file: File, bucket: string) {
 
 export async function createCourse(formData: FormData) {
   try {
-    const supabase = await createClient();
-
-    // 1. Verify Authentication & Admin Status
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) return { error: "Unauthorized" };
-
-    const { data: participant } = await supabase
-      .from("participants")
-      .select("is_admin")
-      .eq("email", user.email.toLowerCase())
-      .maybeSingle();
-
-    if (!participant?.is_admin) {
-      return { error: "Forbidden: Admin access required" };
-    }
+    const auth = await verifyAdmin();
+    if (auth.error !== null) return { error: auth.error };
+    const { supabase } = auth;
 
     const title = formData.get("title") as string;
     const description = formData.get("description") as string | null;
@@ -118,21 +107,9 @@ export async function fetchCourses() {
 
 export async function updateCourse(courseId: string, formData: FormData) {
   try {
-    const supabase = await createClient();
-
-    // 1. Verify Authentication & Admin Status
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) return { error: "Unauthorized" };
-
-    const { data: participant } = await supabase
-      .from("participants")
-      .select("is_admin")
-      .eq("email", user.email.toLowerCase())
-      .maybeSingle();
-
-    if (!participant?.is_admin) {
-      return { error: "Forbidden: Admin access required" };
-    }
+    const auth = await verifyAdmin();
+    if (auth.error !== null) return { error: auth.error };
+    const { supabase } = auth;
     const title = formData.get("title") as string;
     const description = formData.get("description") as string | null;
     const thumbnailFile = formData.get("thumbnail_image");
@@ -180,21 +157,9 @@ export async function updateCourse(courseId: string, formData: FormData) {
 }
 
 export async function deleteCourse(courseId: string) {
-  const supabase = await createClient();
-
-  // 1. Verify Authentication & Admin Status
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Unauthorized" };
-
-  const { data: participant } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!participant?.is_admin) {
-    return { error: "Forbidden: Admin access required" };
-  }
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { error } = await supabase
     .from("courses")

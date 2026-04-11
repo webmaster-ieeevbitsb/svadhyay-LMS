@@ -28,7 +28,8 @@ export async function submitQuizAttempt(courseId: string, quizId: string, answer
     }
   });
 
-  const scorePercentage = Math.round((correctCount / questions.length) * 100);
+  const totalCount = questions.length;
+  const scorePercentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 
   const { data: quiz } = await supabase
     .from("quizzes")

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/auth-utils";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -159,21 +160,9 @@ export async function trackEngagement(courseId: string, moduleId: string) {
  * Revokes child assessment completion while maintaining module progress.
  */
 export async function clearAssessmentCompletion(progressId: string, courseId: string) {
-  const supabase = await createClient();
-  
-  // 1. Verify Authentication & Admin Status
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Unauthorized" };
-
-  const { data: participant } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!participant?.is_admin) {
-    return { error: "Forbidden: Admin access required" };
-  }
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { error } = await supabase
     .from("student_progress")
@@ -198,21 +187,9 @@ export async function clearAssessmentCompletion(progressId: string, courseId: st
  * Resets student progress for a specific course.
  */
 export async function resetStudentProgress(idOrEmail: string, courseId: string) {
-  const supabase = await createClient();
-
-  // 1. Verify Authentication & Admin Status
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Unauthorized" };
-
-  const { data: participant } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!participant?.is_admin) {
-    return { error: "Forbidden: Admin access required" };
-  }
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
   
   let query = supabase.from("student_progress").delete({ count: "exact" });
   

@@ -1,13 +1,16 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/auth-utils";
 import { revalidatePath } from "next/cache";
 
 /**
  * Fetches all participants and maps their completion status.
  */
 export async function fetchParticipants() {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return [];
+  const { supabase } = auth;
   const { data: participants, error } = await supabase
     .from("participants")
     .select("*")
@@ -17,12 +20,16 @@ export async function fetchParticipants() {
     return [];
   }
 
-  const { data: progress } = await supabase
+  const { data: progress, error: progressError } = await supabase
     .from("student_progress")
     .select("email")
     .eq("is_completed", true);
 
-  const completedSet = new Set(progress?.map(p => p.email.toLowerCase()) || []);
+  if (progressError || !progress) {
+    return participants.map(p => ({ ...p, is_completed: false }));
+  }
+
+  const completedSet = new Set(progress.map(p => p.email.toLowerCase()));
 
   return participants.map(p => ({
     ...p,
@@ -34,7 +41,9 @@ export async function fetchParticipants() {
  * Manually adds a student participant to the registry.
  */
 export async function addParticipant(prevState: any, formData: FormData) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const email = formData.get("email") as string;
   const name = formData.get("name") as string;
@@ -77,7 +86,9 @@ export async function addParticipant(prevState: any, formData: FormData) {
  * Allocates administrative privileges to a specific email.
  */
 export async function addAdmin(prevState: any, formData: FormData) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const email = formData.get("email") as string;
   const name = formData.get("name") as string;
@@ -119,18 +130,9 @@ export async function addAdmin(prevState: any, formData: FormData) {
  * Permanently removes a participant from the secure registry.
  */
 export async function removeParticipant(email: string) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return { error: "Authorization Protocol Failure" };
-
-  const { data: adminCheck } = await supabase
-    .from("participants")
-    .select("is_admin")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
-
-  if (!adminCheck?.is_admin) return { error: "Security Access Violation" };
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { error } = await supabase
     .from("participants")
@@ -149,7 +151,9 @@ export async function removeParticipant(email: string) {
  * Processes bulk participant imports with duplicate detection.
  */
 export async function bulkAddParticipants(participants: { email: string; name?: string }[], isAdminMode: boolean = false) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
   
   const { data: existingAdmins } = await supabase
     .from("participants")
@@ -183,7 +187,9 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
  * Refactors administrative access status for a participant.
  */
 export async function toggleAdminStatus(email: string) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { error } = await supabase.rpc("revoke_admin_access", { 
     target_email: email.toLowerCase() 
@@ -201,14 +207,16 @@ export async function toggleAdminStatus(email: string) {
  * Diagnostic tool to fetch granular progress metrics for a student.
  */
 export async function fetchStudentProgress(email: string) {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return [];
+  const { supabase } = auth;
   
   const { data: progress, error: progressError } = await supabase
     .from("student_progress")
     .select("*, courses(id, title)")
     .eq("email", email.toLowerCase());
 
-  if (progressError) {
+  if (progressError || !progress) {
     return [];
   }
 
@@ -234,7 +242,9 @@ export async function fetchStudentProgress(email: string) {
  * Purges the entire student cohort while preserving administrative accounts.
  */
 export async function rotateStudentCohort() {
-  const supabase = await createClient();
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
 
   const { error, count } = await supabase
     .from("participants")
