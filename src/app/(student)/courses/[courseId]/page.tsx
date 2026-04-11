@@ -144,7 +144,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
             </h1>
 
             {/* Description */}
-            <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-xl">
+            <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-xl text-justify">
               {course.description || "A focused learning module built to develop practical, real-world skills."}
             </p>
 
@@ -220,7 +220,7 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
                  <span className="w-8 h-px bg-blue-500/30" />
                  Course Overview
               </h2>
-              <div className="text-zinc-300 text-base leading-relaxed whitespace-pre-wrap font-medium">
+              <div className="text-zinc-300 text-base leading-relaxed whitespace-pre-wrap font-medium text-justify">
                  {metadata.overview || "Deep dive into the core concepts and practical applications of this specialized technology track."}
               </div>
            </div>
