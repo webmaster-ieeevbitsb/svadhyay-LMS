@@ -201,3 +201,80 @@ export async function updateAssetRecord(task: any, newUrl: string) {
 
   return { success: true };
 }
+
+/**
+ * Identifies assets in storage buckets that have NO reference in the database.
+ */
+export async function identifyOrphanedAssets() {
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
+
+  // 1. Get all active URLs from the database
+  const { tasks } = await scanUnoptimizedAssets();
+  // We actually need ALL active URLs, not just unoptimized ones
+  const { data: courses } = await supabase.from('courses').select('thumbnail_url');
+  const { data: modules } = await supabase.from('modules').select('image_url, structured_content');
+
+  const activeFilenames = new Set<string>();
+  
+  courses?.forEach(c => { if(c.thumbnail_url) activeFilenames.add(c.thumbnail_url.split('/').pop()!); });
+  modules?.forEach(m => {
+    if(m.image_url) activeFilenames.add(m.image_url.split('/').pop()!);
+    const sc = m.structured_content as any;
+    sc?.drop_downs?.forEach((dd: any) => {
+      if(dd.image_url) activeFilenames.add(dd.image_url.split('/').pop()!);
+      // Markdown extract (simplified for filename check)
+      const regex = /submodule-.*?\.(png|jpg|jpeg|webp)/g;
+      const combinedText = `${dd.what_it_is} ${dd.common_mistake} ${dd.why_it_matters} ${dd.try_it} ${dd.example} ${JSON.stringify(dd.custom_sections || [])}`;
+      const matches = combinedText.match(regex);
+      matches?.forEach(m => activeFilenames.add(m));
+    });
+  });
+
+  const orphanedAssets: { bucket: string, name: string, size: number }[] = [];
+  const buckets = ['course-thumbnails', 'module-content'];
+
+  for (const bucket of buckets) {
+    const { data: files } = await supabase.storage.from(bucket).list();
+    files?.forEach(file => {
+      // If a file is NOT in our active set and is a legacy format (PNG/JPG)
+      const isLegacy = file.name.toLowerCase().endsWith('.png') || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+      if (isLegacy && !activeFilenames.has(file.name)) {
+        orphanedAssets.push({ 
+          bucket, 
+          name: file.name, 
+          size: file.metadata?.size || 0 
+        });
+      }
+    });
+  }
+
+  return { orphanedAssets };
+}
+
+/**
+ * Bulk deletes specific storage assets.
+ */
+export async function deleteStorageAssets(assets: { bucket: string, name: string }[]) {
+  const auth = await verifyAdmin();
+  if (auth.error !== null) return { error: auth.error };
+  const { supabase } = auth;
+
+  // Group by bucket for efficient deletion
+  const groups: Record<string, string[]> = {};
+  assets.forEach(a => {
+    if (!groups[a.bucket]) groups[a.bucket] = [];
+    groups[a.bucket].push(a.name);
+  });
+
+  for (const [bucket, files] of Object.entries(groups)) {
+    const { error } = await supabase.storage.from(bucket).remove(files);
+    if (error) {
+       console.error(`Failed to delete from ${bucket}:`, error);
+       return { error: `Storage API Error (${bucket}): ${error.message}` };
+    }
+  }
+
+  return { success: true };
+}

@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import { updateCourse, deleteCourse } from "@/app/actions/courses";
-import { Edit2, Save, Trash2, Loader2, Upload, Image as ImageIcon } from "lucide-react";
+import { optimizeImage } from "@/utils/image-optimizer";
+import { 
+  Edit2, 
+  Save, 
+  Trash2, 
+  Loader2, 
+  Upload, 
+  Image as ImageIcon,
+  CheckCircle2
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CourseHeaderEditor({ 
   courseId, 
@@ -25,6 +35,7 @@ export default function CourseHeaderEditor({
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription || "");
   const [thumbnailUrl, setThumbnailUrl] = useState(initialThumbnail || "");
@@ -32,6 +43,24 @@ export default function CourseHeaderEditor({
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialThumbnail);
   const [metadata, setMetadata] = useState(initialMetadata || { overview: "", goals_list: "", duration_text: "" });
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsOptimizing(true);
+      try {
+        const optimized = await optimizeImage(file);
+        setThumbnailFile(optimized);
+        setPreviewUrl(URL.createObjectURL(optimized));
+        toast.success("Thumbnail Optimized (WebP)");
+      } catch (err) {
+        toast.error("Optimization failed. Using raw file.");
+        setThumbnailFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+      }
+      setIsOptimizing(false);
+    }
+  };
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -41,7 +70,9 @@ export default function CourseHeaderEditor({
       formData.append("description", description);
       
       if (thumbnailFile) {
-        formData.append("thumbnail_image", thumbnailFile);
+        // Use a consistent name for optimized assets
+        const optimizedFile = new File([thumbnailFile], "thumbnail.webp", { type: "image/webp" });
+        formData.append("thumbnail_image", optimizedFile);
       } else {
         formData.append("thumbnail_url", thumbnailUrl);
       }
@@ -52,13 +83,14 @@ export default function CourseHeaderEditor({
       
       const result = await updateCourse(courseId, formData);
       if (result?.error) {
-        alert(result.error);
+        toast.error(result.error);
       } else {
         setIsEditing(false);
+        toast.success("Curriculum Architecture Updated");
         router.refresh();
       }
     } catch (err: any) {
-      alert("Failed to update course. Please try again.");
+      toast.error("Failed to update course. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +104,7 @@ export default function CourseHeaderEditor({
       await deleteCourse(courseId);
       router.push("/admin/courses");
     } catch (err) {
-      alert("Deletion failed. Please try again.");
+      toast.error("Deletion failed. Please try again.");
       setIsDeleting(false);
       setShowDeleteModal(false);
     }
@@ -96,35 +128,37 @@ export default function CourseHeaderEditor({
              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Course Branding (Thumbnail)</label>
              <div className="flex flex-col md:flex-row gap-6 items-start">
                 <div className="w-full md:w-48 h-32 relative rounded-2xl overflow-hidden border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-blue-500/50 transition-all group flex items-center justify-center">
-                  {previewUrl ? (
-                    <>
-                      <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Upload className="w-6 h-6 text-white" />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-zinc-600">
-                      <ImageIcon className="w-8 h-8" />
-                      <span className="text-[8px] font-black uppercase tracking-widest">No Image selected</span>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 10 * 1024 * 1024) {
-                          alert("File too large. Max size: 10MB");
-                          return;
-                        }
-                        setThumbnailFile(file);
-                        setPreviewUrl(URL.createObjectURL(file));
-                      }
-                    }}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
+                   {isOptimizing ? (
+                     <div className="flex flex-col items-center gap-2 text-blue-500 animate-pulse">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Handshaking...</span>
+                     </div>
+                   ) : previewUrl ? (
+                     <>
+                       <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <Upload className="w-6 h-6 text-white" />
+                       </div>
+                       {/* Success Badge if optimized */}
+                       {thumbnailFile?.type === "image/webp" && (
+                         <div className="absolute top-2 right-2 bg-green-600 rounded-full p-1 shadow-lg shadow-green-600/50">
+                            <CheckCircle2 className="w-3 h-3 text-white" />
+                         </div>
+                       )}
+                     </>
+                   ) : (
+                     <div className="flex flex-col items-center gap-2 text-zinc-600">
+                       <ImageIcon className="w-8 h-8" />
+                       <span className="text-[8px] font-black uppercase tracking-widest">No Image selected</span>
+                     </div>
+                   )}
+                   <input
+                     type="file"
+                     accept="image/*"
+                     disabled={isOptimizing}
+                     onChange={handleFileSelect}
+                     className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-wait"
+                   />
                 </div>
                 
                 <div className="flex-1 space-y-2 w-full">
