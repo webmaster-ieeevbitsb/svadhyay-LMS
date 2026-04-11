@@ -1,5 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
-import Navbar from "@/components/ui/navbar";
+
 import { SocialLinks } from "@/components/ui/social-links";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 
@@ -8,8 +7,7 @@ export default async function CertificateLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+
 
   return (
     <div className="min-h-screen bg-[#050508] text-zinc-400 font-sans flex flex-col relative overflow-x-hidden">

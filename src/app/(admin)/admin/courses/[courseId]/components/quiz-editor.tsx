@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateQuizQuestion, addQuizQuestion, deleteQuizQuestion, deleteQuiz } from "@/app/actions/builder";
-import { Loader2, Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, XCircle, ShieldAlert } from "lucide-react";
+import { updateQuizQuestion, addQuizQuestion } from "@/app/actions/builder";
+import { Loader2, Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { TacticalConfirm } from "@/components/ui/tactical-confirm";
 

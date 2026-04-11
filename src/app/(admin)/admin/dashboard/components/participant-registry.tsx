@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { addParticipant, removeParticipant, rotateStudentCohort } from "@/app/actions/participants";
-import { Users, Search, Loader2, ShieldCheck, ShieldAlert, BarChart3, Database, CheckCircle2, RefreshCw } from "lucide-react";
+import { Users, Search, Loader2, ShieldAlert, BarChart3, Database, CheckCircle2, RefreshCw } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
 import { TacticalConfirm } from "@/components/ui/tactical-confirm";

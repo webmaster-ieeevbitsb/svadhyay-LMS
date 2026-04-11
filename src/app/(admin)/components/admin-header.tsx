@@ -1,12 +1,10 @@
-import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
-import { ShieldAlert } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function AdminHeader() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#0a0a0f] border-b border-white/5 h-20 shadow-2xl flex items-center px-4 lg:px-12 justify-between">

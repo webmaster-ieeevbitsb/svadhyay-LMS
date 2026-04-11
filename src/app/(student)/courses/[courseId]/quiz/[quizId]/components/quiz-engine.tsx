@@ -19,12 +19,11 @@ import { toast } from "sonner";
 interface QuizEngineProps {
   courseId: string;
   quizId: string;
-  quiz: any;
   questions: any[];
   initialResult?: any;
 }
 
-export default function QuizEngine({ courseId, quizId, quiz, questions, initialResult }: QuizEngineProps) {
+export default function QuizEngine({ courseId, quizId, questions, initialResult }: QuizEngineProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();

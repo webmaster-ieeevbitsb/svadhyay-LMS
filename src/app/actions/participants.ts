@@ -179,10 +179,10 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
   return { success: true };
 }
 
-export async function toggleAdminStatus(email: string, currentStatus: boolean) {
+export async function toggleAdminStatus(email: string) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.rpc("revoke_admin_access", { 
+  const { error } = await supabase.rpc("revoke_admin_access", { 
     target_email: email.toLowerCase() 
   });
 

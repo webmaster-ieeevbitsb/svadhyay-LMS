@@ -70,7 +70,6 @@ export default async function FinalQuizPage({
           <QuizEngine 
             courseId={courseId} 
             quizId={quizId} 
-            quiz={quiz} 
             questions={sortedQuestions} 
             initialResult={initialResult}
           />

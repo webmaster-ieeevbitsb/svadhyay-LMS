@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { addAdmin, toggleAdminStatus } from "@/app/actions/participants";
-import { Search, Loader2, ShieldCheck, ShieldAlert, ShieldX, Upload, Users, Trash2 } from "lucide-react";
+import { Search, Loader2, ShieldCheck, ShieldAlert, Upload } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
-import { cn } from "@/utils/cn";
 
 interface Participant {
   email: string;
@@ -61,7 +60,7 @@ export function AdminRegistry({
     setErrorLine("");
     
     try {
-      const res = await toggleAdminStatus(email, true);
+      const res = await toggleAdminStatus(email);
       if (res.error) {
         setErrorLine(`Security Override Failed: ${res.error}`);
       } else {

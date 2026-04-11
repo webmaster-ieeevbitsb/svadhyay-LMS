@@ -145,7 +145,9 @@ export async function createQuiz(courseId: string) {
 
 export async function updateQuizQuestion(questionId: string, data: any) {
   const supabase = await createClient();
-  const { quiz_id, id, ...updateData } = data; // quiz_id is needed for revalidation, id is questionId
+  const updateData = { ...data };
+  delete updateData.quiz_id;
+  delete updateData.id;
 
   const { error } = await supabase
     .from("quiz_questions")
@@ -197,7 +199,7 @@ export async function addQuizQuestion(quizId: string) {
 }
 
 export async function deleteQuizQuestion(questionId: string) {
-  console.log(`🛠️ DELETE_ACTION: Attempting to deallocate node ${questionId}`);
+
   const supabase = await createClient();
 
   // 1. Verify Admin Status Manually (Bypass RLS dependency for logic check)
@@ -231,12 +233,11 @@ export async function deleteQuizQuestion(questionId: string) {
     return { error: "RLS Access Restriction: The database rejected the delete command despite admin status." };
   }
 
-  console.log(`✅ DELETE_SUCCESS: Node ${questionId} removed.`);
   return { success: true };
 }
 
 export async function deleteQuiz(courseId: string) {
-  console.log(`🛠️ DELETE_QUIZ: Deallocating entire assessment for course ${courseId}`);
+
   const supabase = await createClient();
 
   // 1. Verify Admin Status
@@ -260,7 +261,6 @@ export async function deleteQuiz(courseId: string) {
   if (fetchError) return { error: `Database Lookup Failure: ${fetchError.message}` };
 
   if (quiz) {
-    console.log(`🛠️ Force-clearing questions for quiz ${quiz.id}`);
     await supabase.from("quiz_questions").delete().eq("quiz_id", quiz.id);
   }
 
@@ -276,7 +276,6 @@ export async function deleteQuiz(courseId: string) {
     return { error: "RLS Access Restriction: Database rejected the assessment termination." };
   }
 
-  console.log(`✅ DELETE_QUIZ_SUCCESS: Course ${courseId} is now assessment-free.`);
   revalidatePath(`/admin/courses/${courseId}`);
   return { success: true };
 }

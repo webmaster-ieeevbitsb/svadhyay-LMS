@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchStudentProgress } from "@/app/actions/participants";
-import { X, CheckCircle2, Circle, Loader2, Award, BookOpen, RotateCcw } from "lucide-react";
+import { X, CheckCircle2, Loader2, Award, BookOpen, RotateCcw } from "lucide-react";
 import { TacticalConfirm } from "@/components/ui/tactical-confirm";
 import { resetStudentProgress } from "@/app/actions/progress";
 

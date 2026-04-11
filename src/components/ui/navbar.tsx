@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { SocialLinks } from "./social-links";
 
 export default async function Navbar() {
   const supabase = await createClient();
@@ -12,35 +11,28 @@ export default async function Navbar() {
     <nav className="fixed top-0 inset-x-0 h-20 bg-[#050508]/80 md:backdrop-blur-xl backdrop-blur-sm border-b border-white/10 z-50 flex items-center justify-between px-4 md:px-6 lg:px-12">
       {/* Branding Section */}
       <div className="flex items-center space-x-6 h-full">
-        {/* Logos & Branding (No Links) */}
-        <div className="flex items-center gap-4">
-           {/* AVK LOGO */}
-           <div className="relative h-10 w-16 flex items-center justify-center">
-            <Image 
-               src="/logos/avk.png" 
-               alt="Avishkar Logo" fill className="object-contain"
+        {/* Logos & Branding */}
+        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
+          {/* AVK LOGO */}
+          <div className="relative h-10 w-16 flex items-center justify-center">
+            <Image
+              src="/logos/avk.png"
+              alt="Avishkar Logo" fill className="object-contain"
             />
-           </div>
-           
-           <div className="w-px h-6 bg-white/20 mx-2" />
+          </div>
 
-           {/* IEEE LOGO */}
-           <div className="relative h-10 w-16 flex items-center justify-center">
-            <Image 
-               src="/logos/ieee-sb.png" 
-               alt="IEEE Logo" fill className="object-contain"
+          <div className="w-px h-6 bg-white/20 mx-2" />
+
+          {/* IEEE LOGO */}
+          <div className="relative h-10 w-16 flex items-center justify-center">
+            <Image
+              src="/logos/ieee-sb.png"
+              alt="IEEE Logo" fill className="object-contain"
             />
-           </div>
-        </div>
+          </div>
+        </Link>
 
-        <div className="w-px h-8 bg-white/10 mx-2" />
-        
-        {/* Title (Hidden on small/medium screens to prevent squeezing) */}
-        <div className="hidden lg:flex items-center gap-3">
-          <span className="text-zinc-300 font-black uppercase tracking-[0.2em] text-sm italic whitespace-nowrap">
-            AVISHKAR LEARNING PORTAL
-          </span>
-        </div>
+
       </div>
 
       {/* Navigation / User Section */}
