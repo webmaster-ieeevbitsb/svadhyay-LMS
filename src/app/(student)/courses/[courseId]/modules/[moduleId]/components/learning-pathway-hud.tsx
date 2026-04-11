@@ -64,10 +64,12 @@ export function LearningPathwayHUD({ courseId, moduleId, allModules, structuredC
             {/* Header Area */}
             <div className="w-full flex items-center justify-between border-b border-white/5 pb-4 mb-8">
                <div className="flex items-center gap-6">
-                  <div className="flex flex-col">
-                     <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1">CURRENT_DEPLOYMENT</span>
-                     <h2 className="text-xl font-black italic text-white uppercase tracking-tighter tabular-nums">Sub-module {currentSubStep}</h2>
-                  </div>
+                  {! (pathname.includes("/activity") || pathname.includes("/references") || pathname.includes("/quiz")) && (
+                    <div className="flex flex-col">
+                       <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1">CURRENT_DEPLOYMENT</span>
+                       <h2 className="text-xl font-black italic text-white uppercase tracking-tighter tabular-nums">Sub-module {currentSubStep}</h2>
+                    </div>
+                  )}
                </div>
                
                <div className="flex items-center gap-4">
