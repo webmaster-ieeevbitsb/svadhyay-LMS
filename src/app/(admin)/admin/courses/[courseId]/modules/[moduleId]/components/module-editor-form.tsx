@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Save, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { updateModuleContent } from "@/app/actions/builder";
+import { uploadSubmoduleMedia } from "@/app/actions/media";
 import { ModuleContent } from "@/types/database";
 import { RichTextarea } from "@/app/(admin)/components/rich-textarea";
 
@@ -41,7 +42,9 @@ export default function ModuleEditorForm({
   });
   
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [uploadError, setUploadError] = useState("");
   
   const sc = data.structured_content as ModuleContent;
 
@@ -60,6 +63,28 @@ export default function ModuleEditorForm({
     }
     
     setIsSaving(false);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await uploadSubmoduleMedia(formData);
+
+    if (res.error) {
+      setUploadError(res.error);
+    } else if (res.publicUrl) {
+      setData(prev => ({ ...prev, image_url: res.publicUrl! }));
+      setUploadError("");
+    }
+
+    setIsUploading(false);
   };
 
   const updateSC = (update: Partial<ModuleContent>) => {
@@ -250,18 +275,37 @@ export default function ModuleEditorForm({
                 {/* Master Image */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center justify-between">
-                    <span>Master Image URL (Direct Link)</span>
+                    <span>Master Image (Direct Link or Upload)</span>
                     {data.image_url && <span className="text-blue-400">Optics Active</span>}
                   </label>
                   <div className="flex gap-4 items-start">
-                    <input 
-                      value={data.image_url}
-                      onChange={(e) => setData({ ...data, image_url: e.target.value })}
-                      className="flex-1 bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded shadow-inner"
-                      placeholder="https://images.unsplash.com/..."
-                    />
+                    <div className="flex-1 space-y-2">
+                       <input 
+                         value={data.image_url}
+                         onChange={(e) => setData({ ...data, image_url: e.target.value })}
+                         className="w-full bg-black/50 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-xs rounded shadow-inner"
+                         placeholder="https://images.unsplash.com/..."
+                       />
+                       <div className="flex items-center gap-4">
+                          <label className="cursor-pointer group">
+                             <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                disabled={isUploading}
+                             />
+                             <div className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 border border-blue-600/20 rounded text-[10px] font-bold uppercase tracking-widest text-blue-400 group-hover:bg-blue-600/20 transition-all">
+                                {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                <span>{isUploading ? "Uploading..." : "Upload Asset"}</span>
+                             </div>
+                          </label>
+                          {uploadError && <span className="text-[9px] text-red-500 font-bold uppercase tracking-widest animate-pulse">{uploadError}</span>}
+                       </div>
+                    </div>
+
                     {data.image_url && (
-                      <div className="w-32 h-[42px] rounded border border-white/10 overflow-hidden relative flex-shrink-0 bg-black/40 animate-in fade-in zoom-in duration-300">
+                      <div className="w-32 h-[82px] rounded border border-white/10 overflow-hidden relative flex-shrink-0 bg-black/40 animate-in fade-in zoom-in duration-300">
                         <img 
                           src={data.image_url} 
                           alt="preview" 
