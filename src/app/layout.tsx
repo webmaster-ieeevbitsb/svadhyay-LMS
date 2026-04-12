@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "svadhyay-LMS",
   description: "Exclusive for Freshmen of VBIT",
   icons: {
-    icon: "/logos/avk.png",
+    icon: "/logos/ieee-sb.png",
   },
 };
 
