@@ -49,36 +49,60 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
         </div>
 
         {/* 🎬 CONCEPT_VIDEO_DEPLOYMENT (Optional) */}
-        {concept.video_url && (
-           <div className="space-y-4">
-              <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl relative group shadow-blue-500/10">
-                 <iframe 
-                   src={(() => {
-                     try {
-                       const url = new URL(concept.video_url);
-                       if (concept.video_start_time) {
-                         const val = concept.video_start_time.toString().trim();
-                         let secs = 0;
-                         if (val.includes(':')) {
-                           const parts = val.split(':');
-                           secs = parseInt(parts[0] || '0') * 60 + parseInt(parts[1] || '0');
-                         } else {
-                           secs = Math.round(parseFloat(val) * 60);
+        {(concept.video_url || concept.image_url) && (
+           <div className="space-y-12">
+              {concept.video_url && (
+                <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl relative group shadow-blue-500/10 transition-transform duration-500 hover:scale-[1.01]">
+                   <iframe 
+                     src={(() => {
+                       try {
+                         // Robustly handle YouTube URLs to ensure they are embed-formatted
+                         let finalUrl = concept.video_url;
+                         if (finalUrl.includes("watch?v=")) {
+                           finalUrl = finalUrl.replace("watch?v=", "embed/");
+                         } else if (finalUrl.includes("youtu.be/")) {
+                           const id = finalUrl.split("/").pop();
+                           finalUrl = `https://www.youtube.com/embed/${id}`;
                          }
-                         if (!isNaN(secs) && secs >= 0) {
-                           url.searchParams.set("start", secs.toString());
+
+                         const url = new URL(finalUrl);
+                         if (concept.video_start_time) {
+                           const val = concept.video_start_time.toString().trim();
+                           let secs = 0;
+                           if (val.includes(':')) {
+                             const parts = val.split(':');
+                             secs = parseInt(parts[0] || '0') * 60 + parseInt(parts[1] || '0');
+                           } else {
+                             secs = Math.round(parseFloat(val) * 60);
+                           }
+                           if (!isNaN(secs) && secs >= 0) {
+                             url.searchParams.set("start", secs.toString());
+                           }
                          }
+                         // Ensure no cookies and clean embed
+                         url.searchParams.set("rel", "0");
+                         return url.toString();
+                       } catch (e) {
+                         return concept.video_url;
                        }
-                       return url.toString();
-                     } catch (e) {
-                       return concept.video_url;
-                     }
-                   })()}
-                   className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
-                   allowFullScreen
-                 />
-                 <div className="absolute inset-0 pointer-events-none border-[2px] border-white/[0.05] rounded-2xl shadow-inner" />
-              </div>
+                     })()}
+                     className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
+                     allowFullScreen
+                   />
+                   <div className="absolute inset-0 pointer-events-none border-[2px] border-white/[0.05] rounded-2xl shadow-inner" />
+                </div>
+              )}
+
+              {concept.image_url && (
+                <div className="w-full rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/50 shadow-2xl relative group transition-all duration-500 hover:border-blue-500/30">
+                   <img 
+                      src={concept.image_url} 
+                      alt={concept.title}
+                      className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 hover:scale-[1.02]"
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                </div>
+              )}
            </div>
         )}
 

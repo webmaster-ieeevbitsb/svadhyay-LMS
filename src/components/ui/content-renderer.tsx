@@ -12,6 +12,7 @@ export function ContentRenderer({ content, className }: ContentRendererProps) {
   // SMART MEDIA PRE-PROCESSOR
   // This handles raw iframes, naked links, and common user formatting errors.
   const processedContent = (content || "")
+    .replaceAll('\\n', '\n') // Fix literal \n characters from AI strings
     // 1. Handle ![video](<iframe ...>) or ![video](URL) robustly
     .replace(/!\[video\]\((.*?)\)/g, (match, p1) => {
       // If it contains an iframe, extract the src
@@ -26,14 +27,14 @@ export function ContentRenderer({ content, className }: ContentRendererProps) {
     // 4. Clean up generic markers like ^sup^ and ~sub~
     .replace(/\^([^^]+)\^/g, "<sup>$1</sup>")
     .replace(/~([^~]+)~/g, "<sub>$1</sub>");
-
+ 
   return (
-    <div className={`font-serif-content leading-relaxed selection:bg-blue-500/30 ${className}`}>
+    <div className={`leading-relaxed selection:bg-blue-500/30 ${className}`}>
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
           p: ({ children }) => <div className="mb-4 last:mb-0 text-justify">{children}</div>,
-          strong: ({ children }) => <strong className="font-bold text-white/90">{children}</strong>,
+          strong: ({ children }) => <strong className="font-black text-white">{children}</strong>,
           ul: ({ children }) => <ul className="list-disc pl-6 space-y-2 mb-4">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-6 space-y-2 mb-4">{children}</ol>,
           li: ({ children }) => <li className="text-zinc-300 text-justify">{children}</li>,

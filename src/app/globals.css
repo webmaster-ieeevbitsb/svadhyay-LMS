@@ -26,7 +26,7 @@ body {
 }
 
 @utility font-serif-content {
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-geist-sans), Inter, sans-serif;
 }
 
 /* Custom Tactical Scrollbar */

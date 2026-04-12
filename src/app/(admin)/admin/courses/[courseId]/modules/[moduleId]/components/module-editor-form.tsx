@@ -37,9 +37,26 @@ export default function ModuleEditorForm({
   moduleId: string; 
   initialData: ModuleData;
 }) {
-  const [data, setData] = useState<ModuleData>({
-    ...initialData,
-    structured_content: initialData.structured_content || DEFAULT_STRUCTURED_CONTENT
+  const [data, setData] = useState<ModuleData>(() => {
+    const sc = initialData.structured_content || DEFAULT_STRUCTURED_CONTENT;
+    return {
+      ...initialData,
+      structured_content: {
+        ...DEFAULT_STRUCTURED_CONTENT,
+        ...sc,
+        // Ensure nested critical arrays are always present
+        drop_downs: sc.drop_downs || [],
+        references: sc.references || [],
+        mini_quiz: {
+          ...DEFAULT_STRUCTURED_CONTENT.mini_quiz!,
+          ...(sc.mini_quiz || {})
+        },
+        activity_block: {
+          ...DEFAULT_STRUCTURED_CONTENT.activity_block!,
+          ...(sc.activity_block || {})
+        }
+      }
+    };
   });
   
   const [isSaving, setIsSaving] = useState(false);
@@ -141,19 +158,19 @@ export default function ModuleEditorForm({
   };
 
   const removeCustomSection = (dropdownIndex: number, sectionIndex: number) => {
-    const newDDs = [...sc.drop_downs];
-    newDDs[dropdownIndex].custom_sections = newDDs[dropdownIndex].custom_sections?.filter((_, i) => i !== sectionIndex);
+    const newDDs = [...(sc.drop_downs || [])];
+    newDDs[dropdownIndex].custom_sections = (newDDs[dropdownIndex].custom_sections || []).filter((_, i) => i !== sectionIndex);
     updateSC({ drop_downs: newDDs });
   };
 
   const removeDropdown = (index: number) => {
     updateSC({
-      drop_downs: sc.drop_downs.filter((_, i) => i !== index)
+      drop_downs: (sc.drop_downs || []).filter((_, i) => i !== index)
     });
   };
 
   const updateDropdown = (index: number, field: keyof Omit<ModuleContent["drop_downs"][0], "custom_sections">, value: any) => {
-    const newDDs = [...sc.drop_downs];
+    const newDDs = [...(sc.drop_downs || [])];
     (newDDs[index] as any)[field] = value;
     updateSC({ drop_downs: newDDs });
   };
