@@ -83,6 +83,7 @@ export async function GET(req: NextRequest) {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", zIndex: 10 }}>
           <div
             style={{
+              display: "flex",
               fontSize: "18px",
               fontWeight: 800,
               textTransform: "uppercase",
@@ -111,6 +112,7 @@ export async function GET(req: NextRequest) {
 
           <div
             style={{
+              display: "flex",
               width: "160px",
               height: "2px",
               background: "linear-gradient(90deg, transparent, #2563eb, transparent)",
@@ -120,6 +122,7 @@ export async function GET(req: NextRequest) {
 
           <div
             style={{
+              display: "flex",
               fontSize: "28px",
               fontWeight: 600,
               textTransform: "uppercase",
@@ -133,6 +136,7 @@ export async function GET(req: NextRequest) {
           
           <div
             style={{
+              display: "flex",
               fontSize: "56px",
               fontWeight: 900,
               textTransform: "uppercase",
@@ -149,6 +153,7 @@ export async function GET(req: NextRequest) {
 
           <div
             style={{
+              display: "flex",
               fontSize: "16px",
               fontWeight: 700,
               textTransform: "uppercase",
@@ -173,10 +178,10 @@ export async function GET(req: NextRequest) {
             opacity: 0.5,
           }}
         >
-          <div style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.1em", color: "#64748b" }}>
+          <div style={{ display: "flex", fontSize: "14px", fontWeight: 700, letterSpacing: "0.1em", color: "#64748b" }}>
             VERIFIED VIA SVADHYAY-LMS
           </div>
-          <div style={{ fontSize: "14px", fontWeight: 800, letterSpacing: "0.2em", color: "#3b82f6" }}>
+          <div style={{ display: "flex", fontSize: "14px", fontWeight: 800, letterSpacing: "0.2em", color: "#3b82f6" }}>
             IEEE - VBIT SB
           </div>
         </div>
