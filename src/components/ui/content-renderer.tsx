@@ -6,9 +6,10 @@ import remarkGfm from "remark-gfm";
 interface ContentRendererProps {
   content: string;
   className?: string;
+  excludeImageUrl?: string;
 }
 
-export function ContentRenderer({ content, className }: ContentRendererProps) {
+export function ContentRenderer({ content, className, excludeImageUrl }: ContentRendererProps) {
   // SMART MEDIA PRE-PROCESSOR
   // This handles raw iframes, naked links, and common user formatting errors.
   const processedContent = (content || "")
@@ -41,6 +42,11 @@ export function ContentRenderer({ content, className }: ContentRendererProps) {
           img: ({ src, alt, ...props }) => {
             let source = typeof src === "string" ? src : "";
             if (!source) return null;
+
+            // SMART FILTER: Do not render the image if it matches the excluded URL (featured image)
+            if (excludeImageUrl && source === excludeImageUrl) {
+              return null;
+            }
 
             // ABSOLUTE VIDEO DETECTION
             const altText = String(alt || "").toLowerCase();

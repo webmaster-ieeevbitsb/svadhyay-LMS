@@ -108,21 +108,21 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
 
         <div className="grid grid-cols-1 gap-12">
           {/* Boilerplate Sections */}
-          <Section label="What it is" content={concept.what_it_is} />
-          <Section label="Why it matters" content={concept.why_it_matters} />
-          <Section label="Example" content={concept.example} />
-          <Section label="Common Mistake" content={concept.common_mistake} />
-          <Section label="Try it" content={concept.try_it} />
+          <Section label="What it is" content={concept.what_it_is} excludeImageUrl={concept.image_url ?? undefined} />
+          <Section label="Why it matters" content={concept.why_it_matters} excludeImageUrl={concept.image_url ?? undefined} />
+          <Section label="Example" content={concept.example} excludeImageUrl={concept.image_url ?? undefined} />
+          <Section label="Common Mistake" content={concept.common_mistake} excludeImageUrl={concept.image_url ?? undefined} />
+          <Section label="Try it" content={concept.try_it} excludeImageUrl={concept.image_url ?? undefined} />
 
           {/* Custom Sections */}
           {concept.custom_sections?.map((cs, i) => (
-            <Section key={i} label={cs.heading} content={cs.content} />
+            <Section key={i} label={cs.heading} content={cs.content} excludeImageUrl={concept.image_url ?? undefined} />
           ))}
         </div>
 
         <div className="pt-12 border-t border-white/10 flex justify-between items-center">
             <Link href={`/courses/${courseId}/modules/${moduleId}`} className="text-zinc-500 hover:text-white transition-all text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-               <ChevronLeft className="w-4 h-4" /> 1.0 Intro
+               <ChevronLeft className="w-4 h-4" /> Overview
             </Link>
             <Link scroll={true} href={nextStep} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center gap-3">
                <span>Proceed to Next Phase</span>
@@ -134,12 +134,12 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
   );
 }
 
-function Section({ label, content }: { label: string; content: string }) {
+function Section({ label, content, excludeImageUrl }: { label: string; content: string; excludeImageUrl?: string }) {
   if (!content) return null;
   return (
     <div className="space-y-4">
       <h3 className="text-[10px] font-black uppercase text-zinc-500 tracking-[0.3em] border-l-2 border-blue-500/30 pl-4">{label}</h3>
-      <ContentRenderer content={content} className="text-lg text-zinc-300" />
+      <ContentRenderer content={content} className="text-lg text-zinc-300" excludeImageUrl={excludeImageUrl} />
     </div>
   );
 }
