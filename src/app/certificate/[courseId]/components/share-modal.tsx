@@ -14,7 +14,7 @@ interface ShareModalProps {
 export default function ShareModal({ isOpen, onClose, courseTitle, certificateUrl }: ShareModalProps) {
   if (!isOpen) return null;
 
-  const shareText = `I just completed the "${courseTitle}" on Avishkar Learning Portal! Check out my certificate:`;
+  const shareText = `I just completed the "${courseTitle}" on Svadhyay-LMS! Check out my certificate:`;
   const encodedText = encodeURIComponent(shareText);
   const encodedUrl = encodeURIComponent(certificateUrl);
 

@@ -9,13 +9,10 @@ export const getURL = () => {
   }
 
   // 2. Server-side: use environment variables
-  let url =
-    process?.env?.NEXT_PUBLIC_SITE_URL ?? 
-    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? 
-    'http://localhost:3000';
-  
-  // Ensure the URL starts with https:// unless it's localhost
-  url = url.includes('http') ? url : `https://${url}`;
+  const siteUrl = process?.env?.NEXT_PUBLIC_SITE_URL;
+  const vercelUrl = process?.env?.NEXT_PUBLIC_VERCEL_URL;
+
+  let url = siteUrl || (vercelUrl ? `https://${vercelUrl}` : 'http://localhost:3000');
   
   // Remove trailing slash for consistency
   url = url.endsWith('/') ? url.slice(0, -1) : url;

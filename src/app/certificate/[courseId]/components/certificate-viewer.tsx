@@ -122,7 +122,7 @@ export default function CertificateViewer({
     
     const shareData = {
       title: "Course Completion Certificate",
-      text: `Check out my certificate for completing "${courseTitle}" on Avishkar Learning Portal!`,
+      text: `Check out my certificate for completing "${courseTitle}" on Svadhyay-LMS!`,
       url: shareUrl,
     };
 
@@ -277,7 +277,7 @@ export default function CertificateViewer({
                      <div className="w-[400px] h-[4px] rounded-full" style={{ backgroundColor: "rgba(14, 165, 233, 0.1)" }} />
                      <div className="space-y-4">
                         <div className="space-y-1">
-                           <p className="text-[10px] font-black tracking-[0.6em] uppercase" style={{ color: "rgba(248, 250, 252, 0.4)" }}>Verified Platform Record</p>
+                           <p className="text-[10px] font-black tracking-[0.6em] uppercase" style={{ color: "rgba(248, 250, 252, 0.4)" }}>Svadhyay-LMS Verified Platform</p>
                            <p className="text-sm font-black uppercase tracking-[0.1em]" style={{ color: "#f8fafc" }}>IEEE - VBIT SB</p>
                         </div>
                         <div className="pt-2 max-w-sm" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>

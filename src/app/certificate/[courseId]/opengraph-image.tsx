@@ -10,8 +10,8 @@ export default async function Image({
   params: { courseId: string };
   searchParams: { e?: string };
 }) {
-  const { courseId } = params;
-  const targetEmail = searchParams.e;
+  const { courseId } = await params;
+  const { e: targetEmail } = await searchParams;
   const supabase = await createClient();
 
   // Fetch data

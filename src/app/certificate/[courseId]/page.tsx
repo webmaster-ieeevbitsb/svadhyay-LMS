@@ -1,7 +1,22 @@
+import { getURL } from "@/utils/supabase/get-url";
 import { createClient } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import CertificateViewer from "./components/certificate-viewer";
+
+function getOrdinalDate(date: Date) {
+  const day = date.getDate();
+  const month = date.toLocaleDateString("en-US", { month: "long" });
+  const year = date.getFullYear();
+
+  const getOrdinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+
+  return `${getOrdinal(day)} ${month}, ${year}`;
+}
 
 export async function generateMetadata({ 
   params,
@@ -13,6 +28,7 @@ export async function generateMetadata({
   const { courseId } = await params;
   const { e: targetEmail } = await searchParams;
   const supabase = await createClient();
+  const baseUrl = getURL();
 
   // If no email provided, we can't show specific social meta
   if (!targetEmail) {
@@ -32,15 +48,25 @@ export async function generateMetadata({
     .eq("id", courseId)
     .single();
 
+  const { data: progress } = await supabase
+    .from("student_progress")
+    .select("updated_at")
+    .eq("course_id", courseId)
+    .eq("email", targetEmail.toLowerCase())
+    .single();
+
+  const rawDate = new Date(progress?.updated_at || new Date().toISOString());
+  const formattedDate = getOrdinalDate(rawDate);
+
   return {
     title: `${participant?.name || "Student"}'s Certificate of Achievement`,
-    description: `Official certification for completing "${course?.title}" on Avishkar Learning Portal.`,
+    description: `Official certification for completing "${course?.title}" on Svadhyay-LMS Platform.`,
     openGraph: {
       title: `${participant?.name || "Student"}'s Achievement`,
       description: `Successfully completed "${course?.title}"`,
       images: [
         {
-          url: `/certificate/${courseId}/opengraph-image?e=${encodeURIComponent(targetEmail)}`,
+          url: `${baseUrl}/api/og?courseId=${courseId}&e=${encodeURIComponent(targetEmail)}&d=${encodeURIComponent(formattedDate)}&v=2`,
           width: 1200,
           height: 630,
           alt: "Certificate of Achievement",
@@ -100,9 +126,8 @@ export default async function CertificatePage({
 
   const studentName = participant?.name || (user?.user_metadata?.full_name) || "STUDENT";
 
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'long',
-  }).format(new Date(progress.updated_at || new Date().toISOString()));
+  const rawDate = new Date(progress.updated_at || new Date().toISOString());
+  const formattedDate = getOrdinalDate(rawDate);
 
   // Generate a unique Certificate ID based on their row ID
   const certId = courseId.split("-")[0].toUpperCase() + "-" + new Date().getFullYear();

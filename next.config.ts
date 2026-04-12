@@ -12,15 +12,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'registration.ieeevbitsb.in',
-      },
-      {
-        protocol: 'https',
-        hostname: 'avishkar2k25.ieeevbitsb.in',
-      },
-      {
-        protocol: 'https',
-        hostname: 'qtpdzikpgfgrpowesgkp.supabase.co',
+        hostname: 'wkgfemijjgrxxzqwymbb.supabase.co',
       },
     ],
   },

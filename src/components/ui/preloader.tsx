@@ -29,7 +29,7 @@ export function Preloader() {
           {/* IEEE Logo modifed to appear immediately and larger */}
           <div className="relative w-32 h-20 md:w-44 md:h-28">
             <Image
-              src="https://registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png"
+              src="/logos/ieee-sb.png"
               alt="IEEE logo"
               fill
               className="object-contain"

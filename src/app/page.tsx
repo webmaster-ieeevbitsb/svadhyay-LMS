@@ -64,7 +64,7 @@ function LoginForm() {
           <div className="absolute inset-0 bg-blue-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center shrink-0">
             <Image 
-              src="https://avishkar2k25.ieeevbitsb.in/logo/AVK_LOGO.png" 
+              src="/logos/avk.png" 
               alt="Avishkar" fill className="object-contain" 
               sizes="(max-width: 768px) 64px, 120px"
             />
@@ -72,7 +72,7 @@ function LoginForm() {
           <div className="w-px h-8 md:h-12 bg-white/10 shrink-0" />
           <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center opacity-90 shrink-0">
             <Image 
-              src="https://registration.ieeevbitsb.in/logo/ieee-vbit-sb/sb-blue.png" 
+              src="/logos/ieee-sb.png" 
               alt="IEEE" fill className="object-contain" 
               sizes="(max-width: 768px) 64px, 120px"
             />
@@ -100,7 +100,7 @@ function LoginForm() {
             <Lock className="w-8 h-8 text-blue-500/40 mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-white mb-2">Student Access</h2>
             <p className="text-zinc-500 text-xs mb-8 font-medium tracking-wide">
-              Exclusive Course Access for Freshman Engineering
+              Exclusive Course Access for Freshmen Engineering
             </p>
 
             <div className="h-16 flex items-center justify-center">

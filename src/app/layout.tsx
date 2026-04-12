@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LMS",
-  description: "Exclusive for Freshman of VBIT",
+  description: "Exclusive for Freshmen of VBIT",
   icons: {
-    icon: "https://avishkar2k25.ieeevbitsb.in/logo/AVK_LOGO.png",
+    icon: "/logos/avk.png",
   },
 };
 
