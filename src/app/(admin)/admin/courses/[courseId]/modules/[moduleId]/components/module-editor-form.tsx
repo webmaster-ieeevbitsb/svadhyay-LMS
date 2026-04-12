@@ -115,7 +115,9 @@ export default function ModuleEditorForm({
         example: "", 
         common_mistake: "", 
         try_it: "",
+        image_url: "",
         video_url: "",
+        video_start_time: "",
         custom_sections: []
       }]
     });
