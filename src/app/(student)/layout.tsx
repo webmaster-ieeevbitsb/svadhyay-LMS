@@ -111,8 +111,13 @@ export default async function StudentLayout({
         <SocialLinks />
         
         <div className="space-y-6 max-w-4xl px-6 group cursor-default">
-          <div className="text-[15px] font-black text-zinc-200 uppercase tracking-[0.3em] transition-colors duration-500 group-hover:text-blue-400">
-            Designed and Developed by Web Designers | IEEE - VBIT SB
+          <div className="flex flex-col space-y-1">
+            <div className="text-[15px] font-black text-zinc-200 uppercase tracking-[0.3em] transition-colors duration-500 group-hover:text-blue-400">
+              Designed and Developed by Web Designers | IEEE - VBIT SB
+            </div>
+            <p className="text-[9px] font-bold text-blue-500/60 uppercase tracking-[0.2em] text-center">
+              Svadhyay (स्वाध्याय) — Self-Study & Growth
+            </p>
           </div>
           
           <div className="text-[11px] text-zinc-500 font-black uppercase tracking-widest transition-colors duration-300 group-hover:text-zinc-400">

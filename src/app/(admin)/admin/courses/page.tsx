@@ -14,7 +14,7 @@ export default async function AdminCoursesPage() {
             Manage Curriculum
           </h1>
           <p className="text-zinc-500 mt-2 text-sm md:text-base">
-            Create and edit global courses for Avishkar LMS.
+            Create and edit global courses for Svadhyay-LMS.
           </p>
         </div>
         <Link 

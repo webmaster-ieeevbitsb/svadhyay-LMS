@@ -16,8 +16,8 @@ export default async function Navbar() {
           {/* AVK LOGO */}
           <div className="relative h-10 w-16 flex items-center justify-center">
             <Image
-              src="/logos/avk.png"
-              alt="Avishkar Logo" fill className="object-contain"
+              src="/logos/svadhyay-logo.png"
+              alt="Svadhyay Logo" fill className="object-contain"
             />
           </div>
 

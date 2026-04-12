@@ -64,8 +64,8 @@ function LoginForm() {
           <div className="absolute inset-0 bg-blue-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative w-16 h-10 md:w-24 md:h-14 flex items-center justify-center shrink-0">
             <Image 
-              src="/logos/avk.png" 
-              alt="Avishkar" fill className="object-contain" 
+              src="/logos/svadhyay-logo.png" 
+              alt="Svadhyay" fill className="object-contain" 
               sizes="(max-width: 768px) 64px, 120px"
             />
           </div>
@@ -83,7 +83,7 @@ function LoginForm() {
         <div className="text-center space-y-3 mb-6 w-full px-4 animate-in fade-in duration-700 delay-150 fill-mode-backwards">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase drop-shadow-md flex flex-col items-center justify-center gap-1 md:gap-2">
             <span className="text-white">IEEE - VBIT SB</span>
-            <span className="text-blue-500">Learning Portal</span>
+            <span className="text-blue-500 font-black">Svadhyay-LMS</span>
           </h1>
           <div className="flex items-center justify-center gap-3">
              <div className="h-px w-8 bg-blue-500/30" />
