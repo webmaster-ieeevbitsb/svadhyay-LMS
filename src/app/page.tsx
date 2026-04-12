@@ -138,11 +138,16 @@ function LoginForm() {
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 md:gap-8 relative z-10">
             {/* Left Section: Institutional Branding & Mission */}
             <div className="flex flex-col items-center md:items-start space-y-5 flex-1 max-w-xs sm:max-w-md md:max-w-xl">
-              <div className="flex items-center gap-3">
-                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full md:animate-pulse shadow-[0_0_8px_#3b82f6]" />
-                 <h3 className="text-[14px] font-black text-white uppercase tracking-[0.4em]">
-                   IEEE - VBIT SB
-                 </h3>
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center gap-3">
+                   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full md:animate-pulse shadow-[0_0_8px_#3b82f6]" />
+                   <h3 className="text-[14px] font-black text-white uppercase tracking-[0.4em]">
+                     IEEE - VBIT SB
+                   </h3>
+                </div>
+                <p className="text-[9px] font-bold text-blue-500/60 uppercase tracking-[0.2em] ml-4.5">
+                  Svadhyay (स्वाध्याय) — Self-Study & Growth
+                </p>
               </div>
               <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed text-center md:text-left">
                 A non profit Organisation, IEEE is the world's largest technical professional 
