@@ -44,11 +44,11 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-blue-900/5 border border-blue-500/20 rounded-2xl p-8 md:p-12">
           <div className="space-y-4">
             <h3 className="text-[10px] font-black uppercase text-zinc-500 tracking-[0.3em]">Instructional Tasks</h3>
-            <ContentRenderer content={activity.instructions} className="text-lg text-white" />
+            <ContentRenderer content={activity.instructions} className="text-lg text-white font-serif-content" />
           </div>
           <div className="space-y-4">
             <h3 className="text-[10px] font-black uppercase text-zinc-500 tracking-[0.3em]">Expected Learning Outcome</h3>
-            <ContentRenderer content={activity.outcome_expected} className="text-lg text-blue-200" />
+            <ContentRenderer content={activity.outcome_expected} className="text-lg text-blue-200 font-serif-content" />
           </div>
         </div>
 

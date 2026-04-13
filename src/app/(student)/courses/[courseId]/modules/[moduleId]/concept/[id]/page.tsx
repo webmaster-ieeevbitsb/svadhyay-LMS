@@ -139,7 +139,7 @@ function Section({ label, content, excludeImageUrl }: { label: string; content: 
   return (
     <div className="space-y-4">
       <h3 className="text-[10px] font-black uppercase text-zinc-500 tracking-[0.3em] border-l-2 border-blue-500/30 pl-4">{label}</h3>
-      <ContentRenderer content={content} className="text-lg text-zinc-300" excludeImageUrl={excludeImageUrl} />
+      <ContentRenderer content={content} className="text-lg text-zinc-300 font-serif-content" excludeImageUrl={excludeImageUrl} />
     </div>
   );
 }

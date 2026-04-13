@@ -462,7 +462,7 @@ export default function ModuleEditorForm({
                           className="bg-transparent text-sm font-bold text-blue-400 focus:outline-none border-b border-white/5 w-full pb-1"
                           placeholder="Custom Subheading..."
                         />
-                        <RichTextarea value={section.content} onChange={(val: string) => updateCustomSection(idx, sIdx, "content", val)} className="mt-2" />
+                        <RichTextarea value={section.content || ""} onChange={(val: string) => updateCustomSection(idx, sIdx, "content", val)} className="mt-2" />
                       </div>
                     ))}
                     

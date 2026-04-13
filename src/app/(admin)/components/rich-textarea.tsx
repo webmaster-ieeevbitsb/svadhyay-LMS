@@ -16,14 +16,19 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
   const [isUploading, setIsUploading] = useState(false);
   const [modalConfig, setModalConfig] = useState<{ type: "image" | "video"; isOpen: boolean } | null>(null);
   const [editingMedia, setEditingMedia] = useState<{ type: "image" | "video"; url: string; fullMatch: string } | null>(null);
+  const [isPreview, setIsPreview] = useState(false);
+  
+  // Clean value for editing: replace literal \n strings with real newlines
+  const displayValue = useMemo(() => (value || "").replace(/\\n/g, '\n'), [value]);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // REAL-TIME MEDIA SCANNER
   const mediaUplinks = useMemo(() => {
+    const safeValue = value || "";
     const regex = /!\[(image|video)\]\((.*?)\)/g;
-    const matches = [...value.matchAll(regex)];
+    const matches = [...safeValue.matchAll(regex)];
     return matches.map(m => ({ type: m[1] as "image" | "video", url: m[2], fullMatch: m[0] }));
   }, [value]);
 
@@ -130,21 +135,37 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
     <div className={`space-y-2 group/rt ${className}`}>
       <div className="flex items-center justify-between">
         {label && <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{label}</label>}
-        <button 
-          type="button"
-          onClick={() => setShowToolbar(!showToolbar)}
-          className={`p-1.5 rounded-md border transition-all flex items-center gap-1.5 ${
-            showToolbar 
-              ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' 
-              : 'bg-white/5 border-white/10 text-zinc-500 hover:text-white hover:border-white/20'
-          }`}
-        >
-          <Type className="w-3.5 h-3.5" />
-          <span className="text-[9px] font-black uppercase tracking-widest">
-            {showToolbar ? 'Hide Format' : 'Format'}
-          </span>
-          {showToolbar ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            type="button"
+            onClick={() => setIsPreview(!isPreview)}
+            className={`p-1.5 rounded-md border transition-all flex items-center gap-1.5 ${
+              isPreview 
+                ? 'bg-purple-500/20 border-purple-500/50 text-purple-400' 
+                : 'bg-white/5 border-white/10 text-zinc-500 hover:text-white hover:border-white/20'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span className="text-[9px] font-black uppercase tracking-widest">
+              {isPreview ? 'Edit Mode' : 'Preview'}
+            </span>
+          </button>
+          <button 
+            type="button"
+            onClick={() => setShowToolbar(!showToolbar)}
+            className={`p-1.5 rounded-md border transition-all flex items-center gap-1.5 ${
+              showToolbar 
+                ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' 
+                : 'bg-white/5 border-white/10 text-zinc-500 hover:text-white hover:border-white/20'
+            }`}
+          >
+            <Type className="w-3.5 h-3.5" />
+            <span className="text-[9px] font-black uppercase tracking-widest">
+              {showToolbar ? 'Hide Format' : 'Format'}
+            </span>
+            {showToolbar ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        </div>
       </div>
 
       <input 
@@ -226,13 +247,19 @@ export function RichTextarea({ value, onChange, placeholder, className, label }:
          </div>
       )}
 
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-zinc-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-blue-500 transition-colors min-h-[120px] text-sm rounded-xl font-medium placeholder:text-zinc-700"
-      />
+      {isPreview ? (
+        <div className="w-full bg-zinc-950/30 border border-white/5 p-6 min-h-[120px] rounded-xl font-serif-content">
+           <ContentRenderer content={value} className="text-sm text-zinc-300" />
+        </div>
+      ) : (
+        <textarea
+          ref={textareaRef}
+          value={displayValue}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-zinc-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-blue-500 transition-colors min-h-[120px] text-sm rounded-xl font-medium placeholder:text-zinc-700 custom-scrollbar"
+        />
+      )}
 
       <MediaModal 
         isOpen={!!modalConfig}
