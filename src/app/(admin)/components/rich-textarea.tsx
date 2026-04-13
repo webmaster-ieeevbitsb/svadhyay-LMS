@@ -2,6 +2,7 @@ import { useState, useRef, useMemo } from "react";
 import { Bold, List, Type, ChevronRight, ChevronDown, Superscript, Subscript, ListOrdered, Image, Video, Loader2, Signal, Eye, AlertCircle, Trash2, Edit2 } from "lucide-react";
 import { uploadSubmoduleMedia } from "@/app/actions/media";
 import { MediaModal } from "@/components/ui/media-modal";
+import { ContentRenderer } from "@/components/ui/content-renderer";
 
 interface RichTextareaProps {
   value: string;
