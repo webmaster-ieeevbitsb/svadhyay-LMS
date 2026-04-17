@@ -170,16 +170,28 @@ export default async function StudentCoursePage({ params }: StudentCoursePagePro
               )}
             </div>
 
-            {/* Single CTA — Start Course only */}
-            {modules && modules.length > 0 && nextTargetModule && (
+            {/* Dynamic CTA Button */}
+            {modules && modules.length > 0 && !isCourseCompleted && (
               <div className="pt-1">
-                <Link
-                  href={`/courses/${courseId}/modules/${nextTargetModule.id}`}
-                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all md:shadow-lg md:shadow-blue-600/25 md:hover:shadow-blue-500/35 active:scale-95 md:active:scale-100 touch-manipulation"
-                >
-                  <PlayCircle className="w-4 h-4" />
-                  {isCourseCompleted ? "Continue Learning" : hasStarted ? "Resume Course" : "Start Course"}
-                </Link>
+                {completedModuleIds.length >= (modules?.length || 0) && finalQuiz ? (
+                  <Link
+                    href={`/courses/${courseId}/quiz/${finalQuiz.id}`}
+                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-black hover:bg-zinc-200 font-bold text-sm rounded-xl transition-all md:shadow-lg active:scale-95 md:active:scale-100 touch-manipulation"
+                  >
+                    <FileQuestion className="w-4 h-4" />
+                    Start the Assessment Test
+                  </Link>
+                ) : (
+                  nextTargetModule && (
+                    <Link
+                      href={`/courses/${courseId}/modules/${nextTargetModule.id}`}
+                      className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl transition-all md:shadow-lg md:shadow-blue-600/25 md:hover:shadow-blue-500/35 active:scale-95 md:active:scale-100 touch-manipulation"
+                    >
+                      <PlayCircle className="w-4 h-4" />
+                      {hasStarted ? "Resume Course" : "Start Course"}
+                    </Link>
+                  )
+                )}
               </div>
             )}
           </div>
