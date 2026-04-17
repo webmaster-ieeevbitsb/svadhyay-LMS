@@ -81,7 +81,7 @@ function LoginForm() {
         {/* Main Branding */}
         <div className="text-center space-y-3 mb-6 w-full px-4 animate-in fade-in duration-700 delay-150 fill-mode-backwards">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase drop-shadow-md flex flex-col items-center justify-center gap-1 md:gap-2">
-            <span className="text-white">IEEE - VBIT SB</span>
+            <span className="text-white">IEEE - VBIT SB </span>
             <span className="text-blue-500 font-black">Svadhyay-LMS</span>
           </h1>
           <div className="flex items-center justify-center gap-3">

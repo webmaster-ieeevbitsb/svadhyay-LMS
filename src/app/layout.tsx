@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "svadhyay-LMS",
-  description: "Exclusive for Freshmen of VBIT",
+  title: "Svadhyay-LMS | IEEE - VBIT SB",
+  description: "Professional Student Learning Infrastructure - Exclusive for VBIT Freshmen",
   icons: {
     icon: "/logos/svadhyay-logo.png",
   },
