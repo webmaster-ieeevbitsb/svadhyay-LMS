@@ -11,7 +11,7 @@ export default async function AdminHeader() {
       <div className="flex items-center gap-4 h-full">
         {/* Logos & Branding (No Links) */}
         <div className="flex items-center gap-4">
-           {/* AVK LOGO */}
+           {/* Svadhyay LOGO */}
            <div className="relative h-10 w-16 flex items-center justify-center">
             <Image 
                src="/logos/svadhyay-logo.png" 

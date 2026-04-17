@@ -13,7 +13,7 @@ export default async function Navbar() {
       <div className="flex items-center space-x-6 h-full">
         {/* Logos & Branding */}
         <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
-          {/* AVK LOGO */}
+          {/* Svadhyay LOGO */}
           <div className="relative h-10 w-16 flex items-center justify-center">
             <Image
               src="/logos/svadhyay-logo.png"

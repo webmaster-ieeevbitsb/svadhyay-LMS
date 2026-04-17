@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logos/svadhyay-logo.png",
   },
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 

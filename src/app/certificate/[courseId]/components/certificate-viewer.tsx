@@ -228,7 +228,7 @@ export default function CertificateViewer({
                    </div>
                 </div>
 
-               {/* Right Slot: AVK Branding */}
+               {/* Right Slot: Svadhyay Branding */}
                <div className="text-right flex items-center justify-end gap-1 w-[350px]">
                   <img 
                       src="/logos/svadhyay-logo.png" 

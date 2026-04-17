@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /certificate
+Disallow: /auth
+
+# Sitemaps can be added here if needed in the future
