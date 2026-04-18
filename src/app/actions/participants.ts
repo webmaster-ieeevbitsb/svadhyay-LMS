@@ -176,7 +176,24 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
     .upsert(payload, { onConflict: "email" });
 
   if (error) {
-    return { error: "Failed to import participants. Check CSV format." };
+    if (error.code === 'PGRST204' || error.message.includes("column")) {
+      const fallbackPayload = participants.map(p => {
+        const email = p.email.toLowerCase();
+        return {
+          email,
+          is_admin: isAdminMode ? true : adminEmails.has(email)
+        };
+      });
+      const { error: fallbackError } = await supabase
+        .from("participants")
+        .upsert(fallbackPayload, { onConflict: "email" });
+        
+      if (fallbackError) {
+        return { error: `Failed to import participants: ${fallbackError.message}` };
+      }
+    } else {
+      return { error: `Failed to import participants: ${error.message}` };
+    }
   }
 
   revalidatePath("/admin/dashboard");
