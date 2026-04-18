@@ -19,13 +19,25 @@ export function BulkImportModal({ isOpen, onClose, isAdminMode = false }: { isOp
     try {
       const text = await file.text();
       const lines = text.split(/\r?\n/).filter(line => line.trim());
-      const hasHeader = !lines[0].includes("@");
-      const dataLines = hasHeader ? lines.slice(1) : lines;
+      let dataLines = lines;
+      if (lines[0].toLowerCase().includes("email")) {
+        dataLines = lines.slice(1);
+      }
 
       const participants = dataLines.map(line => {
-        const parts = line.split(",").map(p => p.trim());
-        const email = parts.find(p => p.includes("@"));
-        const name = parts.find(p => !p.includes("@") && p !== "");
+        let email = "";
+        let name = "";
+        
+        if (line.includes(",")) {
+          const parts = line.split(",").map(p => p.trim());
+          email = parts[0];
+          name = parts.slice(1).join(" ").trim();
+        } else {
+          const parts = line.trim().split(/\s+/);
+          email = parts[0];
+          name = parts.slice(1).join(" ");
+        }
+
         return email ? { email, name } : null;
       }).filter(p => p !== null) as { email: string; name?: string }[];
 
@@ -34,11 +46,15 @@ export function BulkImportModal({ isOpen, onClose, isAdminMode = false }: { isOp
       }
 
       const res = await bulkAddParticipants(participants, isAdminMode);
-      if (res.error) {
-        setStatus({ type: 'error', message: res.error });
-      } else {
-        setStatus({ type: 'success', message: `Imported ${participants.length} students successfully!` });
-        setTimeout(onClose, 2000);
+      if (res && "error" in res) {
+        setStatus({ type: 'error', message: res.error as string });
+      } else if (res && "success" in res) {
+        const dupes = (res.originalCount || participants.length) - (res.count || participants.length);
+        const msg = dupes > 0 
+          ? `Imported ${res.count} unique students (merged ${dupes} duplicates)!`
+          : `Imported ${res.count || participants.length} students successfully!`;
+        setStatus({ type: 'success', message: msg });
+        setTimeout(onClose, 4000);
       }
     } catch (err: any) {
       setStatus({ type: 'error', message: err.message || "Failed to parse CSV." });

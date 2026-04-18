@@ -48,15 +48,15 @@ export async function addParticipant(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const name = formData.get("name") as string;
 
-  if (!email || !email.includes("@")) {
-    return { error: "A valid email is required." };
+  if (!email) {
+    return { error: "A valid email or user ID is required." };
   }
 
-  const payload: any = { 
+  const payload: any = {
     email: email.toLowerCase(),
-    is_admin: false 
+    is_admin: false
   };
-  
+
   if (name) {
     payload.name = name;
   }
@@ -71,7 +71,7 @@ export async function addParticipant(prevState: any, formData: FormData) {
       const fallbackPayload = { email: email.toLowerCase(), is_admin: false };
       const { error: fallbackError } = await supabase.from("participants").insert([fallbackPayload]);
       if (fallbackError) {
-         return { error: "Failed to add participant to registry." };
+        return { error: "Failed to add participant to registry." };
       }
     } else {
       return { error: error.message };
@@ -93,15 +93,15 @@ export async function addAdmin(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const name = formData.get("name") as string;
 
-  if (!email || !email.includes("@")) {
-    return { error: "A valid email is required." };
+  if (!email) {
+    return { error: "A valid email or user ID is required." };
   }
 
-  const payload: any = { 
+  const payload: any = {
     email: email.toLowerCase(),
-    is_admin: true 
+    is_admin: true
   };
-  
+
   if (name) {
     payload.name = name;
   }
@@ -115,7 +115,7 @@ export async function addAdmin(prevState: any, formData: FormData) {
       const fallbackPayload = { email: email.toLowerCase(), is_admin: true };
       const { error: fallbackError } = await supabase.from("participants").upsert([fallbackPayload], { onConflict: "email" });
       if (fallbackError) {
-         return { error: "Failed to allocate admin privileges." };
+        return { error: "Failed to allocate admin privileges." };
       }
     } else {
       return { error: error.message };
@@ -154,22 +154,24 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
   const auth = await verifyAdmin();
   if (auth.error !== null) return { error: auth.error };
   const { supabase } = auth;
-  
+
   const { data: existingAdmins } = await supabase
     .from("participants")
     .select("email")
     .eq("is_admin", true);
-  
+
   const adminEmails = new Set(existingAdmins?.map(a => a.email.toLowerCase()) || []);
 
-  const payload = participants.map(p => {
+  const payloadMap = new Map();
+  for (const p of participants) {
     const email = p.email.toLowerCase();
-    return {
+    payloadMap.set(email, {
       email,
       name: p.name || "",
       is_admin: isAdminMode ? true : adminEmails.has(email)
-    };
-  });
+    });
+  }
+  const payload = Array.from(payloadMap.values());
 
   const { error } = await supabase
     .from("participants")
@@ -177,17 +179,16 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
 
   if (error) {
     if (error.code === 'PGRST204' || error.message.includes("column")) {
-      const fallbackPayload = participants.map(p => {
-        const email = p.email.toLowerCase();
+      const fallbackPayload = payload.map(p => {
         return {
-          email,
-          is_admin: isAdminMode ? true : adminEmails.has(email)
+          email: p.email,
+          is_admin: p.is_admin
         };
       });
       const { error: fallbackError } = await supabase
         .from("participants")
         .upsert(fallbackPayload, { onConflict: "email" });
-        
+
       if (fallbackError) {
         return { error: `Failed to import participants: ${fallbackError.message}` };
       }
@@ -197,7 +198,7 @@ export async function bulkAddParticipants(participants: { email: string; name?: 
   }
 
   revalidatePath("/admin/dashboard");
-  return { success: true };
+  return { success: true, count: payload.length, originalCount: participants.length };
 }
 
 /**
@@ -208,70 +209,70 @@ export async function toggleAdminStatus(email: string) {
   if (auth.error !== null) return { error: auth.error };
   const { supabase } = auth;
 
-  const { error } = await supabase.rpc("revoke_admin_access", { 
-    target_email: email.toLowerCase() 
-  });
+    const { error } = await supabase.rpc("revoke_admin_access", {
+      target_email: email.toLowerCase()
+    });
 
-  if (error) {
-    return { error: error.message };
+    if (error) {
+      return { error: error.message };
+    }
+
+    revalidatePath("/admin/dashboard");
+    return { success: true };
   }
 
-  revalidatePath("/admin/dashboard");
-  return { success: true };
-}
+  /**
+   * Diagnostic tool to fetch granular progress metrics for a student.
+   */
+  export async function fetchStudentProgress(email: string) {
+    const auth = await verifyAdmin();
+    if (auth.error !== null) return [];
+    const { supabase } = auth;
 
-/**
- * Diagnostic tool to fetch granular progress metrics for a student.
- */
-export async function fetchStudentProgress(email: string) {
-  const auth = await verifyAdmin();
-  if (auth.error !== null) return [];
-  const { supabase } = auth;
-  
-  const { data: progress, error: progressError } = await supabase
-    .from("student_progress")
-    .select("*, courses(id, title)")
-    .eq("email", email.toLowerCase());
+    const { data: progress, error: progressError } = await supabase
+      .from("student_progress")
+      .select("*, courses(id, title)")
+      .eq("email", email.toLowerCase());
 
-  if (progressError || !progress) {
-    return [];
+    if (progressError || !progress) {
+      return [];
+    }
+
+    const courseIds = progress.map(p => p.course_id);
+    const { data: modules, error: modulesError } = await supabase
+      .from("modules")
+      .select("id, title, course_id")
+      .in("course_id", courseIds);
+
+    if (modulesError) {
+      return progress;
+    }
+
+    return progress.map(p => ({
+      ...p,
+      completed_module_titles: p.completed_modules.map((mId: string) =>
+        modules.find(m => m.id === mId)?.title || `Unknown Module (${mId.slice(0, 4)})`
+      )
+    }));
   }
 
-  const courseIds = progress.map(p => p.course_id);
-  const { data: modules, error: modulesError } = await supabase
-    .from("modules")
-    .select("id, title, course_id")
-    .in("course_id", courseIds);
+  /**
+   * Purges the entire student cohort while preserving administrative accounts.
+   */
+  export async function rotateStudentCohort() {
+    const auth = await verifyAdmin();
+    if (auth.error !== null) return { error: auth.error };
+    const { supabase } = auth;
 
-  if (modulesError) {
-    return progress;
+    const { error, count } = await supabase
+      .from("participants")
+      .delete({ count: 'exact' })
+      .eq("is_admin", false);
+
+    if (error) {
+      return { error: "Failed to purge student cohort. Check DB permissions or RLS policies." };
+    }
+
+    revalidatePath("/admin/dashboard");
+    return { success: true, count: count || 0 };
   }
-
-  return progress.map(p => ({
-    ...p,
-    completed_module_titles: p.completed_modules.map((mId: string) => 
-      modules.find(m => m.id === mId)?.title || `Unknown Module (${mId.slice(0,4)})`
-    )
-  }));
-}
-
-/**
- * Purges the entire student cohort while preserving administrative accounts.
- */
-export async function rotateStudentCohort() {
-  const auth = await verifyAdmin();
-  if (auth.error !== null) return { error: auth.error };
-  const { supabase } = auth;
-
-  const { error, count } = await supabase
-    .from("participants")
-    .delete({ count: 'exact' })
-    .eq("is_admin", false);
-
-  if (error) {
-    return { error: "Failed to purge student cohort. Check DB permissions or RLS policies." };
-  }
-
-  revalidatePath("/admin/dashboard");
-  return { success: true, count: count || 0 };
-}
