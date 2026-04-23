@@ -8,6 +8,7 @@ import { getURL } from "@/utils/supabase/get-url";
 import Image from "next/image";
 import { Preloader } from "@/components/ui/preloader";
 import { SocialLinks } from "@/components/ui/social-links";
+import { track } from "@vercel/analytics";
 
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0">
@@ -26,6 +27,7 @@ function LoginForm() {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    track("login_attempt", { provider: "google" });
     const redirectUrl = `${getURL()}/auth/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
