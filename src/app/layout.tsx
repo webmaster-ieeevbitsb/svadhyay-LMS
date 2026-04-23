@@ -4,7 +4,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import ProgressBar from "@/components/ui/progress-bar";
 import { Suspense } from "react";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
           <ProgressBar />
         </Suspense>
         {children}
+        <Analytics />
         <Toaster theme="dark" position="bottom-right" richColors />
         <Analytics />
       </body>
