@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { addParticipant, removeParticipant } from "@/app/actions/participants";
-import { Users, Search, Loader2, ShieldAlert, BarChart3, Database, CheckCircle2, RefreshCw } from "lucide-react";
+import { Users, Search, Loader2, ShieldAlert, BarChart3, Database, CheckCircle2, RefreshCw, Mail } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 import { ProgressModal } from "./progress-modal";
+import { NotificationModal } from "./notification-modal";
 import { TacticalConfirm } from "@/components/ui/tactical-confirm";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ export function ParticipantRegistry({
   const [isAdding, setIsAdding] = useState(false);
   const [errorLine, setErrorLine] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState("");
   const [confirmState, setConfirmState] = useState<{
@@ -100,6 +102,14 @@ export function ParticipantRegistry({
             <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest pl-12">Enrollment Control & Access Management</p>
           </div>
           <div className="flex items-center gap-4">
+             <button 
+               type="button" 
+               onClick={() => setIsNotificationOpen(true)}
+               className="group px-6 py-4 bg-white/5 border border-white/10 text-white hover:bg-blue-600 hover:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all flex items-center gap-3 active:scale-95"
+             >
+                <Mail className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Send Announcement
+             </button>
              <button 
                type="button" 
                onClick={() => setIsImportOpen(true)}
@@ -206,6 +216,7 @@ export function ParticipantRegistry({
       </div>
 
       <BulkImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
+      <NotificationModal isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
       <ProgressModal email={selectedStudent} isOpen={isProgressOpen} onClose={() => setIsProgressOpen(false)} />
       <TacticalConfirm
         isOpen={confirmState.isOpen}
