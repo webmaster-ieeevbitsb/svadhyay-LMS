@@ -53,6 +53,7 @@ export function getCourseNotificationTemplate({
       width: auto;
       display: inline-block;
       vertical-align: middle;
+      pointer-events: none;
     }
     .logo-divider {
       display: inline-block;
@@ -67,6 +68,7 @@ export function getCourseNotificationTemplate({
       width: auto;
       display: inline-block;
       vertical-align: middle;
+      pointer-events: none;
     }
     .content {
       padding: 40px 48px;
@@ -124,9 +126,9 @@ export function getCourseNotificationTemplate({
       <table class="logo-table" cellpadding="0" cellspacing="0" border="0" align="center">
         <tr>
           <td valign="middle" align="center">
-            <img src="${ieeeLogo}" alt="IEEE - VBIT SB" class="logo-ieee">
+            <img src="${ieeeLogo}" alt="IEEE - VBIT SB" class="logo-ieee" draggable="false" style="pointer-events: none;">
             <div class="logo-divider"></div>
-            <img src="${svadhyayLogo}" alt="Svadhyay" class="logo-svadhyay">
+            <img src="${svadhyayLogo}" alt="Svadhyay" class="logo-svadhyay" draggable="false" style="pointer-events: none;">
           </td>
         </tr>
       </table>
@@ -144,7 +146,7 @@ export function getCourseNotificationTemplate({
       ` : ""}
       <p style="margin-top: 40px; font-size: 14px; color: #64748b;">
         Best Regards,<br>
-        <strong style="color: #0f172a;">The IEEE - VBIT SB Team</strong>
+        <strong style="color: #0f172a;">IEEE - VBIT SB</strong>
       </p>
     </div>
     <div class="footer">
@@ -152,6 +154,7 @@ export function getCourseNotificationTemplate({
         <a href="https://ieeevbitsb.in">ieeevbitsb.in</a>
         <a href="https://ieeevbitsb.in/contact">Support</a>
       </div>
+      <p style="margin-bottom: 12px; opacity: 0.8;">This is an electronically generated email. Please do not reply to this message.</p>
       <p>&copy; ${new Date().getFullYear()} IEEE - VBIT Student Branch. All rights reserved.</p>
     </div>
   </div>
