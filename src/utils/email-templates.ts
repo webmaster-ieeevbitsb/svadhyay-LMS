@@ -133,7 +133,7 @@ export function getCourseNotificationTemplate({
         </tr>
       </table>
       <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 800; margin-top: 8px;">
-        IEEE - VBIT Student Branch | Svadhyay - LMS
+        IEEE - VBIT SB | Svadhyay - LMS
       </div>
     </div>
     <div class="content">
