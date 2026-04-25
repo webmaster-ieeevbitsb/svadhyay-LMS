@@ -37,14 +37,11 @@ export async function sendBatchNotification({
     errors: [],
   };
 
-  const BATCH_SIZE = 50;
-  const DELAY_MS = 2000; // 2 seconds between batches
+  // STRICT LIMIT: Only process 45 students per click to safely stay under the 50/hour cPanel limit.
+  // We do not loop through all students, because cPanel accepts the emails silently and discards them later if we exceed 50.
+  const batch = students.slice(0, 45);
 
-  // Process in batches
-  for (let i = 0; i < students.length; i += BATCH_SIZE) {
-    const batch = students.slice(i, i + BATCH_SIZE);
-
-    const results = await Promise.allSettled(
+  const results = await Promise.allSettled(
       batch.map(async (p) => {
         if (!p.email) throw new Error(`Missing email for participant: ${p.name}`);
 
@@ -75,20 +72,14 @@ export async function sendBatchNotification({
       })
     );
 
-    results.forEach((res, index) => {
-      if (res.status === "fulfilled") {
-        stats.sent++;
-      } else {
-        stats.failed++;
-        stats.errors.push(`Failed for ${batch[index].email}: ${res.reason?.message || "Unknown error"}`);
-      }
-    });
-
-    // Wait before next batch if there are more to send
-    if (i + BATCH_SIZE < students.length) {
-      await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+  results.forEach((res, index) => {
+    if (res.status === "fulfilled") {
+      stats.sent++;
+    } else {
+      stats.failed++;
+      stats.errors.push(`Failed for ${batch[index].email}: ${res.reason?.message || "Unknown error"}`);
     }
-  }
+  });
 
   return stats;
 }
