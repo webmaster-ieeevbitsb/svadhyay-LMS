@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ParticipantRegistry } from "./participant-registry";
 import { AdminRegistry } from "./admin-registry";
 import { Users, ShieldCheck } from "lucide-react";
@@ -10,12 +10,18 @@ interface Participant {
   name?: string;
   is_admin: boolean;
   is_completed?: boolean;
+  last_notified_at?: string | null;
   created_at: string;
 }
 
 export function DashboardTabs({ participants: initialParticipants }: { participants: Participant[] }) {
   const [activeTab, setActiveTab] = useState<"students" | "admins">("students");
   const [participants, setParticipants] = useState<Participant[]>(initialParticipants);
+  
+  // Sync state when server data refreshes (e.g. after router.refresh())
+  useEffect(() => {
+    setParticipants(initialParticipants);
+  }, [initialParticipants]);
 
 
   return (

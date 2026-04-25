@@ -1,24 +1,61 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Loader2, Send, CheckCircle2, AlertCircle, Beaker } from "lucide-react";
-import { sendBatchNotification, sendTestNotification, NotificationStats } from "@/app/actions/notifications";
+import { Mail, Loader2, Send, CheckCircle2, AlertCircle, Beaker, RefreshCw } from "lucide-react";
+import { sendBatchNotification, sendTestNotification, resetNotificationStatus, NotificationStats } from "@/app/actions/notifications";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { TacticalConfirm } from "@/components/ui/tactical-confirm";
+
+interface Participant {
+  email: string;
+  name?: string;
+  is_admin: boolean;
+  is_completed?: boolean;
+  last_notified_at?: string | null;
+  created_at: string;
+}
 
 interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  participants: Participant[];
 }
 
-export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
+export function NotificationModal({ isOpen, onClose, participants }: NotificationModalProps) {
+  const router = useRouter();
   const [isSending, setIsSending] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
   const [stats, setStats] = useState<NotificationStats | null>(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [testEmail, setTestEmail] = useState("");
 
   if (!isOpen) return null;
+
+  const totalStudents = participants.length;
+  const pendingStudents = participants.filter(p => !p.last_notified_at).length;
+  const notifiedStudents = totalStudents - pendingStudents;
+
+  const handleReset = async () => {
+    setIsConfirmResetOpen(false);
+    setIsResetting(true);
+    try {
+      const res = await resetNotificationStatus();
+      if (res.success) {
+        toast.success("Notification status reset successfully.");
+        router.refresh();
+      } else {
+        toast.error(res.error || "Failed to reset status.");
+      }
+    } catch (error) {
+      toast.error("Failed to reset notification status.");
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +75,7 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
         ctaText: "Go to Dashboard",
       });
       setStats(result);
+      router.refresh();
       if (result.failed === 0) {
         toast.success(`Successfully sent ${result.sent} emails!`);
       } else {
@@ -96,7 +134,28 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
             </div>
             <div>
               <h2 className="text-2xl font-black uppercase tracking-tighter text-white italic">Course Announcement</h2>
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Send a professional update to all students</p>
+              <div className="flex items-center gap-4 mt-1">
+                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Send a professional update</p>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-lg text-[9px] font-black uppercase tracking-[0.2em]">
+                    {pendingStudents} Pending
+                  </span>
+                  <span className="px-2 py-0.5 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg text-[9px] font-black uppercase tracking-[0.2em]">
+                    {notifiedStudents} Notified
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="ml-auto">
+               <button 
+                type="button"
+                onClick={() => setIsConfirmResetOpen(true)}
+                disabled={isSending || isResetting}
+                title="Reset Notification Status"
+                className="p-3 bg-white/5 border border-white/5 text-zinc-500 hover:text-white hover:border-white/10 rounded-xl transition-all"
+               >
+                 <RefreshCw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
+               </button>
             </div>
           </div>
 
@@ -149,18 +208,20 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                 <div className="flex flex-col md:flex-row gap-4 border-t border-white/5 pt-4 mt-2">
                   <button
                     type="submit"
-                    disabled={isSending || isTesting}
+                    disabled={isSending || isTesting || pendingStudents === 0}
                     className="flex-1 px-8 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(37,99,235,0.3)] active:scale-95"
                   >
                     {isSending ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Sending in Batches...
+                        Sending Batch...
                       </>
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        Dispatch to All Students
+                        {pendingStudents === 0 
+                          ? "All Students Notified" 
+                          : `Dispatch to ${pendingStudents} Pending Students`}
                       </>
                     )}
                   </button>
@@ -216,6 +277,16 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
           )}
         </div>
       </div>
+
+      <TacticalConfirm
+        isOpen={isConfirmResetOpen}
+        onClose={() => setIsConfirmResetOpen(false)}
+        onConfirm={handleReset}
+        title="Reset Dispatch Status"
+        description="Are you sure you want to reset the notification status for all students? This will allow you to send a fresh announcement to everyone."
+        variant="info"
+        confirmText="Reset Status"
+      />
     </div>
   );
 }

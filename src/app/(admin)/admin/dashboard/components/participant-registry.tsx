@@ -14,6 +14,7 @@ interface Participant {
   name?: string;
   is_admin: boolean;
   is_completed?: boolean;
+  last_notified_at?: string | null;
   created_at: string;
 }
 
@@ -216,7 +217,11 @@ export function ParticipantRegistry({
       </div>
 
       <BulkImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
-      <NotificationModal isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+      <NotificationModal 
+        isOpen={isNotificationOpen} 
+        onClose={() => setIsNotificationOpen(false)} 
+        participants={participants}
+      />
       <ProgressModal email={selectedStudent} isOpen={isProgressOpen} onClose={() => setIsProgressOpen(false)} />
       <TacticalConfirm
         isOpen={confirmState.isOpen}

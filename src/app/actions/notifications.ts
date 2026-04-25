@@ -3,6 +3,7 @@
 import { fetchParticipants } from "./participants";
 import { sendEmail } from "@/utils/email";
 import { getCourseNotificationTemplate } from "@/utils/email-templates";
+import { createClient } from "@/utils/supabase/server";
 
 export type NotificationStats = {
   total: number;
@@ -27,7 +28,7 @@ export async function sendBatchNotification({
   ctaText?: string;
 }) {
   const participants = await fetchParticipants();
-  const students = participants.filter(p => !p.is_admin);
+  const students = participants.filter(p => !p.is_admin && !p.last_notified_at);
 
   const stats: NotificationStats = {
     total: students.length,
@@ -42,24 +43,35 @@ export async function sendBatchNotification({
   // Process in batches
   for (let i = 0; i < students.length; i += BATCH_SIZE) {
     const batch = students.slice(i, i + BATCH_SIZE);
-    
+
     const results = await Promise.allSettled(
       batch.map(async (p) => {
         if (!p.email) throw new Error(`Missing email for participant: ${p.name}`);
-        
+
+        const prodCtaLink = ctaLink?.replace(/https?:\/\/localhost(:\d+)?/g, 'https://svadhyay.ieeevbitsb.in');
+
         const html = getCourseNotificationTemplate({
           name: p.name || "Student",
           subject,
           message,
-          ctaLink,
+          ctaLink: prodCtaLink || ctaLink,
           ctaText,
         });
 
-        return sendEmail({
+        const info = await sendEmail({
           to: p.email,
           subject,
           html,
         });
+
+        // Update last_notified_at on success
+        const supabase = await createClient();
+        await supabase
+          .from("participants")
+          .update({ last_notified_at: new Date().toISOString() })
+          .eq("email", p.email);
+
+        return info;
       })
     );
 
@@ -99,7 +111,7 @@ export async function sendTestNotification({
 }) {
   try {
     // Force production URL for the test button if it's currently localhost
-    const prodCtaLink = ctaLink?.replace('http://localhost:3000', 'https://svadhyay.ieeevbitsb.in');
+    const prodCtaLink = ctaLink?.replace(/https?:\/\/localhost(:\d+)?/g, 'https://svadhyay.ieeevbitsb.in');
 
     // Try to find the actual name of the person we are sending the test to
     const participants = await fetchParticipants();
@@ -123,6 +135,24 @@ export async function sendTestNotification({
     return { success: true };
   } catch (error: any) {
     return { error: error.message || "Failed to send test email" };
+  }
+}
+
+/**
+ * Resets the notification status for all students.
+ */
+export async function resetNotificationStatus() {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("participants")
+      .update({ last_notified_at: null })
+      .eq("is_admin", false);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message || "Failed to reset notification status" };
   }
 }
 
